@@ -8,10 +8,12 @@ add_definitions(-DGLEW_STATIC)
 
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/deps/glfw" glfw)
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/deps/glew-cmake" glew)
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/deps/glm" glm)
 
 set(DEPS_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/deps/glfw/include"
-                             "${CMAKE_CURRENT_SOURCE_DIR}/deps/glew-cmake/include")
-set(DEPS_LIBRARIES glfw libglew_static)
+                             "${CMAKE_CURRENT_SOURCE_DIR}/deps/glew-cmake/include"
+                             "${CMAKE_CURRENT_SOURCE_DIR}/deps/glm/glm")
+set(DEPS_LIBRARIES glfw libglew_static glm::glm)
 
 file(GLOB_RECURSE SRC_FILES
 	"src/*.cpp"
