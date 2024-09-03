@@ -1,6 +1,8 @@
-#include <GLFW/glfw3.h>
+#include "core/air_engine.h"
 
-int main(){
-    
+int main() {
+    Application game(640, 480, "Light");
+    game.run();
+
     return 0;
 }
