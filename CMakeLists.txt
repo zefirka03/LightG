@@ -9,10 +9,13 @@ add_definitions(-DGLEW_STATIC)
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/deps/glfw" glfw)
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/deps/glew-cmake" glew)
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/deps/glm" glm)
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/deps/entt" entt)
 
 set(DEPS_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/deps/glfw/include"
                              "${CMAKE_CURRENT_SOURCE_DIR}/deps/glew-cmake/include"
-                             "${CMAKE_CURRENT_SOURCE_DIR}/deps/glm/glm")
+                             "${CMAKE_CURRENT_SOURCE_DIR}/deps/glm/glm"
+                             "${CMAKE_CURRENT_SOURCE_DIR}/deps/entt/src"
+                             )
 set(DEPS_LIBRARIES glfw libglew_static glm::glm)
 
 file(GLOB_RECURSE SRC_FILES

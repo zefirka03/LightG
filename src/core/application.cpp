@@ -3,6 +3,8 @@
 Application* Application::m_instance = nullptr;
 
 Application::Application(int width, int height, const char* title){
+    m_scene = nullptr;
+
     AIR_ASSERT(!m_instance, "Application instance already exist");
     m_instance = this;
 
@@ -21,14 +23,23 @@ Application::Application(int width, int height, const char* title){
 }
 
 Application::~Application(){
-    if(m_window)
-        glfwTerminate();
+    glfwTerminate();
 }
 
-void Application::run(){
+void Application::run(Scene* scene){
+    Timer timer_delta_time;
+
+    go_to_scene(scene);
     while(!glfwWindowShouldClose(m_window)){
         glfwPollEvents();
+        scene->_update(timer_delta_time.delta());
 
         glfwSwapBuffers(m_window);
     }
+}
+
+void Application::go_to_scene(Scene* scene){
+    if(m_scene) delete m_scene;
+    m_scene = scene;
+    scene->on_start();
 }
