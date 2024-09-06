@@ -13,6 +13,13 @@ friend class Application;
         for(System* t_system : m_systems)
             t_system->update(delta_time);
     };
+
+    void _init() {
+        on_init();
+
+        for (System* t_system : m_systems)
+            t_system->init();
+    }
 protected:
     entt::registry m_registry;
 public:
@@ -60,6 +67,7 @@ public:
         return m_registry.all_of<Component_ts...>(entity.m_id);
     }
 
+    virtual void on_init() {}
     virtual void on_start() {}
     virtual void on_update(float delta_time) {}
 };

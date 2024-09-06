@@ -22,9 +22,18 @@ file(GLOB_RECURSE SRC_FILES
 	"src/*.cpp"
     "src/core/*.cpp"
     "src/core/*.h"
+    "src/render/*.cpp"
+    "src/render/*.h"
 )
+
+file(GLOB_RECURSE SHADERS
+    "src/render/*.shader"
+)
+
 
 add_executable(LightG ${SRC_FILES})
 
 target_link_libraries(LightG ${DEPS_LIBRARIES})
 target_include_directories(LightG PRIVATE ${DEPS_INCLUDE_DIRECTORIES})
+
+FILE(COPY "src/render/shaders" DESTINATION "${CMAKE_BINARY_DIR}")

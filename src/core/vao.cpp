@@ -16,16 +16,24 @@ void VAO::unbind(){
     glBindVertexArray(0);
 }
 
-void VAO::addVBO(GLsizeiptr buffer_size, GLint vao_size){
+void VAO::addVBO(GLsizeiptr buffer_size){
     bind();
     GLuint curr_vbo;
     glGenBuffers(1, &curr_vbo);
     glBindBuffer(GL_ARRAY_BUFFER, curr_vbo);
 	glBufferData(GL_ARRAY_BUFFER, buffer_size, nullptr, GL_DYNAMIC_DRAW);
-	glVertexAttribPointer(m_vbo_id.size(), vao_size, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(m_vbo_id.size());
-
     m_vbo_id.emplace_back(curr_vbo);
+    unbind();
+}
+
+void VAO::addVAO(GLuint vbo_index, GLint vao_size, GLsizei stride, const void* pointer) {
+    bind();
+    glBindBuffer(GL_ARRAY_BUFFER, m_vbo_id[vbo_index]);
+
+	glVertexAttribPointer(m_vao_attributes, vao_size, GL_FLOAT, GL_FALSE, stride, pointer);
+    glEnableVertexAttribArray(m_vao_attributes++);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
     unbind();
 }
 

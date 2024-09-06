@@ -20,6 +20,8 @@ Application::Application(int width, int height, const char* title){
     m_properties.width = width;
     m_properties.height = height;
     m_properties.title = title;
+
+    glfwSwapInterval(0);
 }
 
 Application::~Application(){
@@ -31,6 +33,7 @@ void Application::run(Scene* scene){
 
     go_to_scene(scene);
     while(!glfwWindowShouldClose(m_window)){
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glfwPollEvents();
         scene->_update(timer_delta_time.delta());
 
@@ -41,5 +44,6 @@ void Application::run(Scene* scene){
 void Application::go_to_scene(Scene* scene){
     if(m_scene) delete m_scene;
     m_scene = scene;
+    scene->_init();
     scene->on_start();
 }

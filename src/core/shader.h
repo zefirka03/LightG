@@ -28,14 +28,14 @@ public:
     void use();
     void unuse();
     // usings - AIR_SHADER_VF or AIR_SHADER_VGF (use VGF when you using geometry shader)
-    void loadFromFile(const char* path, uint8_t usings);
+    void load_from_file(const char* path, uint8_t usings);
     // usings - AIR_SHADER_VF or AIR_SHADER_VGF (use VGF when you using geometry shader)
-    void loadFromString(const char* string, uint8_t usings);
-    bool isInited();
-    GLuint getId();
+    void load_from_string(const char* string, uint8_t usings);
+    bool is_inited();
+    GLuint get_id();
 
-    void setMatrix4f(glm::mat4 val, const char* path);
-    void setVector2f(glm::vec2 val, const char* path);
-    void setVector4f(glm::vec4 val, const char* path);
-    void setFloat(GLfloat val, const char* path);
+    void set_matrix4f(glm::mat4 val, const char* path);
+    void set_vector2f(glm::vec2 val, const char* path);
+    void set_vector4f(glm::vec4 val, const char* path);
+    void set_float(GLfloat val, const char* path);
 };

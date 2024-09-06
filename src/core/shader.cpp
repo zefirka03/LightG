@@ -1,12 +1,12 @@
 #include "Shader.h"
-
+#define AIR_DEBUG 1
 
 Shader::Shader() {
 	m_inited = false;
 }
 
 Shader::Shader(const char* path, uint8_t usings) {
-	loadFromFile(path, usings);
+	load_from_file(path, usings);
 }
 
 Shader::~Shader() {
@@ -22,15 +22,15 @@ void Shader::unuse() {
 	glUseProgram(0);
 }
 
-bool Shader::isInited() {
+bool Shader::is_inited() {
 	return m_inited;
 }
 
-GLuint Shader::getId() {
+GLuint Shader::get_id() {
 	return m_prog_id;
 }
 
-void Shader::loadFromFile(const char* path, uint8_t usings) {
+void Shader::load_from_file(const char* path, uint8_t usings) {
 	m_prog_id = glCreateProgram();
 
 	int type = 0;
@@ -95,7 +95,7 @@ void Shader::loadFromFile(const char* path, uint8_t usings) {
 	m_inited = true;
 }
 
-void Shader::loadFromString(const char* string, uint8_t usings) {
+void Shader::load_from_string(const char* string, uint8_t usings) {
 	m_prog_id = glCreateProgram();
 
 	int type = 0;
@@ -164,25 +164,25 @@ GLuint Shader::_request_location(const char* path) {
 	return loc;
 }
 
-void Shader::setMatrix4f(glm::mat4 val, const char* path) {
+void Shader::set_matrix4f(glm::mat4 val, const char* path) {
 	this->use();
 	glUniformMatrix4fv(_request_location(path), 1, GL_FALSE, glm::value_ptr(val));
 	this->unuse();
 }
 
-void Shader::setFloat(GLfloat val, const char* path) {
+void Shader::set_float(GLfloat val, const char* path) {
 	this->use();
 	glUniform1f(glGetUniformLocation(_request_location(path), path), val);
 	this->unuse();
 }
 
-void Shader::setVector2f(glm::vec2 val, const char* path) {
+void Shader::set_vector2f(glm::vec2 val, const char* path) {
 	this->use();
 	glUniform2f(glGetUniformLocation(_request_location(path), path), val.x, val.y);
 	this->unuse();
 }
 
-void Shader::setVector4f(glm::vec4 val, const char* path) {
+void Shader::set_vector4f(glm::vec4 val, const char* path) {
 	this->use();
 	glUniform4f(glGetUniformLocation(_request_location(path), path), val.r, val.g, val.b, val.a);
 	this->unuse();

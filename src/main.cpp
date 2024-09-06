@@ -1,32 +1,27 @@
 #include "core/air_engine.h"
-
-struct Component1 : public Component {
-    int health = 100;
-};
-
-class System1 : public System {
-public:
-    void init() override {
-
-    }
-
-    void update(float delta_time) override {
-        printf("System1: delta_time: %f\n", delta_time);
-    }
-};
+#include "render/render_system.h"
 
 class Scene1 : public Scene {
 public:
-    Entity player;
-    void on_start() override {
-        add_system<System1>();
+    Entity a;
+    float t = 0;
 
-        player = create_entity();
-        add_component<Component1>(player);
+    void on_init() override {
+        add_system<RenderSystem>();
+    }
+
+    void on_start() override {
+        a = create_entity();
+        add_component<Transform>(a);
+        add_component<Sprite>(a);
     }
 
     void on_update(float delta_time) override {
-        printf("Scene1: %d\n", get_component<Component1>(player).health);
+        t += delta_time;
+        get_component<Transform>(a).position = glm::vec3(sin(t), cos(t), 0);
+        get_component<Transform>(a).size = glm::vec2(0.5, 1);
+
+        printf("%f \n", 1.0 / delta_time);
     }
 };
 
