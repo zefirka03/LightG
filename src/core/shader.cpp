@@ -1,5 +1,4 @@
 #include "Shader.h"
-#define AIR_DEBUG 1
 
 Shader::Shader() {
 	m_inited = false;
@@ -10,7 +9,7 @@ Shader::Shader(const char* path, uint8_t usings) {
 }
 
 Shader::~Shader() {
-	glDeleteProgram(m_prog_id);
+	_destroy();
 }
 
 void Shader::use() {
@@ -31,6 +30,9 @@ GLuint Shader::get_id() {
 }
 
 void Shader::load_from_file(const char* path, uint8_t usings) {
+	if(m_prog_id)
+		_destroy();
+	
 	m_prog_id = glCreateProgram();
 
 	int type = 0;
@@ -96,6 +98,9 @@ void Shader::load_from_file(const char* path, uint8_t usings) {
 }
 
 void Shader::load_from_string(const char* string, uint8_t usings) {
+	if(m_prog_id)
+		_destroy();
+		
 	m_prog_id = glCreateProgram();
 
 	int type = 0;
@@ -162,6 +167,13 @@ GLuint Shader::_request_location(const char* path) {
 		loc = m_locations_cache[path];
 	else loc = m_locations_cache.insert({ path, glGetUniformLocation(m_prog_id, path) }).second;
 	return loc;
+}
+
+void Shader::_destroy(){
+	if(m_prog_id)
+		glDeleteProgram(m_prog_id);
+	m_inited = false;
+	m_locations_cache.clear();
 }
 
 void Shader::set_matrix4f(glm::mat4 val, const char* path) {

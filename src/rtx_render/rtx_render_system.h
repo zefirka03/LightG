@@ -1,30 +1,26 @@
 #pragma once
 #include "../core/air_engine.h"
-#include "renderer.h"
-#include "camera_3d.h"
-#include "render_instances.h"
+#include "../render/renderer.h"
+#include "../render/camera_3d.h"
+#include "../render/render_instances.h"
 
-struct Transform : public Component {
-    glm::vec3 position;
-    glm::vec3 origin;
-    glm::vec2 size;
-};
+struct RTXCanvas : public Component {};
 
-struct Sprite : public Component {
-    glm::vec3 color;
-};
-
-class RenderSystem : public System {
+class RenderRTXSystem : public System {
 private:
     Renderer m_renderer;
 public:
     void init() override {
-        m_renderer.reserve(3 * 10000);
+        m_renderer.reserve(3 * 100);
+        m_renderer.get_shader().load_from_file(
+            "shaders/rtx.shader",
+            AIR_SHADER_VF
+        );
     }
     
     void update(float delta_time) override {
-        auto view_sprites = m_registry->view<Transform, Sprite>();
-        view_sprites.each([&](Transform& transform, Sprite& sprite){
+        auto view_sprites = m_registry->view<Transform, RTXCanvas>();
+        view_sprites.each([&](Transform& transform, RTXCanvas& curve){
             m_renderer.draw(QuadRenderInstance(
                 transform.position,
                 transform.origin,

@@ -19,6 +19,7 @@ private:
     bool m_inited;
 
     GLuint _request_location(const char* path);
+    void _destroy();
 public:
     Shader();
     // usings - AIR_SHADER_VF or AIR_SHADER_VGF (use VGF when you using geometry shader)

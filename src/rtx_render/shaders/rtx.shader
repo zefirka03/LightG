@@ -18,5 +18,5 @@ out vec4 out_color;
 in vec2 o_texCoord;
 
 void main() {
-	out_color = vec4(o_texCoord,1,1);
+	out_color = vec4(o_texCoord, 1, 1);
 }

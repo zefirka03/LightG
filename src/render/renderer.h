@@ -1,6 +1,7 @@
 #pragma once
 #include "../core/air_engine.h"
 #include "../core/shader.h"
+#include "camera_3d.h"
 
 struct vertex {
     glm::vec3 position;
@@ -31,6 +32,10 @@ public:
     };
     ~Renderer() {}
 
+    Shader& get_shader() {
+        return m_shader;
+    }
+
     void reserve(size_t vertices_count){
         m_vertices.resize(vertices_count);
         m_vao.addVBO(sizeof(vertex) * vertices_count);
@@ -49,7 +54,7 @@ public:
         draw(instance.get_vertices());
     }
 
-    void display() {        
+    void display() {
         m_shader.use();
 
         m_vao.redata(0, 0, m_vertices_count * sizeof(vertex), m_vertices.data());
