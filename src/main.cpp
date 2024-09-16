@@ -5,7 +5,7 @@
 class Scene1 : public Scene {
 public:
     Entity a;
-    Entity cam;
+    Entity cam, cam_rtx;
     float t = 0;
 
     void on_init() override {
@@ -14,12 +14,16 @@ public:
     }
 
     void on_start() override {
+        cam = create_entity();
+        add_component<Camera3d>(cam, new Ortho({ 640, 480 }), true);
+
+        cam_rtx = create_entity();
+        add_component<Camera3d>(cam_rtx, new Perspective({ 640, 480, 74.f }), false);
+
         a = create_entity();
         add_component<Transform>(a);
-        add_component<RTXCanvas>(a);
-
-        cam = create_entity();
-        add_component<Camera3d>(cam, 640, 480);
+        RTXCanvas& canvas = add_component<RTXCanvas>(a);
+        canvas.camera = &get_component<Camera3d>(cam_rtx);
 
         glm::vec2 padding(10, 10);
         get_component<Transform>(a).position = glm::vec3(padding.x, padding.y, 0);

@@ -4,37 +4,56 @@
 #include "../render/camera_3d.h"
 #include "../render/render_instances.h"
 
-struct RTXCanvas : public Component {};
+struct RTXCanvas : public Component {
+    Camera3d* camera = nullptr;
+};
+
+struct RTXSprite : public Component {
+
+};
 
 class RenderRTXSystem : public System {
 private:
     Renderer m_renderer;
 public:
     void init() override {
-        m_renderer.reserve(3 * 100);
+        m_renderer.reserve(3 * 20);
         m_renderer.get_shader().load_from_file(
             "shaders/rtx.shader",
             AIR_SHADER_VF
         );
+        m_renderer.get_vao().add_ssbo(sizeof(GLfloat) * 3, 3);
     }
     
     void update(float delta_time) override {
-        auto view_sprites = m_registry->view<Transform, RTXCanvas>();
-        view_sprites.each([&](Transform& transform, RTXCanvas& curve){
+        // Draw and get canvas
+        RTXCanvas* t_canvas = nullptr;
+        auto view_canvas = m_registry->view<Transform, RTXCanvas>();
+        view_canvas.each([&](Transform& transform, RTXCanvas& curve){
             m_renderer.draw(QuadRenderInstance(
                 transform.position,
                 transform.origin,
                 transform.size
             ));
+            t_canvas = &curve;
         });
 
+        // Get main camera
         Camera3d* t_main_camera;
         auto view_cameras = m_registry->view<Camera3d>();
         view_cameras.each([&](Camera3d& camera){
-            t_main_camera = &camera;
+            if (camera.is_main())
+                t_main_camera = &camera;
         });
 
+        // Send data to shader
+        GLfloat c[] = {1, 1, 1 };
+        m_renderer.get_vao().redata(1, 0, 3 * sizeof(GLfloat), c);
+        if(t_canvas && t_canvas->camera)
+            m_renderer.get_shader().set_matrix4f(t_canvas->camera->get_projection(), "camera_rtx");
         m_renderer.get_shader().set_matrix4f(t_main_camera->get_projection(), "camera");
+
+        // Display
         m_renderer.display();
     }
 };

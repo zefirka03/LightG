@@ -32,10 +32,11 @@ public:
             ));
         });
 
-        Camera3d* t_main_camera;
+        Camera3d* t_main_camera = nullptr;
         auto view_cameras = m_registry->view<Camera3d>();
         view_cameras.each([&](Camera3d& camera){
-            t_main_camera = &camera;
+            if(camera.is_main())
+                t_main_camera = &camera;
         });
 
         m_renderer.get_shader().set_matrix4f(t_main_camera->get_projection(), "camera");

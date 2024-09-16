@@ -21,7 +21,7 @@ Application::Application(int width, int height, const char* title){
     m_properties.height = height;
     m_properties.title = title;
 
-    glfwSwapInterval(0);
+    glfwSwapInterval(1);
 }
 
 Application::~Application(){

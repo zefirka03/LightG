@@ -36,11 +36,15 @@ public:
         return m_shader;
     }
 
+    VAO& get_vao() {
+        return m_vao;
+    }
+
     void reserve(size_t vertices_count){
         m_vertices.resize(vertices_count);
-        m_vao.addVBO(sizeof(vertex) * vertices_count);
-        m_vao.addVAO(0, 3, sizeof(vertex), (const void*)0);
-        m_vao.addVAO(0, 2, sizeof(vertex), (const void*)sizeof(glm::vec3));
+        m_vao.add_vbo(sizeof(vertex) * vertices_count);
+        m_vao.add_index(0, 3, sizeof(vertex), (const void*)0);
+        m_vao.add_index(0, 2, sizeof(vertex), (const void*)sizeof(glm::vec3));
 
         m_vertices_count = 0;
     }
