@@ -6,14 +6,18 @@ struct Projection{
 };
 
 struct Ortho : public Projection{
-    int width;
-    int height;
+    float width;
+    float height;
+    float near = 1e-2f;
+    float far = 1e4f;
 
-    Ortho(int _width, int _height)
+    Ortho(float _width, float _height)
         : width(_width), height(_height) {}
+    Ortho(float _width, float _height, float _near, float _far)
+        : width(_width), height(_height), near(_near), far(_far) {}
 
     glm::mat4 get_mat() const override {
-        return glm::ortho(0.f, (float)width, 0.f, (float)height);
+        return glm::ortho(0.f, width, 0.f, height, near, far);
     }
 };
 
@@ -21,8 +25,8 @@ struct Perspective : public Projection{
     int width;
     int height;
     float fov;
-    float near = 1e-1;
-    float far = 1e4;
+    float near = 1e-2f;
+    float far = 1e4f;
 
     Perspective(int _width, int _height, float _fov) 
         : width(_width), height(_height), fov(_fov) {}

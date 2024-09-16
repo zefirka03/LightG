@@ -1,3 +1,15 @@
+/*
+    TODO:
+    This is rtx system, that will render scene with ray tracing tech.
+
+    Usage:
+    * RTXCanvas - for entity, that will be textured with framebuffer shader, that will do rtx things
+        You need to set camera for RTXCanvas object, that represents projection matrix of camera in RTX space
+
+    * RTXSprite - for entity, that will be rendered in RTX space
+*/
+
+
 #pragma once
 #include "../core/air_engine.h"
 #include "../render/renderer.h"
@@ -33,7 +45,8 @@ public:
             m_renderer.draw(QuadRenderInstance(
                 transform.position,
                 transform.origin,
-                transform.size
+                transform.size,
+                transform.rotation
             ));
             t_canvas = &curve;
         });

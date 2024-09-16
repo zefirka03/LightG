@@ -22,6 +22,7 @@ Application::Application(int width, int height, const char* title){
     m_properties.title = title;
 
     glfwSwapInterval(1);
+    glEnable(GL_DEPTH_TEST);
 }
 
 Application::~Application(){

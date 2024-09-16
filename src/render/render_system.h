@@ -8,6 +8,8 @@ struct Transform : public Component {
     glm::vec3 position;
     glm::vec3 origin;
     glm::vec2 size;
+
+    glm::vec3 rotation;
 };
 
 struct Sprite : public Component {
@@ -28,7 +30,8 @@ public:
             m_renderer.draw(QuadRenderInstance(
                 transform.position,
                 transform.origin,
-                transform.size
+                transform.size,
+                transform.rotation
             ));
         });
 
