@@ -1,32 +1,37 @@
 #pragma once
 #include "ecs.h"
-#include <vector>
+#include <typeindex>
+#include <unordered_map>
 
 class Scene{
 private:
 friend class Application;
-    std::vector<System*> m_systems;
+    std::unordered_map<std::type_index, System*> m_systems;
     entt::registry m_registry;
     
     void _update(float delta_time) {
         on_update(delta_time);
 
-        for(System* t_system : m_systems)
-            t_system->update(delta_time);
+        for(auto& t_system : m_systems)
+            t_system.second->update(delta_time);
     };
 
     void _init() {
         on_init();
 
-        for (System* t_system : m_systems)
-            t_system->init();
+        for (auto& t_system : m_systems)
+            t_system.second->init();
     }
 
 public:
     Scene() = default;
     virtual ~Scene() {
-        for(System* t_system : m_systems)
-            delete t_system;
+        for(auto& t_system : m_systems)
+            delete t_system.second;
+    }
+
+    Entity create_entity(){
+        return Entity(m_registry.create());
     }
 
     template<class System_t, class ...Args>
@@ -35,12 +40,17 @@ public:
 
         System_t* t_system = new System_t(std::forward(args)...);
         t_system->m_registry = &m_registry;
-        m_systems.emplace_back(t_system);
+        m_systems.emplace(typeid(System_t), t_system);
         return t_system;
     }
 
-    Entity create_entity(){
-        return Entity(m_registry.create());
+    template<class System_t>
+    System_t* get_system() {
+        auto iter = m_systems.find(typeid(System_t));
+
+        if (iter != m_systems.end())
+            return dynamic_cast<System_t*>(iter->second);
+        return nullptr;
     }
 
     template<class Component_t, class ...Args>
