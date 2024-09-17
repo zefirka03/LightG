@@ -10,6 +10,16 @@ public:
     }
 };
 
+class RotationCamera : public Script {
+private:
+    float t = 0;
+public:
+    void update(float delta_time) override {
+        t += delta_time;
+        get_scene().get_component<Transform>(get_entity()).rotation = glm::vec3(0, t, 0);
+    }
+};
+
 class Scene1 : public Scene {
 public:
     Entity a;
@@ -23,17 +33,16 @@ public:
     void on_start() override {
         cam = create_entity();
         auto& cam_tr = add_component<Transform>(cam);
-        add_component<Camera3d>(cam, new Ortho(640, 480), true);
-
-        cam_tr.position = glm::vec3(0, 0, 0);
+        add_component<Camera3d>(cam, new Perspective(640, 480, 3.14f * 45.f/180.f), true);
+        add_component<ScriptComponent>(cam).bind<RotationCamera>();
 
         a = create_entity();
         auto& sp_sp = add_component<Sprite>(a);
         auto& sp_tr = add_component<Transform>(a);
-        add_component<ScriptComponent>(a).bind<RotationSc>();
+        //add_component<ScriptComponent>(a).bind<RotationCamera>();
 
         sp_sp.size = glm::vec2(100, 100);
-        sp_tr.position = glm::vec3(320, 240, -150);
+        sp_tr.position = glm::vec3(0, 0, -150);
         sp_tr.origin = glm::vec3(50, 50, 0);
     }
 

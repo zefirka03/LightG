@@ -1,14 +1,9 @@
 #pragma once
 #include "../core/core.h"
 #include "renderer.h"
+#include "transform.h"
 #include "camera_3d.h"
 #include "render_instances.h"
-
-struct Transform : public Component {
-    glm::vec3 position;
-    glm::vec3 origin;
-    glm::vec3 rotation;
-};
 
 struct Sprite : public Component {
     glm::vec3 color;
@@ -41,7 +36,9 @@ private:
                 t_main_camera = &camera;
         });
 
-        m_renderer.get_shader().set_matrix4f(t_main_camera->get_projection(), "camera");
+        if (t_main_camera) {
+            m_renderer.get_shader().set_matrix4f(t_main_camera->get_projection() * t_main_camera->get_view(), "camera");
+        }
         m_renderer.display();
     }
 };

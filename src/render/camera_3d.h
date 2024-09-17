@@ -1,5 +1,6 @@
 #pragma once
 #include "../core/core.h"
+#include "transform.h"
 
 struct Projection {
     virtual glm::mat4 get_mat() const = 0;
@@ -60,6 +61,12 @@ public:
 
     glm::mat4 get_projection() const {
         return m_projection_cache;
+    }
+
+    glm::mat4 get_view() const {
+        auto& transform = scene->get_component<Transform>(entity);
+
+        return glm::translate(glm::mat4(1), -transform.position) * glm::eulerAngleXYZ(transform.rotation.x, transform.rotation.y, transform.rotation.z);
     }
 
     bool is_main() const {
