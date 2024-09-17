@@ -2,13 +2,12 @@
 #include "render/render_system.h"
 #include "scripting/scripting_system.h"
 
-class RotationSc : public ScriptInstance {
+class RotationSc : public Script {
 private:
     float t = 0;
 public:
     void update(float delta_time) override {
         t += delta_time;
-        //printf("from update : %d\n", get_game_object());
         get_scene().get_component<Transform>(get_game_object()).rotation = glm::vec3(t, t, t);
     }
 };
@@ -30,7 +29,7 @@ public:
         a = create_entity();
         auto& sp_sp = add_component<Sprite>(a);
         auto& sp_tr = add_component<Transform>(a);
-        add_component<Script>(a, new RotationSc());
+        add_component<ScriptComponent>(a).bind<RotationSc>();
 
         sp_tr.size = glm::vec2(100, 100);
         sp_tr.position = glm::vec3(320, 240, -150);
