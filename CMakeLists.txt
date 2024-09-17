@@ -20,6 +20,7 @@ set(DEPS_LIBRARIES glfw libglew_static glm::glm)
 
 file(GLOB_RECURSE SRC_FILES
 	"src/*.cpp"
+    "src/*.h"
     "src/core/*.cpp"
     "src/core/*.h"
     "src/render/*.cpp"

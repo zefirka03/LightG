@@ -1,6 +1,4 @@
-#include "core/air_engine.h"
-#include "render/render_system.h"
-#include "scripting/scripting_system.h"
+#include "air_engine.h"
 
 class RotationSc : public Script {
 private:

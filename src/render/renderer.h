@@ -1,6 +1,5 @@
 #pragma once
-#include "../core/air_engine.h"
-#include "../core/shader.h"
+#include "../core/core.h"
 #include "camera_3d.h"
 
 struct vertex {
