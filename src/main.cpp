@@ -1,14 +1,26 @@
 #include "core/air_engine.h"
 #include "render/render_system.h"
+#include "scripting/scripting_system.h"
+
+class RotationSc : public ScriptInstance {
+private:
+    float t = 0;
+public:
+    void update(float delta_time) override {
+        t += delta_time;
+        //printf("from update : %d\n", get_game_object());
+        get_scene().get_component<Transform>(get_game_object()).rotation = glm::vec3(t, t, t);
+    }
+};
 
 class Scene1 : public Scene {
 public:
     Entity a;
     Entity cam;
-    float t = 0;
 
     void on_init() override {
         add_system<RenderSystem>();
+        add_system<ScriptingSystem>();
     }
 
     void on_start() override {
@@ -18,6 +30,7 @@ public:
         a = create_entity();
         auto& sp_sp = add_component<Sprite>(a);
         auto& sp_tr = add_component<Transform>(a);
+        add_component<Script>(a, new RotationSc());
 
         sp_tr.size = glm::vec2(100, 100);
         sp_tr.position = glm::vec3(320, 240, -150);
@@ -25,9 +38,7 @@ public:
     }
 
     void on_update(float delta_time) override {
-        t += delta_time;
-
-        get_component<Transform>(a).rotation = glm::vec3(t, t, t);
+        
 
         printf("%f \n", 1.0 / delta_time);
     }

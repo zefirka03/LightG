@@ -19,7 +19,7 @@ struct Sprite : public Component {
 class RenderSystem : public System {
 private:
     Renderer m_renderer;
-public:
+
     void init() override {
         m_renderer.reserve(3 * 10000);
     }

@@ -8,7 +8,7 @@ add_definitions(-DGLEW_STATIC)
 
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/deps/glfw" glfw)
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/deps/glew-cmake" glew)
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/deps/glm" glm)
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/deps/glm" )
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/deps/entt" entt)
 
 set(DEPS_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/deps/glfw/include"
@@ -26,6 +26,8 @@ file(GLOB_RECURSE SRC_FILES
     "src/render/*.h"
     "src/rtx_render/*.cpp"
     "src/rtx_render/*.h"
+    "src/scripting/*.cpp"
+    "src/scripting/*.h"
 )
 
 file(GLOB_RECURSE SHADERS
@@ -35,6 +37,7 @@ file(GLOB_RECURSE SHADERS
 
 add_executable(LightG ${SRC_FILES})
 
+target_compile_definitions(glm PUBLIC GLM_ENABLE_EXPERIMENTAL)
 target_link_libraries(LightG ${DEPS_LIBRARIES})
 target_include_directories(LightG PRIVATE ${DEPS_INCLUDE_DIRECTORIES})
 

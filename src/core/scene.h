@@ -6,6 +6,7 @@ class Scene{
 private:
 friend class Application;
     std::vector<System*> m_systems;
+    entt::registry m_registry;
     
     void _update(float delta_time) {
         on_update(delta_time);
@@ -20,8 +21,7 @@ friend class Application;
         for (System* t_system : m_systems)
             t_system->init();
     }
-protected:
-    entt::registry m_registry;
+
 public:
     Scene() = default;
     virtual ~Scene() {
@@ -49,6 +49,7 @@ public:
 
 		auto& it = m_registry.emplace<Component_t>(entity.m_id, std::forward<Args>(args)...);
 		it.game_object = Entity(entity.m_id);
+        it.scene = this;
 		return it;
     }
 

@@ -16,15 +16,18 @@ public:
 };
 
 class Component{
+private:
+    friend class Scene;
 public:
     Entity game_object;
+    Scene* scene;
 };
 
 class System{
 protected:
 friend class Scene;
     entt::registry* m_registry;
-public:
+
     virtual void init() {}
     virtual void update(float delta_time) {}
 };
