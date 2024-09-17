@@ -48,7 +48,7 @@ public:
         static_assert(std::is_base_of<Component, Component_t>::value, "Component_t class must be derived by Component");
 
 		auto& it = m_registry.emplace<Component_t>(entity.m_id, std::forward<Args>(args)...);
-		it.game_object = Entity(entity.m_id);
+		it.entity = Entity(entity.m_id);
         it.scene = this;
 		return it;
     }
@@ -68,6 +68,7 @@ public:
         return m_registry.all_of<Component_ts...>(entity.m_id);
     }
 
+protected:
     virtual void on_init() {}
     virtual void on_start() {}
     virtual void on_update(float delta_time) {}

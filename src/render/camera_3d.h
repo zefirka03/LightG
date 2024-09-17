@@ -42,19 +42,21 @@ class Camera3d : public Component{
 private:
     bool m_is_main;
     glm::mat4 m_projection_cache;
-    Projection* proj;
+    Projection* m_proj;
 
     void _reprojection(){
-        m_projection_cache = proj->get_mat();
+        m_projection_cache = m_proj->get_mat();
     }
 public:
     Camera3d(Projection* projection, bool is_main = true){
-        proj = projection;
+        m_proj = projection;
         m_is_main = is_main;
         
         _reprojection();
     }
-    ~Camera3d(){}
+    ~Camera3d(){
+        delete m_proj;
+    }
 
     glm::mat4 get_projection() const {
         return m_projection_cache;

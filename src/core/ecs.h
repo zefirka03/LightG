@@ -19,7 +19,7 @@ class Component{
 private:
     friend class Scene;
 public:
-    Entity game_object;
+    Entity entity;
     Scene* scene;
 };
 

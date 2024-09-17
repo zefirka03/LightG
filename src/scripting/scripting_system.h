@@ -13,13 +13,13 @@ protected:
         return *m_scene;
     }
 
-    inline Entity get_game_object() const {
-        return m_game_object;
+    inline Entity get_entity() const {
+        return m_entity;
     }
 private:
 friend class ScriptComponent;
     Scene* m_scene;
-    Entity m_game_object;
+    Entity m_entity;
 };
 
 class ScriptComponent : public Component {
@@ -30,7 +30,7 @@ public:
 
         Script_t* t_script = new Script_t(args...);
         t_script->m_scene = scene;
-        t_script->m_game_object = game_object;
+        t_script->m_entity = entity;
 
         m_script_instances.push_back(t_script);
     }

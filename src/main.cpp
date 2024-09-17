@@ -6,7 +6,7 @@ private:
 public:
     void update(float delta_time) override {
         t += delta_time;
-        get_scene().get_component<Transform>(get_game_object()).rotation = glm::vec3(t, t, t);
+        get_scene().get_component<Transform>(get_entity()).rotation = glm::vec3(t, t, t);
     }
 };
 
@@ -35,8 +35,6 @@ public:
     }
 
     void on_update(float delta_time) override {
-        
-
         printf("%f \n", 1.0 / delta_time);
     }
 };
