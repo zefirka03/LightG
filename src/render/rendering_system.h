@@ -7,16 +7,15 @@
 struct Transform : public Component {
     glm::vec3 position;
     glm::vec3 origin;
-    glm::vec2 size;
-
     glm::vec3 rotation;
 };
 
 struct Sprite : public Component {
     glm::vec3 color;
+    glm::vec2 size;
 };
 
-class RenderSystem : public System {
+class RenderingSystem : public System {
 private:
     Renderer m_renderer;
 
@@ -30,8 +29,8 @@ private:
             m_renderer.draw(QuadRenderInstance(
                 transform.position,
                 transform.origin,
-                transform.size,
-                transform.rotation
+                transform.rotation,
+                sprite.size
             ));
         });
 

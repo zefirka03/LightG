@@ -16,20 +16,23 @@ public:
     Entity cam;
 
     void on_init() override {
-        add_system<RenderSystem>();
+        add_system<RenderingSystem>();
         add_system<ScriptingSystem>();
     }
 
     void on_start() override {
         cam = create_entity();
+        auto& cam_tr = add_component<Transform>(cam);
         add_component<Camera3d>(cam, new Ortho(640, 480), true);
+
+        cam_tr.position = glm::vec3(0, 0, 0);
 
         a = create_entity();
         auto& sp_sp = add_component<Sprite>(a);
         auto& sp_tr = add_component<Transform>(a);
         add_component<ScriptComponent>(a).bind<RotationSc>();
 
-        sp_tr.size = glm::vec2(100, 100);
+        sp_sp.size = glm::vec2(100, 100);
         sp_tr.position = glm::vec3(320, 240, -150);
         sp_tr.origin = glm::vec3(50, 50, 0);
     }

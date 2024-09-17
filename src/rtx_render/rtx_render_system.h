@@ -12,9 +12,7 @@
 
 #pragma once
 #include "../core/core.h"
-#include "../render/renderer.h"
-#include "../render/camera_3d.h"
-#include "../render/render_instances.h"
+#include "../render/render.h"
 
 struct RTXCanvas : public Component {
     Camera3d* camera = nullptr;

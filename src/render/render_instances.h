@@ -4,16 +4,15 @@
 struct QuadRenderInstance : public RenderInstance {
     glm::vec3 position;
     glm::vec3 origin;
-    glm::vec2 size;
-
     glm::vec3 rotation;
+    glm::vec2 size;
 
     QuadRenderInstance(
         glm::vec3 position, 
         glm::vec3 origin, 
-        glm::vec2 size,
-        glm::vec3 rotation
-    ) : position(position), origin(origin), size(size), rotation(rotation) {}
+        glm::vec3 rotation,
+        glm::vec2 size
+    ) : position(position), origin(origin), rotation(rotation), size(size) {}
 
     std::vector<vertex> get_vertices() const override {
         glm::mat4 rotation_mat = glm::eulerAngleXYZ(rotation.x, rotation.y, rotation.z);

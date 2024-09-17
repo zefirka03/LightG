@@ -1,11 +1,11 @@
 #pragma once
 #include "../core/core.h"
 
-struct Projection{
+struct Projection {
     virtual glm::mat4 get_mat() const = 0;
 };
 
-struct Ortho : public Projection{
+struct Ortho : public Projection {
     float width;
     float height;
     float near = 1e-2f;
@@ -21,7 +21,7 @@ struct Ortho : public Projection{
     }
 };
 
-struct Perspective : public Projection{
+struct Perspective : public Projection {
     int width;
     int height;
     float fov;
@@ -34,11 +34,11 @@ struct Perspective : public Projection{
         : width(_width), height(_height), fov(_fov), near(_near), far(_far) {}
 
     glm::mat4 get_mat() const override {
-        return glm::perspective(fov, (float)width/(float)height, near, far);
+        return glm::perspectiveFov(fov, (float)width, (float)height, near, far);
     }
 };
 
-class Camera3d : public Component{
+class Camera3d : public Component {
 private:
     bool m_is_main;
     glm::mat4 m_projection_cache;
@@ -48,7 +48,7 @@ private:
         m_projection_cache = m_proj->get_mat();
     }
 public:
-    Camera3d(Projection* projection, bool is_main = true){
+    Camera3d(Projection* projection, bool is_main = true) {
         m_proj = projection;
         m_is_main = is_main;
         
