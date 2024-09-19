@@ -42,6 +42,7 @@ struct Perspective : public Projection {
 class Camera3d : public Component {
 private:
     bool m_is_main;
+
     glm::mat4 m_projection_cache;
     Projection* m_proj;
 
@@ -66,7 +67,13 @@ public:
     glm::mat4 get_view() const {
         auto& transform = scene->get_component<Transform>(entity);
 
-        return glm::translate(glm::mat4(1), -transform.position) * glm::eulerAngleXYZ(transform.rotation.x, transform.rotation.y, transform.rotation.z);
+        return glm::eulerAngleXYZ(transform.rotation.x, transform.rotation.y, transform.rotation.z) * glm::translate(glm::mat4(1), -transform.position);
+    }
+
+    void look_at(glm::vec3 center) {
+        auto& transform = scene->get_component<Transform>(entity);
+
+        transform.rotation = glm::eulerAngles(glm::quatLookAt(center - transform.position, glm::vec3(0, 1, 0)));
     }
 
     bool is_main() const {

@@ -12,11 +12,38 @@ public:
 
 class RotationCamera : public Script {
 private:
-    float t = 0;
+    glm::vec2 m_last_mouse_pos;
 public:
+    glm::vec2 sensetivity = glm::vec2(0.1);
+    float speed = 300;
+
     void update(float delta_time) override {
-        t += delta_time;
-        get_scene().get_component<Transform>(get_entity()).rotation = glm::vec3(0, t, 0);
+        auto& entity_transform = get_scene().get_component<Transform>(get_entity());
+
+        glm::vec2 mouse_pos = Input::get_mouse_position();
+        glm::vec2 mouse_delta = m_last_mouse_pos - mouse_pos;
+        m_last_mouse_pos = mouse_pos;
+        
+        // Rotate camera
+        entity_transform.rotation += glm::vec3(-mouse_delta.y * sensetivity.x, -mouse_delta.x * sensetivity.y, 0) * delta_time;
+
+        // Calculate forward_dir
+        glm::vec3 forward_dir = glm::vec4(0, 0, -1, 1) * glm::eulerAngleXYZ(entity_transform.rotation.x, entity_transform.rotation.y, entity_transform.rotation.z);
+        glm::vec3 right_dir = glm::normalize(glm::cross(forward_dir, glm::vec3(0, 1, 0)));
+
+        printf("%f %f %f \n", forward_dir.x, forward_dir.y, forward_dir.z);
+
+        glm::vec3 dir(0);
+;       if(Input::is_key_pressed(Key::D))
+            dir += right_dir;
+        if (Input::is_key_pressed(Key::A))
+            dir -= right_dir;
+        if (Input::is_key_pressed(Key::W))
+            dir += forward_dir;
+        if (Input::is_key_pressed(Key::S))
+            dir -= forward_dir;
+
+        entity_transform.position += dir * speed * delta_time;
     }
 };
 
@@ -39,7 +66,7 @@ public:
         a = create_entity();
         auto& sp_sp = add_component<Sprite>(a);
         auto& sp_tr = add_component<Transform>(a);
-        add_component<ScriptComponent>(a).bind<RotationSc>();
+        //add_component<ScriptComponent>(a).bind<RotationSc>();
 
         sp_sp.size = glm::vec2(100, 100);
         sp_tr.position = glm::vec3(0, 0, -150);
