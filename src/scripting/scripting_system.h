@@ -56,9 +56,11 @@ friend class ScriptingSystem;
 
 class ScriptingSystem : public System {
 private:
-    void init() override {
+    void init() override {}
+
+    void start() override {
         auto view_scripts = m_registry->view<ScriptComponent>();
-        view_scripts.each([&](ScriptComponent& script){
+        view_scripts.each([&](ScriptComponent& script) {
             script._start();
         });
     }

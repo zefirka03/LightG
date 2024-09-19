@@ -21,7 +21,7 @@ Application::Application(int width, int height, const char* title){
     m_properties.height = height;
     m_properties.title = title;
 
-    glfwSwapInterval(1);
+    glfwSwapInterval(0);
     glEnable(GL_DEPTH_TEST);
 }
 
@@ -46,7 +46,7 @@ void Application::go_to_scene(Scene* scene){
     if(m_scene) delete m_scene;
     m_scene = scene;
     scene->_init();
-    scene->on_start();
+    scene->_start();
 }
 
 Application& Application::get_instance(){

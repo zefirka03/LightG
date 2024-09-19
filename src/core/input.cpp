@@ -10,6 +10,10 @@ bool Input::is_mouse_button_pressed(MouseCode button){
 	return state == GLFW_PRESS;
 }
 
+void Input::set_cursor_mode(CursorMode mode) {
+	glfwSetInputMode(Application::get_instance().get_native_window(), GLFW_CURSOR, mode);
+}
+
 glm::vec2 Input::get_mouse_position(){
 	double xpos, ypos;
 	glfwGetCursorPos(Application::get_instance().get_native_window(), &xpos, &ypos);

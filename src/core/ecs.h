@@ -29,5 +29,6 @@ friend class Scene;
     entt::registry* m_registry;
 
     virtual void init() {}
+    virtual void start() {}
     virtual void update(float delta_time) {}
 };

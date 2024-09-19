@@ -23,6 +23,13 @@ friend class Application;
             t_system.second->init();
     }
 
+    void _start() {
+        on_start();
+
+        for (auto& t_system : m_systems)
+            t_system.second->start();
+    }
+
 public:
     Scene() = default;
     virtual ~Scene() {
