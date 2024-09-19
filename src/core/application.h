@@ -24,4 +24,7 @@ public:
 
     void run(Scene* scene);
     void go_to_scene(Scene* scene);
+
+    static Application& get_instance();
+    GLFWwindow* get_native_window() const;
 };

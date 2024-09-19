@@ -39,7 +39,7 @@ public:
         a = create_entity();
         auto& sp_sp = add_component<Sprite>(a);
         auto& sp_tr = add_component<Transform>(a);
-        //add_component<ScriptComponent>(a).bind<RotationCamera>();
+        add_component<ScriptComponent>(a).bind<RotationSc>();
 
         sp_sp.size = glm::vec2(100, 100);
         sp_tr.position = glm::vec3(0, 0, -150);
@@ -47,7 +47,8 @@ public:
     }
 
     void on_update(float delta_time) override {
-        printf("%f \n", 1.0 / delta_time);
+        if(Input::is_key_pressed(Key::Space))
+            printf("%f \n", 1.0 / delta_time);
     }
 };
 

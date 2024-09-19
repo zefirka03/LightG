@@ -8,3 +8,4 @@
 #include "shader.h"
 #include "timer.h"
 #include "vao.h"
+#include "input.h"

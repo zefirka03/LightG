@@ -48,3 +48,11 @@ void Application::go_to_scene(Scene* scene){
     scene->_init();
     scene->on_start();
 }
+
+Application& Application::get_instance(){
+    return *m_instance;
+}
+
+GLFWwindow* Application::get_native_window() const {
+    return m_window;
+}
