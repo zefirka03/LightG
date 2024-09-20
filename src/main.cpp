@@ -3,17 +3,24 @@
 class RotationSc : public Script {
 private:
     float t = 0;
+    float speed = 5 * (rand()%1000) /1000.f;
+    
+    Transform* transform;
 public:
+    void start() override {
+        transform = &get_scene().get_component<Transform>(get_entity());
+    }
+    
     void update(float delta_time) override {
-        t += delta_time;
-        auto& transform = get_scene().get_component<Transform>(get_entity());
+        t += delta_time * speed;
+        
 
-        transform.rotation = glm::vec3(t, t, t);
-        glm::vec3 forward_dir = glm::vec4(0, 0, -1, 1) * glm::eulerAngleXYZ(transform.rotation.x, transform.rotation.y, transform.rotation.z);
+        transform->rotation = glm::vec3(t, t, t);
+        glm::vec3 forward_dir = glm::vec4(0, 0, -1, 1) * glm::eulerAngleXYZ(transform->rotation.x, transform->rotation.y, transform->rotation.z);
 
         get_scene().get_system<DebugSystem>()->draw_line({
-            { transform.position, glm::vec4(1,0,0,1) }, 
-            { transform.position + forward_dir * 100.f, glm::vec4(0,0,1,1) }
+            { transform->position, glm::vec4(1,0,0,1) }, 
+            { transform->position + forward_dir * 100.f, glm::vec4(0,0,1,1) }
         });
     }
 };
@@ -69,10 +76,12 @@ public:
     Entity a;
     Entity cam;
 
+    DebugSystem* debug;
+
     void on_init() override {
         add_system<RenderingSystem>();
         add_system<ScriptingSystem>();
-        add_system<DebugSystem>();
+        debug = add_system<DebugSystem>();
     }
 
     void on_start() override {
@@ -81,17 +90,34 @@ public:
         add_component<Camera3d>(cam, new Perspective(640, 480, 3.14f * 45.f / 180.f), true);
         add_component<ScriptComponent>(cam).bind<RotationCamera>();
 
-        a = create_entity();
-        auto& sp_sp = add_component<Sprite>(a);
-        auto& sp_tr = add_component<Transform>(a);
-        add_component<ScriptComponent>(a).bind<RotationSc>();
+        for (int i = 0; i < 10000; ++i) {
+            a = create_entity();
+            auto& sp_sp = add_component<Sprite>(a);
+            auto& sp_tr = add_component<Transform>(a);
+            add_component<ScriptComponent>(a).bind<RotationSc>();
 
-        sp_sp.size = glm::vec2(100, 100);
-        sp_tr.position = glm::vec3(0, 0, -150);
-        sp_tr.origin = glm::vec3(50, 50, 0);
+            sp_sp.size = glm::vec2(100, 100);
+            sp_tr.position = glm::vec3(5500 * (rand()%1000) / 1000.f, 5500* (rand() % 1000) / 1000.f, 5500* (rand() % 1000) / 1000.f);
+            sp_tr.origin = glm::vec3(50, 50, 0);
+        }
     }
 
     void on_update(float delta_time) override {
+        // Draw coordinates
+
+        debug->draw_line({
+            {glm::vec3(0,0,0), glm::vec4(1,0,0,1)},
+            {glm::vec3(100,0,0), glm::vec4(1,0,0,1)}
+        });
+        debug->draw_line({
+            {glm::vec3(0,0,0), glm::vec4(0,1,0,1)},
+            {glm::vec3(0,100,0), glm::vec4(0,1,0,1)}
+            });
+        debug->draw_line({
+            {glm::vec3(0,0,0), glm::vec4(0,0,1,1)},
+            {glm::vec3(0,0,100), glm::vec4(0,0,1,1)}
+            });
+
         if(Input::is_key_pressed(Key::Space))
             printf("%f \n", 1.0 / delta_time);
     }

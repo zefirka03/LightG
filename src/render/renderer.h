@@ -10,7 +10,7 @@ struct vertex {
 template<class vertex_t>
 class RenderInstance {
 public:
-    virtual std::vector<vertex_t> get_vertices() const = 0;
+    virtual std::vector<vertex_t> const& get_vertices() const = 0;
 };
 
 template<class vertex_t>

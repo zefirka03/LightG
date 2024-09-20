@@ -15,16 +15,22 @@ struct line {
 class DebugSystem : public System {
 public:
     void draw_line(line const& line) {
-        m_renderer.draw({line.p1, line.p2});
+        m_line_cashed[0] = line.p1;
+        m_line_cashed[1] = line.p2;
+
+        m_renderer.draw(m_line_cashed);
     }
 private:
     Renderer<line_vertex> m_renderer;
+    std::vector<line_vertex> m_line_cashed;
 
     void init() override {
+        m_line_cashed.resize(2);
+
         m_renderer.reserve({
              {0, 3, sizeof(line_vertex), (const void*)0},
              {0, 4, sizeof(line_vertex), (const void*)sizeof(glm::vec3)},
-        }, 3 * 10000);
+        }, 3 * 20000);
         m_renderer.get_shader().load_from_file(
             "shaders/line.shader",
             AIR_SHADER_VF

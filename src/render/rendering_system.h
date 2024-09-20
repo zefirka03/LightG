@@ -18,7 +18,7 @@ private:
         m_renderer.reserve({
              {0, 3, sizeof(vertex), (const void*)0},
              {0, 2, sizeof(vertex), (const void*)sizeof(glm::vec3)}
-        }, 3 * 10000);
+        }, 3 * 20000);
     }
     
     void update(float delta_time) override {
