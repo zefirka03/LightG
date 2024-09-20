@@ -29,11 +29,14 @@ file(GLOB_RECURSE SRC_FILES
     "src/rtx_render/*.h"
     "src/scripting/*.cpp"
     "src/scripting/*.h"
+    "src/debug/*.cpp"
+    "src/debug/*.h"
 )
 
 file(GLOB_RECURSE SHADERS
     "src/render/*.shader"
     "src/rtx_render/*.shader"
+    "src/debug/*.shader"
 )
 
 add_executable(LightG ${SRC_FILES})

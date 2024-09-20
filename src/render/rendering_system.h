@@ -12,10 +12,13 @@ struct Sprite : public Component {
 
 class RenderingSystem : public System {
 private:
-    Renderer m_renderer;
+    Renderer<vertex> m_renderer;
 
     void init() override {
-        m_renderer.reserve(3 * 10000);
+        m_renderer.reserve({
+             {0, 3, sizeof(vertex), (const void*)0},
+             {0, 2, sizeof(vertex), (const void*)sizeof(glm::vec3)}
+        }, 3 * 10000);
     }
     
     void update(float delta_time) override {

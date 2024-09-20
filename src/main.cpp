@@ -6,7 +6,15 @@ private:
 public:
     void update(float delta_time) override {
         t += delta_time;
-        get_scene().get_component<Transform>(get_entity()).rotation = glm::vec3(t, t, t);
+        auto& transform = get_scene().get_component<Transform>(get_entity());
+
+        transform.rotation = glm::vec3(t, t, t);
+        glm::vec3 forward_dir = glm::vec4(0, 0, -1, 1) * glm::eulerAngleXYZ(transform.rotation.x, transform.rotation.y, transform.rotation.z);
+
+        get_scene().get_system<DebugSystem>()->draw_line({
+            { transform.position, glm::vec4(1,0,0,1) }, 
+            { transform.position + forward_dir * 100.f, glm::vec4(0,0,1,1) }
+        });
     }
 };
 
@@ -35,6 +43,7 @@ public:
         glm::vec3 forward_dir = glm::vec4(0, 0, -1, 1) * glm::eulerAngleXYZ(entity_transform.rotation.x, entity_transform.rotation.y, entity_transform.rotation.z);
         glm::vec3 right_dir = glm::normalize(glm::cross(forward_dir, glm::vec3(0, 1, 0)));
 
+        // Apply velocity
         glm::vec3 dir(0);
 ;       if(Input::is_key_pressed(Key::D))
             dir += right_dir;
@@ -63,6 +72,7 @@ public:
     void on_init() override {
         add_system<RenderingSystem>();
         add_system<ScriptingSystem>();
+        add_system<DebugSystem>();
     }
 
     void on_start() override {

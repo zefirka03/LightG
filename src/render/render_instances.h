@@ -1,7 +1,7 @@
 #pragma once
 #include "renderer.h"
 
-struct QuadRenderInstance : public RenderInstance {
+struct QuadRenderInstance : public RenderInstance<vertex> {
     glm::vec3 position;
     glm::vec3 origin;
     glm::vec3 rotation;

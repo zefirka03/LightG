@@ -4,3 +4,4 @@
 #include "render/render.h"
 #include "scripting/scripting.h"
 //#include "rtx_render/rtx_render.h"
+#include "debug/debug.h"

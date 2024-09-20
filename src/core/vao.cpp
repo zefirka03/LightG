@@ -51,6 +51,10 @@ void VAO::add_index(GLuint buffer_index, GLint size, GLsizei stride, const void*
     unbind();
 }
 
+void VAO::add_index(VAO::Index const& index){
+    add_index(index.buffer_index, index.size, index.stride, index.pointer);
+}
+
 void VAO::redata(GLuint bo_index, int offset, int size, const void* data){
     bind();
     GLuint id = m_vbo_id[bo_index].id;
@@ -60,8 +64,8 @@ void VAO::redata(GLuint bo_index, int offset, int size, const void* data){
     unbind();
 }
 
-void VAO::draw(int count) {
+void VAO::draw(int count, int type) {
 	bind();
-	glDrawArrays(GL_TRIANGLES, 0, count);
+	glDrawArrays(type, 0, count);
 	unbind();
 }

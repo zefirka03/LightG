@@ -7,14 +7,16 @@ struct vertex {
     glm::vec2 texture_coordinate;
 };
 
+template<class vertex_t>
 class RenderInstance {
 public:
-    virtual std::vector<vertex> get_vertices() const = 0;
+    virtual std::vector<vertex_t> get_vertices() const = 0;
 };
 
+template<class vertex_t>
 class Renderer{
 private:
-    std::vector<vertex> m_vertices;
+    std::vector<vertex_t> m_vertices;
     size_t m_vertices_count;
     VAO m_vao;
     Shader m_shader;
@@ -39,29 +41,30 @@ public:
         return m_vao;
     }
 
-    void reserve(size_t vertices_count){
+    void reserve(std::vector<VAO::Index> const& indices, size_t vertices_count){
         m_vertices.resize(vertices_count);
         m_vao.add_vbo(sizeof(vertex) * vertices_count);
-        m_vao.add_index(0, 3, sizeof(vertex), (const void*)0);
-        m_vao.add_index(0, 2, sizeof(vertex), (const void*)sizeof(glm::vec3));
+
+        for(auto& index : indices)
+            m_vao.add_index(index);
 
         m_vertices_count = 0;
     }
 
-    void draw(std::vector<vertex> const& vertices) {
+    void draw(std::vector<vertex_t> const& vertices) {
         for (int i = 0; i < vertices.size(); ++i)
             m_vertices[m_vertices_count++] = vertices[i];
     }
 
-    void draw(RenderInstance const& instance) {
+    void draw(RenderInstance<vertex_t> const& instance) {
         draw(instance.get_vertices());
     }
 
-    void display() {
+    void display(int object_type = GL_TRIANGLES) {
         m_shader.use();
 
-        m_vao.redata(0, 0, m_vertices_count * sizeof(vertex), m_vertices.data());
-        m_vao.draw(m_vertices_count);
+        m_vao.redata(0, 0, m_vertices_count * sizeof(vertex_t), m_vertices.data());
+        m_vao.draw(m_vertices_count, object_type);
         m_vertices_count = 0;
 
         m_shader.unuse();
