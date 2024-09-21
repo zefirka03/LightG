@@ -88,6 +88,7 @@ public:
         cam = create_entity();
         auto& cam_tr = add_component<Transform>(cam);
         add_component<Camera3d>(cam, new Perspective(640, 480, 3.14f * 45.f / 180.f), true);
+        //add_component<Camera3d>(cam, new Ortho(640, 480), true);
         add_component<ScriptComponent>(cam).bind<RotationCamera>();
 
         for (int i = 0; i < 10000; ++i) {
@@ -95,7 +96,7 @@ public:
             auto& sp_sp = add_component<Sprite>(a);
             auto& sp_tr = add_component<Transform>(a);
             add_component<ScriptComponent>(a).bind<RotationSc>();
-
+        
             sp_sp.size = glm::vec2(100, 100);
             sp_tr.position = glm::vec3(5500 * (rand()%1000) / 1000.f, 5500* (rand() % 1000) / 1000.f, 5500* (rand() % 1000) / 1000.f);
             sp_tr.origin = glm::vec3(50, 50, 0);
@@ -104,7 +105,6 @@ public:
 
     void on_update(float delta_time) override {
         // Draw coordinates
-
         debug->draw_line({
             {glm::vec3(0,0,0), glm::vec4(1,0,0,1)},
             {glm::vec3(100,0,0), glm::vec4(1,0,0,1)}
@@ -112,11 +112,11 @@ public:
         debug->draw_line({
             {glm::vec3(0,0,0), glm::vec4(0,1,0,1)},
             {glm::vec3(0,100,0), glm::vec4(0,1,0,1)}
-            });
+        });
         debug->draw_line({
             {glm::vec3(0,0,0), glm::vec4(0,0,1,1)},
             {glm::vec3(0,0,100), glm::vec4(0,0,1,1)}
-            });
+        });
 
         if(Input::is_key_pressed(Key::Space))
             printf("%f \n", 1.0 / delta_time);

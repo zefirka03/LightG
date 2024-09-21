@@ -23,7 +23,7 @@ Application::Application(int width, int height, const char* title){
 
     glfwSwapInterval(0);
     glEnable(GL_DEPTH_TEST);
-    glfwWindowHint(GLFW_SAMPLES, 4);
+    glfwWindowHint(GLFW_SAMPLES, 8);
 }
 
 Application::~Application(){

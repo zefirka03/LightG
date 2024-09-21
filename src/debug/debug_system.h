@@ -7,26 +7,29 @@ struct line_vertex {
     glm::vec4 color;
 };
 
-struct line {
+struct line : RenderInstance<line_vertex, 2> {
     line_vertex p1;
     line_vertex p2;
+
+    line(line_vertex p1, line_vertex p2) : p1(p1), p2(p2) {}
+
+    std::array<line_vertex, 2> get_vertices() const override {
+        return {
+            p1,
+            p2
+        };;
+    }
 };
 
 class DebugSystem : public System {
 public:
     void draw_line(line const& line) {
-        m_line_cashed[0] = line.p1;
-        m_line_cashed[1] = line.p2;
-
-        m_renderer.draw(m_line_cashed);
+        m_renderer.draw(line);
     }
 private:
     Renderer<line_vertex> m_renderer;
-    std::vector<line_vertex> m_line_cashed;
 
     void init() override {
-        m_line_cashed.resize(2);
-
         m_renderer.reserve({
              {0, 3, sizeof(line_vertex), (const void*)0},
              {0, 4, sizeof(line_vertex), (const void*)sizeof(glm::vec3)},

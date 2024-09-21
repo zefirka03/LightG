@@ -1,16 +1,18 @@
 #pragma once
 #include "../core/core.h"
 #include "camera_3d.h"
+#include <array>
 
 struct vertex {
     glm::vec3 position;
     glm::vec2 texture_coordinate;
+
 };
 
-template<class vertex_t>
+template<class vertex_t, size_t count>
 class RenderInstance {
 public:
-    virtual std::vector<vertex_t> const& get_vertices() const = 0;
+    virtual std::array<vertex_t, count> get_vertices() const = 0;
 };
 
 template<class vertex_t>
@@ -43,20 +45,22 @@ public:
 
     void reserve(std::vector<VAO::Index> const& indices, size_t vertices_count){
         m_vertices.resize(vertices_count);
-        m_vao.add_vbo(sizeof(vertex) * vertices_count);
+        m_vao.add_vbo(sizeof(vertex_t) * vertices_count);
 
         for(auto& index : indices)
             m_vao.add_index(index);
 
         m_vertices_count = 0;
     }
-
-    void draw(std::vector<vertex_t> const& vertices) {
+    
+    template<std::size_t size>
+    void draw(std::array<vertex_t, size> const& vertices) {
         for (int i = 0; i < vertices.size(); ++i)
             m_vertices[m_vertices_count++] = vertices[i];
     }
 
-    void draw(RenderInstance<vertex_t> const& instance) {
+    template<std::size_t size>
+    void draw(RenderInstance<vertex_t, size> const& instance) {
         draw(instance.get_vertices());
     }
 
