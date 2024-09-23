@@ -26,6 +26,25 @@ public:
     void draw_line(line const& line) {
         m_renderer.draw(line);
     }
+
+    void draw_box(glm::vec3 a, glm::vec3 b, glm::vec4 color) {
+        draw_line({ {glm::vec3(a.x, a.y, a.z), color}, {glm::vec3(b.x, a.y, a.z), color} });
+        draw_line({ {glm::vec3(a.x, a.y, a.z), color}, {glm::vec3(a.x, b.y, a.z), color} });
+        draw_line({ {glm::vec3(a.x, a.y, a.z), color}, {glm::vec3(a.x, a.y, b.z), color} });
+
+        draw_line({ {glm::vec3(a.x, b.y, a.z), color}, {glm::vec3(a.x, b.y, b.z), color} });
+        draw_line({ {glm::vec3(a.x, b.y, a.z), color}, {glm::vec3(b.x, b.y, a.z), color} });
+
+        draw_line({ {glm::vec3(b.x, a.y, b.z), color}, {glm::vec3(b.x, a.y, a.z), color} });
+        draw_line({ {glm::vec3(b.x, a.y, b.z), color}, {glm::vec3(a.x, a.y, b.z), color} });
+
+        draw_line({ {glm::vec3(b.x, a.y, a.z), color}, {glm::vec3(b.x, b.y, a.z), color} });
+        draw_line({ {glm::vec3(a.x, b.y, b.z), color}, {glm::vec3(a.x, a.y, b.z), color} });
+
+        draw_line({ {glm::vec3(b.x, b.y, b.z), color}, {glm::vec3(a.x, b.y, b.z), color} });
+        draw_line({ {glm::vec3(b.x, b.y, b.z), color}, {glm::vec3(b.x, a.y, b.z), color} });
+        draw_line({ {glm::vec3(b.x, b.y, b.z), color}, {glm::vec3(b.x, b.y, a.z), color} });
+    }
 private:
     Renderer<line_vertex> m_renderer;
 

@@ -1,6 +1,12 @@
 #pragma once
 #include "renderer.h"
 
+struct vertex {
+    glm::vec3 position;
+    glm::vec2 texture_coordinate;
+
+};
+
 struct QuadRenderInstance : public RenderInstance<vertex, 6> {
     glm::vec3 position;
     glm::vec3 origin;

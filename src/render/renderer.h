@@ -3,12 +3,6 @@
 #include "camera_3d.h"
 #include <array>
 
-struct vertex {
-    glm::vec3 position;
-    glm::vec2 texture_coordinate;
-
-};
-
 template<class vertex_t, size_t count>
 class RenderInstance {
 public:

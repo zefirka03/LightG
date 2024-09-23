@@ -87,7 +87,7 @@ public:
     void on_start() override {
         cam = create_entity();
         auto& cam_tr = add_component<Transform>(cam);
-        add_component<Camera3d>(cam, new Perspective(640, 480, 3.14f * 45.f / 180.f), true);
+        add_component<Camera3d>(cam, new Perspective(640, 480, 3.14f * 45.f / 180.f, 0.1, 10000), true);
         //add_component<Camera3d>(cam, new Ortho(640, 480), true);
         add_component<ScriptComponent>(cam).bind<RotationCamera>();
 
