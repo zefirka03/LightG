@@ -1,7 +1,10 @@
 #pragma once
 #include "../core/core.h"
+#include "physics_core.h"
 
-
+struct PhysicsBody : public Component {
+    Collider* collider;
+};
 
 class PhysicsSystem : public System {
 private:
