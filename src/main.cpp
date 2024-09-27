@@ -3,7 +3,7 @@
 class RotationSc : public Script {
 private:
     float t = 0;
-    float speed = 0.01 * (rand()%1000) /1000.f;
+    float speed = 1;
     
     Transform* transform;
 public:
@@ -37,21 +37,19 @@ public:
 
     void update(float delta_time) override {
         auto& entity_transform = get_scene().get_component<Transform>(get_entity());
+        auto& entity_camera = get_scene().get_component<Camera3d>(get_entity());
 
         glm::vec2 mouse_pos = Input::get_mouse_position();
         glm::vec2 mouse_delta = mouse_pos - m_last_mouse_pos;
         m_last_mouse_pos = mouse_pos;
         
         // Rotate camera
-        entity_transform.rotation += glm::vec3(mouse_delta.y * sensetivity.x, mouse_delta.x * sensetivity.y, 0) * 0.01f;
+        entity_camera.roll += -mouse_delta.y * sensetivity.x * 0.01;
+        entity_camera.yaw += -mouse_delta.x * sensetivity.y * 0.01;
 
         // Calculate forward_dir
-        glm::vec3 forward_dir = glm::eulerAngleXYZ(entity_transform.rotation.x, entity_transform.rotation.y, entity_transform.rotation.z) * glm::vec4(0, 0, -1, 1);
+        glm::vec3 forward_dir = entity_camera.get_forward();
         glm::vec3 right_dir = glm::normalize(glm::cross(forward_dir, glm::vec3(0, 1, 0)));
-        printf("%f %f %f\n", entity_transform.rotation.x, entity_transform.rotation.y, entity_transform.rotation.z);
-        printf("%f %f %f\n", right_dir.x, right_dir.y, right_dir.z);
-        printf("%f %f %f\n", forward_dir.x, forward_dir.y, forward_dir.z);
-        printf("\n");
 
         // Apply velocity
         glm::vec3 dir(0);
