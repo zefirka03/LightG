@@ -45,8 +45,7 @@ public:
 	SpriteCollider() {}
 
 	boundingBox get_bounds() const override {
-		glm::mat4 displace = glm::eulerAngleXYZ(0.f, worldTransform.rotation.y, 0.f);
-		displace = glm::translate(displace, glm::vec3(worldTransform.position));
+		glm::mat4 displace = glm::translate(glm::mat4(1), glm::vec3(worldTransform.position)) * glm::eulerAngleXYZ(0.f, worldTransform.rotation.y, 0.f);
 
 		glm::vec3 a1 = displace * glm::vec4(glm::vec2(0, 0) - origin, 0, 1);
 		glm::vec3 a2 = displace * glm::vec4(glm::vec2(size.x, 0) - origin, 0, 1);
@@ -73,8 +72,7 @@ public:
 	}
 
 	void draw_debug(DebugSystem& debug_system) const override {
-		glm::mat4 displace = glm::eulerAngleXYZ(0.f, worldTransform.rotation.y, 0.f);
-		displace = glm::translate(displace, glm::vec3(worldTransform.position));
+		glm::mat4 displace = glm::translate(glm::mat4(1), glm::vec3(worldTransform.position)) * glm::eulerAngleXYZ(0.f, worldTransform.rotation.y, 0.f);
 
 		glm::vec3 a1 = displace * glm::vec4(glm::vec2(0, 0) - origin, 0, 1);
 		glm::vec3 a2 = displace * glm::vec4(glm::vec2(size.x, 0) - origin, 0, 1) ;

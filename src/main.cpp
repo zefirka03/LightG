@@ -3,7 +3,7 @@
 class RotationSc : public Script {
 private:
     float t = 0;
-    float speed = 1;
+    float speed = rand()%100 / 100.f * 5;
     
     Transform* transform;
 public:
@@ -93,19 +93,22 @@ public:
         add_component<Camera3d>(cam, new Perspective(640, 480, 3.14f * 45.f / 180.f, 0.1, 10000), true);
         add_component<ScriptComponent>(cam).bind<RotationCamera>();
 
-        a = create_entity();
-        auto& sp_sp = add_component<Sprite>(a);
-        auto& sp_tr = add_component<Transform>(a);
-        auto& sp_pb = add_component<PhysicsBody>(a);
-        add_component<ScriptComponent>(a).bind<RotationSc>();
-        
-        sp_sp.size = glm::vec2(100, 100);
-        sp_tr.position = glm::vec3(0, 0, 0);
-        sp_tr.origin = glm::vec3(50, 50, 0);
-        sp_pb.collider = new SpriteCollider();
-        dynamic_cast<SpriteCollider*>(sp_pb.collider)->size = glm::vec2(200);
-        dynamic_cast<SpriteCollider*>(sp_pb.collider)->origin = glm::vec2(100);
-        sp_pb.acceleration = glm::vec3(0, -9, 0);
+
+        for (int i = 0; i < 1000; ++i) {
+            a = create_entity();
+            auto& sp_sp = add_component<Sprite>(a);
+            auto& sp_tr = add_component<Transform>(a);
+            auto& sp_pb = add_component<PhysicsBody>(a);
+            add_component<ScriptComponent>(a).bind<RotationSc>();
+
+            sp_sp.size = glm::vec2((rand() % 100) / 100.f * 200);
+            sp_tr.position = glm::vec3((rand() % 1000) / 1000.f * 10000, (rand() % 1000) / 1000.f * 10000, (rand() % 1000) / 1000.f * 10000);
+            sp_tr.origin = glm::vec3(sp_sp.size / 2.f, 0);
+            sp_pb.collider = new SpriteCollider();
+            dynamic_cast<SpriteCollider*>(sp_pb.collider)->size = glm::vec2(sp_sp.size);
+            dynamic_cast<SpriteCollider*>(sp_pb.collider)->origin = glm::vec2(sp_sp.size/2.f);
+            sp_pb.acceleration = glm::vec3(0, 0, 0);
+        }
     }
 
     void on_update(float delta_time) override {
