@@ -4,7 +4,6 @@
 struct vertex {
     glm::vec3 position;
     glm::vec2 texture_coordinate;
-
 };
 
 struct QuadRenderInstance : public RenderInstance<vertex, 6> {
@@ -26,12 +25,12 @@ struct QuadRenderInstance : public RenderInstance<vertex, 6> {
         glm::vec4 position4 = glm::vec4(position, 0);
 
         return {
-            vertex{glm::vec3(position4 + (-origin4 + glm::vec4(0, 0, 0, 0)) * rotation_mat),             glm::vec2(0, 0)},
-            vertex{glm::vec3(position4 + (-origin4 + glm::vec4(0, size.y, 0, 0)) * rotation_mat),        glm::vec2(0, 1)},
-            vertex{glm::vec3(position4 + (-origin4 + glm::vec4(size.x, 0, 0, 0)) * rotation_mat),        glm::vec2(1, 0)},
-            vertex{glm::vec3(position4 + (-origin4 + glm::vec4(0, size.y, 0, 0)) * rotation_mat),        glm::vec2(0, 1)},
-            vertex{glm::vec3(position4 + (-origin4 + glm::vec4(size.x, 0, 0, 0)) * rotation_mat),        glm::vec2(1, 0)},
-            vertex{glm::vec3(position4 + (-origin4 + glm::vec4(size.x, size.y, 0, 0)) * rotation_mat),   glm::vec2(1, 1)}
+            vertex{position4 + rotation_mat * (glm::vec4(0, 0, 0, 1)            - origin4), glm::vec2(0, 0)},
+            vertex{position4 + rotation_mat * (glm::vec4(0, size.y, 0, 1)       - origin4), glm::vec2(0, 1)},
+            vertex{position4 + rotation_mat * (glm::vec4(size.x, 0, 0, 1)       - origin4), glm::vec2(1, 0)},
+            vertex{position4 + rotation_mat * (glm::vec4(0, size.y, 0, 1)       - origin4), glm::vec2(0, 1)},
+            vertex{position4 + rotation_mat * (glm::vec4(size.x, 0, 0, 1)       - origin4), glm::vec2(1, 0)},
+            vertex{position4 + rotation_mat * (glm::vec4(size.x, size.y, 0, 1)  - origin4), glm::vec2(1, 1)}
         };
     }
 };

@@ -67,7 +67,7 @@ public:
     glm::mat4 get_view() const {
         auto& transform = scene->get_component<Transform>(entity);
 
-        return glm::eulerAngleXYZ(transform.rotation.x, transform.rotation.y, transform.rotation.z) * glm::translate(glm::mat4(1), -transform.position);
+        return glm::translate(glm::eulerAngleXYZ(transform.rotation.x, transform.rotation.y, transform.rotation.z), -transform.position);
     }
 
     void look_at(glm::vec3 center) {
