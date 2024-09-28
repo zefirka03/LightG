@@ -2,29 +2,9 @@
 #include "../core/core.h"
 #include "../debug/debug.h"
 #include "../render/transform.h"
+#include "quadtree.h"
 
-struct boundingBox {
-	// a coordinates always must be less than b coordinates
-	glm::vec3 a;
-	glm::vec3 b;
-
-	boundingBox() : a(0), b(0) {}
-	boundingBox(glm::vec3 _a, glm::vec3 _b) : a(_a), b(_b) {}
-
-	void adjust_bounds(boundingBox const& other) {
-		a.x = std::min(a.x, other.a.x);
-		a.y = std::min(a.y, other.a.y);
-		a.z = std::min(a.z, other.a.z);
-
-		b.x = std::max(b.x, other.b.x);
-		b.y = std::max(b.y, other.b.y);
-		b.z = std::max(b.z, other.b.z);
-	}
-};
-
-class Collider {
-public:
-	virtual boundingBox get_bounds() const = 0;
+struct Collider : public Quadable {
 	virtual void update_transform(Transform& transform) = 0;
 
 	virtual void draw_debug(DebugSystem& debug_system) const {}

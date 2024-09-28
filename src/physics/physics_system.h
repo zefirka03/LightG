@@ -19,8 +19,13 @@ public:
             auto bbox = pb.collider->get_bounds();
             debug_system.draw_box(bbox.a, bbox.b, glm::vec4(1, 1, 0, 1));
         });
+
+        if(m_quadroot)
+            m_quadroot->draw_debug(debug_system);
     }
 private:
+    QuadNode* m_quadroot = nullptr;
+
     void init() override {
 
     }
@@ -30,12 +35,15 @@ private:
     }
     
     void update(float delta_time) override {
+        delete m_quadroot;
+        m_quadroot = new QuadNode();
+
         auto view_pb = m_registry->view<PhysicsBody, Transform>();
         view_pb.each([&](PhysicsBody& pb, Transform& transform) {
             pb.collider->update_transform(transform);
-            
-            pb.velocity += delta_time * pb.acceleration;
-            transform.position += delta_time * pb.velocity;
+            m_quadroot->add_child(*pb.collider);
         });
+
+        m_quadroot->devide();
     }
 };

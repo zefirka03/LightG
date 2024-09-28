@@ -50,8 +50,8 @@ private:
         m_projection_cache = m_proj->get_mat();
     }
 public:
-    float yaw;
-    float roll;
+    float yaw = 0;
+    float roll = 0;
 
     Camera3d(Projection* projection, bool is_main = true) {
         m_proj = projection;
@@ -78,14 +78,7 @@ public:
     glm::mat4 get_view() const {
         auto& transform = scene->get_component<Transform>(entity);
         
-
         return glm::translate(glm::lookAt(transform.position, transform.position + get_forward(), glm::vec3(0, 1, 0)), -transform.position);
-    }
-
-    void look_at(glm::vec3 center) {
-        auto& transform = scene->get_component<Transform>(entity);
-
-        transform.rotation = glm::eulerAngles(glm::quatLookAt(center - transform.position, glm::vec3(0, 1, 0)));
     }
 
     bool is_main() const {

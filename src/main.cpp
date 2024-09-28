@@ -28,7 +28,7 @@ class RotationCamera : public Script {
 private:
     glm::vec2 m_last_mouse_pos;
 public:
-    glm::vec2 sensetivity = glm::vec2(0.1);
+    glm::vec2 sensetivity = glm::vec2(0.2);
     float speed = 300;
 
     void start() override {
@@ -43,9 +43,10 @@ public:
         glm::vec2 mouse_delta = mouse_pos - m_last_mouse_pos;
         m_last_mouse_pos = mouse_pos;
         
+        //printf("%f %f\n", -mouse_delta.y * sensetivity.x, -mouse_delta.x * sensetivity.y);
         // Rotate camera
-        entity_camera.roll += -mouse_delta.y * sensetivity.x * 0.01;
-        entity_camera.yaw += -mouse_delta.x * sensetivity.y * 0.01;
+        entity_camera.roll += -mouse_delta.y * sensetivity.x * 0.01f;
+        entity_camera.yaw += -mouse_delta.x * sensetivity.y * 0.01f;
 
         // Calculate forward_dir
         glm::vec3 forward_dir = entity_camera.get_forward();
@@ -90,11 +91,10 @@ public:
     void on_start() override {
         cam = create_entity();
         auto& cam_tr = add_component<Transform>(cam);
-        add_component<Camera3d>(cam, new Perspective(640, 480, 3.14f * 45.f / 180.f, 0.1, 10000), true);
+        add_component<Camera3d>(cam, new Perspective(640, 480, 3.14f * 45.f / 180.f, 0.1, 100000), true);
         add_component<ScriptComponent>(cam).bind<RotationCamera>();
 
-
-        for (int i = 0; i < 1000; ++i) {
+        for (int i = 0; i < 150; ++i) {
             a = create_entity();
             auto& sp_sp = add_component<Sprite>(a);
             auto& sp_tr = add_component<Transform>(a);
