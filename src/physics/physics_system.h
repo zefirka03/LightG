@@ -20,14 +20,14 @@ public:
             debug_system.draw_box(bbox.a, bbox.b, glm::vec4(1, 1, 0, 1));
         });
 
-        if(m_quadroot)
-            m_quadroot->draw_debug(debug_system);
+        if(m_quadtree)
+            m_quadtree->draw_debug(debug_system);
     }
 private:
-    QuadNode* m_quadroot = nullptr;
+    Quadtree* m_quadtree = nullptr;
 
     void init() override {
-
+        m_quadtree = new Quadtree();
     }
 
     void start() override {
@@ -35,15 +35,14 @@ private:
     }
     
     void update(float delta_time) override {
-        delete m_quadroot;
-        m_quadroot = new QuadNode();
+        m_quadtree->clear();
 
         auto view_pb = m_registry->view<PhysicsBody, Transform>();
         view_pb.each([&](PhysicsBody& pb, Transform& transform) {
             pb.collider->update_transform(transform);
-            m_quadroot->add_child(*pb.collider);
+            m_quadtree->add_child(*pb.collider);
         });
 
-        m_quadroot->devide();
+        m_quadtree->devide();
     }
 };
