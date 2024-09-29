@@ -4,7 +4,7 @@
 #include "bounding_box.h"
 
 #define AIR_QUAD_DEVIDE_SIZE 8
-#define AIR_MAX_DEEP 2
+#define AIR_MAX_DEEP 3
 
 struct Quadable {
     virtual boundingBox get_bounds() const = 0;
@@ -14,20 +14,36 @@ struct Quadable {
 /// 
 /// First you add all childs to root node, then do devide
 /// 
-struct QuadNode {
-    std::vector<QuadNode*> nodes;
+class QuadNode {
+private:
+    boundingBox m_subbounds_cache[8];
+
+    void _update_subbounds_cache() {
+        glm::vec3 middle = (bounds.b + bounds.a) / 2.f;
+        glm::vec3 subsize = (bounds.b - bounds.a) / 2.f;
+
+        m_subbounds_cache[0] = boundingBox(bounds.a, middle);
+        m_subbounds_cache[1] = boundingBox(bounds.a + glm::vec3(subsize.x, 0, 0), middle + glm::vec3(subsize.x, 0, 0));
+        m_subbounds_cache[2] = boundingBox(bounds.a + glm::vec3(0, 0, subsize.z), middle + glm::vec3(0, 0, subsize.z));
+        m_subbounds_cache[3] = boundingBox(bounds.a + glm::vec3(subsize.x, 0, subsize.z), middle + glm::vec3(subsize.x, 0, subsize.z));
+        m_subbounds_cache[4] = boundingBox(bounds.a + glm::vec3(0, subsize.y, 0), middle + glm::vec3(0, subsize.y, 0));
+        m_subbounds_cache[5] = boundingBox(bounds.a + glm::vec3(subsize.x, subsize.y, 0), middle + glm::vec3(subsize.x, subsize.y, 0));
+        m_subbounds_cache[6] = boundingBox(bounds.a + glm::vec3(0, subsize.y, subsize.z), middle + glm::vec3(0, subsize.y, subsize.z));
+        m_subbounds_cache[7] = boundingBox(bounds.a + glm::vec3(subsize.x, subsize.y, subsize.z), middle + glm::vec3(subsize.x, subsize.y, subsize.z));
+    }
+public:
+    QuadNode* nodes = nullptr;
     std::vector<Quadable const*> childs;
     boundingBox bounds = boundingBox();
     bool is_devided = false;
     int deep = 0;
+    int pool_position = 0;
 
     QuadNode() {
-        nodes.resize(8, nullptr);
         childs.reserve(AIR_QUAD_DEVIDE_SIZE);
     }
 
-    QuadNode(int _deep) : deep(_deep) {
-        nodes.resize(8, nullptr);
+    QuadNode(QuadNode* _node, int _deep, int _pool_position) : nodes(_node), deep(_deep), pool_position(_pool_position) {
         childs.reserve(AIR_QUAD_DEVIDE_SIZE);
     }
 
@@ -38,11 +54,13 @@ struct QuadNode {
 
     void devide(){
         if (deep < AIR_MAX_DEEP && childs.size() >= AIR_QUAD_DEVIDE_SIZE) {
-            for (int i = 0; i < nodes.size(); ++i)
-                nodes[i] = new QuadNode(deep + 1);
+            int ppos = get_pool_position(pool_position);
+            for (int i = 0; i < 8; ++i)
+                *(nodes + ppos + i) = QuadNode(nodes, deep + 1, ppos + i);
             is_devided = true;
 
             int it = 0;
+            _update_subbounds_cache();
             for (int i = 0; i < childs.size(); ++i) {
                 QuadNode* quad = get_quadrant(childs[i]->get_bounds());
                 if (quad == this) childs[it++] = childs[i];
@@ -50,32 +68,21 @@ struct QuadNode {
             }
             childs.resize(it);
 
-            for (int i = 0; i < nodes.size(); ++i)
-                nodes[i]->devide();
+            for (int i = 0; i < 8; ++i)
+                (nodes + ppos + i)->devide();
         }
     }
 
-    QuadNode* get_quadrant(boundingBox const& box) {
-        if (bounds.contains(box)) {
-            glm::vec3 middle = (bounds.b + bounds.a) / 2.f;
-            glm::vec3 subsize = (bounds.b - bounds.a) / 2.f;
+    int get_pool_position(int i){
+        return 8 * i + 1;
+    }
 
-            if (boundingBox(bounds.a, middle).contains(box))
-                return nodes[0];
-            if (boundingBox(bounds.a + glm::vec3(subsize.x, 0, 0), middle + glm::vec3(subsize.x, 0, 0)).contains(box))
-                return nodes[1];
-            if (boundingBox(bounds.a + glm::vec3(0, 0, subsize.z), middle + glm::vec3(0, 0, subsize.z)).contains(box))
-                return nodes[2];
-            if (boundingBox(bounds.a + glm::vec3(subsize.x, 0, subsize.z), middle + glm::vec3(subsize.x, 0, subsize.z)).contains(box))
-                return nodes[3];
-            if (boundingBox(bounds.a + glm::vec3(0, subsize.y, 0), middle + glm::vec3(0, subsize.y, 0)).contains(box))
-                return nodes[4];
-            if (boundingBox(bounds.a + glm::vec3(subsize.x, subsize.y, 0), middle + glm::vec3(subsize.x, subsize.y, 0)).contains(box))
-                return nodes[5];
-            if (boundingBox(bounds.a + glm::vec3(0, subsize.y, subsize.z), middle + glm::vec3(0, subsize.y, subsize.z)).contains(box))
-                return nodes[6];
-            if (boundingBox(bounds.a + glm::vec3(subsize.x, subsize.y, subsize.z), middle + glm::vec3(subsize.x, subsize.y, subsize.z)).contains(box))
-                return nodes[7];
+    QuadNode* get_quadrant(boundingBox const& box) {
+        int ppos = get_pool_position(pool_position);
+        if (bounds.contains(box)) {
+            for (int i = 0; i < 8; ++i)
+                if (m_subbounds_cache[i].contains(box))
+                    return nodes + ppos + i;
 
             return this;
         }
@@ -85,26 +92,50 @@ struct QuadNode {
     void draw_debug(DebugSystem& debug){
         debug.draw_box(bounds.a, bounds.b, glm::vec4(0, float(deep + 1) / float(AIR_MAX_DEEP + 1), float(deep + 1) / float(AIR_MAX_DEEP + 1), 1));
         if(is_devided){
-            for(int i = 0; i < nodes.size(); ++i)
-                nodes[i]->draw_debug(debug);
+            int ppos = get_pool_position(pool_position);
+            for(int i = 0; i < 8; ++i)
+                (nodes + ppos + i)->draw_debug(debug);
         }
     }
 
-    ~QuadNode(){
-        for(int i = 0; i < nodes.size(); ++i)
-            delete nodes[i];
-    }
+    ~QuadNode(){}
 };
 
 class Quadtree {
 private:
     QuadNode* m_nodes;
+    int m_size;
 public:
     Quadtree() {
-        m_nodes = new QuadNode[std::pow(8, AIR_MAX_DEEP + 1) / 7];
+        m_size = (2 << (3 * (AIR_MAX_DEEP + 1)) - 1) / 7;
+        m_nodes = new QuadNode[m_size]();
+
+        m_nodes[0].nodes = m_nodes;
+        m_nodes[0].deep = 0;
+        m_nodes[0].pool_position = 0;
     }
 
     void add_child(Quadable const& child) {
         m_nodes[0].add_child(child);
+    }
+
+    void draw_debug(DebugSystem& debug){
+        m_nodes[0].draw_debug(debug);
+    }
+
+    void devide() {
+        m_nodes[0].devide();
+    }
+
+    void clear() {
+        for (int i = 0; i < m_size; ++i) {
+            m_nodes[i].childs.clear();
+            m_nodes[i].is_devided = false;
+            m_nodes[i].bounds = boundingBox();
+        }
+    }
+
+    ~Quadtree() {
+        delete[] m_nodes;
     }
 };
