@@ -14,7 +14,24 @@ struct Quadable {
 /// 
 /// First you add all childs to root node, then do devide
 /// 
-struct QuadNode {
+class QuadNode {
+private:
+    boundingBox m_subbounds_cache[8];
+
+    void _update_subbounds_cache() {
+        glm::vec3 middle = (bounds.b + bounds.a) / 2.f;
+        glm::vec3 subsize = (bounds.b - bounds.a) / 2.f;
+
+        m_subbounds_cache[0] = boundingBox(bounds.a, middle);
+        m_subbounds_cache[1] = boundingBox(bounds.a + glm::vec3(subsize.x, 0, 0), middle + glm::vec3(subsize.x, 0, 0));
+        m_subbounds_cache[2] = boundingBox(bounds.a + glm::vec3(0, 0, subsize.z), middle + glm::vec3(0, 0, subsize.z));
+        m_subbounds_cache[3] = boundingBox(bounds.a + glm::vec3(subsize.x, 0, subsize.z), middle + glm::vec3(subsize.x, 0, subsize.z));
+        m_subbounds_cache[4] = boundingBox(bounds.a + glm::vec3(0, subsize.y, 0), middle + glm::vec3(0, subsize.y, 0));
+        m_subbounds_cache[5] = boundingBox(bounds.a + glm::vec3(subsize.x, subsize.y, 0), middle + glm::vec3(subsize.x, subsize.y, 0));
+        m_subbounds_cache[6] = boundingBox(bounds.a + glm::vec3(0, subsize.y, subsize.z), middle + glm::vec3(0, subsize.y, subsize.z));
+        m_subbounds_cache[7] = boundingBox(bounds.a + glm::vec3(subsize.x, subsize.y, subsize.z), middle + glm::vec3(subsize.x, subsize.y, subsize.z));
+    }
+public:
     QuadNode* nodes = nullptr;
     std::vector<Quadable const*> childs;
     boundingBox bounds = boundingBox();
@@ -43,6 +60,7 @@ struct QuadNode {
             is_devided = true;
 
             int it = 0;
+            _update_subbounds_cache();
             for (int i = 0; i < childs.size(); ++i) {
                 QuadNode* quad = get_quadrant(childs[i]->get_bounds());
                 if (quad == this) childs[it++] = childs[i];
@@ -62,25 +80,9 @@ struct QuadNode {
     QuadNode* get_quadrant(boundingBox const& box) {
         int ppos = get_pool_position(pool_position);
         if (bounds.contains(box)) {
-            glm::vec3 middle = (bounds.b + bounds.a) / 2.f;
-            glm::vec3 subsize = (bounds.b - bounds.a) / 2.f;
-
-            if (boundingBox(bounds.a, middle).contains(box))
-                return nodes + ppos + 0;
-            if (boundingBox(bounds.a + glm::vec3(subsize.x, 0, 0), middle + glm::vec3(subsize.x, 0, 0)).contains(box))
-                return nodes + ppos + 1;
-            if (boundingBox(bounds.a + glm::vec3(0, 0, subsize.z), middle + glm::vec3(0, 0, subsize.z)).contains(box))
-                return nodes + ppos + 2;
-            if (boundingBox(bounds.a + glm::vec3(subsize.x, 0, subsize.z), middle + glm::vec3(subsize.x, 0, subsize.z)).contains(box))
-                return nodes + ppos + 3;
-            if (boundingBox(bounds.a + glm::vec3(0, subsize.y, 0), middle + glm::vec3(0, subsize.y, 0)).contains(box))
-                return nodes + ppos + 4;
-            if (boundingBox(bounds.a + glm::vec3(subsize.x, subsize.y, 0), middle + glm::vec3(subsize.x, subsize.y, 0)).contains(box))
-                return nodes + ppos + 5;
-            if (boundingBox(bounds.a + glm::vec3(0, subsize.y, subsize.z), middle + glm::vec3(0, subsize.y, subsize.z)).contains(box))
-                return nodes + ppos + 6;
-            if (boundingBox(bounds.a + glm::vec3(subsize.x, subsize.y, subsize.z), middle + glm::vec3(subsize.x, subsize.y, subsize.z)).contains(box))
-                return nodes + ppos + 7;
+            for (int i = 0; i < 8; ++i)
+                if (m_subbounds_cache[i].contains(box))
+                    return nodes + ppos + i;
 
             return this;
         }
