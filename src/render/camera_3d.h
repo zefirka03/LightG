@@ -78,7 +78,7 @@ public:
     glm::mat4 get_view() const {
         auto& transform = scene->get_component<Transform>(entity);
         
-        return glm::translate(glm::lookAt(transform.position, transform.position + get_forward(), glm::vec3(0, 1, 0)), -transform.position);
+        return glm::lookAt(transform.position, transform.position + get_forward(), glm::vec3(0, 1, 0));
     }
 
     bool is_main() const {
