@@ -1,4 +1,4 @@
-#pragma once
+ #pragma once
 #include <vector>
 #include "../debug/debug.h"
 #include "bounding_box.h"
@@ -9,7 +9,6 @@
 struct Quadable {
     virtual boundingBox get_bounds() const = 0;
 };
-
 
 /// 
 /// First you add all childs to root node, then do devide
@@ -33,7 +32,7 @@ private:
     }
 public:
     QuadNode* nodes = nullptr;
-    std::vector<Quadable const*> childs;
+    std::vector<Quadable*> childs;
     boundingBox bounds = boundingBox();
     bool is_devided = false;
     int deep = 0;
@@ -47,9 +46,9 @@ public:
         childs.reserve(AIR_QUAD_DEVIDE_SIZE);
     }
 
-    void add_child(Quadable const& child) {
-        bounds.adjust_bounds(child.get_bounds());
-        childs.push_back(&child);
+    void add_child(Quadable* child) {
+        bounds.adjust_bounds(child->get_bounds());
+        childs.emplace_back(child);
     }
 
     void devide(){
@@ -64,7 +63,7 @@ public:
             for (int i = 0; i < childs.size(); ++i) {
                 QuadNode* quad = get_quadrant(childs[i]->get_bounds());
                 if (quad == this) childs[it++] = childs[i];
-                else if (quad) quad->add_child(*childs[i]);
+                else if (quad) quad->add_child(childs[i]);
             }
             childs.resize(it);
 
@@ -98,6 +97,16 @@ public:
         }
     }
 
+    std::vector<Quadable*> const& get_colliders(Quadable* quad) {
+        if (is_devided) {
+            QuadNode* tmp = get_quadrant(quad->get_bounds());
+            if (tmp == this) return childs;
+            if(tmp) return get_quadrant(quad->get_bounds())->get_colliders(quad);
+            return std::vector<Quadable*>(0);
+        }
+        else return childs;
+    }
+
     ~QuadNode(){}
 };
 
@@ -115,7 +124,7 @@ public:
         m_nodes[0].pool_position = 0;
     }
 
-    void add_child(Quadable const& child) {
+    void add_child(Quadable* child) {
         m_nodes[0].add_child(child);
     }
 
@@ -125,6 +134,10 @@ public:
 
     void devide() {
         m_nodes[0].devide();
+    }
+
+    std::vector<Quadable*> const& get(Quadable* quad) {
+        return m_nodes[0].get_colliders(quad);
     }
 
     void clear() {
