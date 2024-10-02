@@ -24,7 +24,7 @@ public:
     void update(float delta_time) override {
         t += delta_time * speed;
         
-        transform->rotation = glm::vec3(0, t, 0);
+        //transform->rotation = glm::vec3(0, t, 0);
         glm::vec3 forward_dir = glm::eulerAngleXYZ(transform->rotation.x, transform->rotation.y, transform->rotation.z) * glm::vec4(0, 0, -1, 1) ;
 
         get_scene().get_system<DebugSystem>()->draw_line({
@@ -35,19 +35,22 @@ public:
 };
 
 class CollisionChecker : public Script {
-    int collisions = 0;
+    float t = 0.1;
 
     void start() override {
         get_scene().get_component<PhysicsBody>(get_entity()).on_collide_add(this, &CollisionChecker::on_collide);
+        t = 3.14 / 2.f;
     }
 
     void update(float delta_time) override {
-        printf("collisions: %d\n", collisions);
-        collisions = 0;
+        //printf("collisions: %d\n", collisions);
+        get_scene().get_component<Transform>(get_entity()).rotation.y = t;
+        
     }
 
     void on_collide(Collider& a, Collider& b) {
-        collisions++;
+        
+        printf("%f\n", t);
     }
 };
 

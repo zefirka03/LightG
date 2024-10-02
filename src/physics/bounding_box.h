@@ -12,6 +12,9 @@ struct boundingBox {
 		if (a.x > b.x) std::swap(a.x, b.x);
 		if (a.y > b.y) std::swap(a.y, b.y);
 		if (a.z > b.z) std::swap(a.z, b.z);
+
+		a -= glm::vec3(0.05);
+		b += glm::vec3(0.05);
 	}
 
 	void adjust_bounds(boundingBox const& other) {
@@ -33,6 +36,18 @@ struct boundingBox {
 			other.b.x <= b.x &&
 			other.b.y <= b.y &&
 			other.b.z <= b.z
+		) return true;
+		return false;
+	}
+
+	bool contains(glm::vec3 const& point) const {
+		if (
+			point.x >= a.x &&
+			point.y >= a.y &&
+			point.z >= a.z &&
+			point.x <= b.x &&
+			point.y <= b.y &&
+			point.z <= b.z
 		) return true;
 		return false;
 	}
