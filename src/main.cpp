@@ -1,6 +1,6 @@
-#include "air_engine.h"
+﻿#include "air_engine.h"
 
-class RotationSc : public Script, public PhysicsBehavior {
+class RotationSc : public Script {
 private:
     float t = 0;
     float speed = rand()%100 / 100.f * 5;
@@ -8,7 +8,17 @@ private:
     Transform* transform;
 public:
     void start() override {
-        transform = &get_scene().get_component<Transform>(get_entity());
+        transform = &get_scene().add_component<Transform>(get_entity());
+        auto& sp_sp = get_scene().add_component<Sprite>(get_entity());
+        auto& sp_pb = get_scene().add_component<PhysicsBody>(get_entity());
+
+        sp_sp.size = glm::vec2((rand() % 100) / 100.f * 200);
+        transform->position = glm::vec3((rand() % 1000) / 1000.f * 10000, (rand() % 1000) / 1000.f * 10000, (rand() % 1000) / 1000.f * 10000);
+        transform->origin = glm::vec3(sp_sp.size / 2.f, 0);
+        sp_pb.collider = new SpriteCollider();
+        dynamic_cast<SpriteCollider*>(sp_pb.collider)->size = glm::vec2(sp_sp.size);
+        dynamic_cast<SpriteCollider*>(sp_pb.collider)->origin = glm::vec2(sp_sp.size / 2.f);
+        sp_pb.acceleration = glm::vec3(0, 0, 0);
     }
     
     void update(float delta_time) override {
@@ -22,12 +32,24 @@ public:
             { transform->position + forward_dir * 100.f, glm::vec4(0,0,1,1) }
         });
     }
-
-    void on_collide(Collider& body) override {
-        printf("sheeesh");
-    }
 };
 
+class CollisionChecker : public Script {
+    int collisions = 0;
+
+    void start() override {
+        get_scene().get_component<PhysicsBody>(get_entity()).on_collide_add(this, &CollisionChecker::on_collide);
+    }
+
+    void update(float delta_time) override {
+        printf("collisions: %d\n", collisions);
+        collisions = 0;
+    }
+
+    void on_collide(Collider& a, Collider& b) {
+        collisions++;
+    }
+};
 
 class CameraController : public Script {
 private:
@@ -109,6 +131,7 @@ public:
             auto& sp_sp = add_component<Sprite>(front_entity);
             auto& sp_tr = add_component<Transform>(front_entity);
             auto& sp_pb = add_component<PhysicsBody>(front_entity);
+            add_component<ScriptComponent>(front_entity).bind<CollisionChecker>();
             sp_sp.size = glm::vec2(50);
             sp_tr.origin = glm::vec3(sp_sp.size / 2.f, 0);
             sp_pb.collider = new SpriteCollider();
@@ -118,19 +141,7 @@ public:
 
         for (int i = 0; i < 1500; ++i) {
             a = create_entity();
-            auto& sp_sp = add_component<Sprite>(a);
-            auto& sp_tr = add_component<Transform>(a);
-            auto& sp_pb = add_component<PhysicsBody>(a);
             add_component<ScriptComponent>(a).bind<RotationSc>();
-
-            sp_sp.size = glm::vec2((rand() % 100) / 100.f * 200);
-            sp_tr.position = glm::vec3((rand() % 1000) / 1000.f * 10000, (rand() % 1000) / 1000.f * 10000, (rand() % 1000) / 1000.f * 10000);
-            printf("%f\n", sp_tr.position.x);
-            sp_tr.origin = glm::vec3(sp_sp.size / 2.f, 0);
-            sp_pb.collider = new SpriteCollider();
-            dynamic_cast<SpriteCollider*>(sp_pb.collider)->size = glm::vec2(sp_sp.size);
-            dynamic_cast<SpriteCollider*>(sp_pb.collider)->origin = glm::vec2(sp_sp.size/2.f);
-            sp_pb.acceleration = glm::vec3(0, 0, 0);
         }
     }
 

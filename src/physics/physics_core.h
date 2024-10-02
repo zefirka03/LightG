@@ -6,6 +6,7 @@
 
 struct Collider : public Quadable {
 	virtual void update_transform(Transform& transform) = 0;
+	virtual bool check_collision(Collider* other) = 0;
 
 	virtual void draw_debug(DebugSystem& debug_system) const {}
 };
@@ -14,6 +15,12 @@ struct spriteTransform {
 	glm::vec2 size;
 	glm::vec2 origin;
 	float angle;
+};
+
+class SpriteCollider;
+
+struct CollisionCheckers {
+	static bool is_collide(SpriteCollider* a, SpriteCollider* b);
 };
 
 class SpriteCollider : public Collider {
@@ -36,6 +43,12 @@ public:
 		));
 	}
 
+	bool check_collision(Collider* other) override {
+		if (dynamic_cast<SpriteCollider*>(other))
+			return CollisionCheckers::is_collide(this, reinterpret_cast<SpriteCollider*>(other));
+		return false;
+	}
+
 	void update_transform(Transform& transform) override {
 		world_transform = transform;
 	}
@@ -54,3 +67,7 @@ public:
 		debug_system.draw_line({ {a4, glm::vec4(1)}, {a1, glm::vec4(1)} });
 	}
 };
+
+bool CollisionCheckers::is_collide(SpriteCollider* a, SpriteCollider* b) {
+	
+}
