@@ -48,9 +48,9 @@ class CollisionChecker : public Script {
         
     }
 
-    void on_collide(Collider& a, Collider& b) {
+    void on_collide(PhysicsBody& a, PhysicsBody& b) {
         
-        printf("%f\n", t);
+        b.scene->get_component<Sprite>(b.entity).size = glm::vec2(10);
     }
 };
 

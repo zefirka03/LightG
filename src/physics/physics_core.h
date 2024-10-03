@@ -6,7 +6,9 @@
 
 struct Collider : public Quadable {
 private:
-
+friend class PhysicsBody;
+friend class PhysicsSystem;
+	PhysicsBody* m_pb_handler = nullptr;
 public:
 	virtual void update_transform(Transform& transform) = 0;
 	virtual bool check_collision(Collider* other) = 0;

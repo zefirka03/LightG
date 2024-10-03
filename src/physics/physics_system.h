@@ -7,7 +7,7 @@
 struct PhysicsBody : public Component {
 private:
 friend class PhysicsSystem;
-    std::vector<std::function<void(Collider&, Collider&)>> m_on_collide_handers;
+    std::vector<std::function<void(PhysicsBody&, PhysicsBody&)>> m_on_collide_handers;
     Collider* m_collider = nullptr;
 public:
 
@@ -26,11 +26,12 @@ public:
     Collider_t* set_collider(Args&&... args) {
         static_assert(std::is_base_of<Collider, Collider_t>::value, "Collider_t class must be derived by Collider");
         m_collider = new Collider_t(args...);
+        m_collider->m_pb_handler = this;
         return static_cast<Collider_t*>(m_collider);
     }
 
     template<class T>
-    void on_collide_add(T* object, void(T::*func)(Collider&, Collider&)) {
+    void on_collide_add(T* object, void(T::*func)(PhysicsBody&, PhysicsBody&)) {
         m_on_collide_handers.push_back(std::bind(func, object, std::placeholders::_1, std::placeholders::_2));
     }
 };
@@ -82,7 +83,7 @@ private:
                     Collider* collider_child = static_cast<Collider*>(child);
                     if (collider_child != pb.m_collider) {
                         if (pb.m_collider->check_collision(collider_child))
-                            on_collide(*pb.m_collider, *collider_child);
+                            on_collide(*pb.m_collider->m_pb_handler, *collider_child->m_pb_handler);
                     }
                 }
             }
