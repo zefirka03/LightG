@@ -40,6 +40,7 @@ struct boundingBox {
 		return false;
 	}
 
+	// if this bbox fully contains point
 	bool contains(glm::vec3 const& point) const {
 		if (
 			point.x >= a.x &&

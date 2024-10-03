@@ -15,9 +15,9 @@ public:
         sp_sp.size = glm::vec2((rand() % 100) / 100.f * 200);
         transform->position = glm::vec3((rand() % 1000) / 1000.f * 10000, (rand() % 1000) / 1000.f * 10000, (rand() % 1000) / 1000.f * 10000);
         transform->origin = glm::vec3(sp_sp.size / 2.f, 0);
-        sp_pb.collider = new SpriteCollider();
-        dynamic_cast<SpriteCollider*>(sp_pb.collider)->size = glm::vec2(sp_sp.size);
-        dynamic_cast<SpriteCollider*>(sp_pb.collider)->origin = glm::vec2(sp_sp.size / 2.f);
+        sp_pb.set_collider<SpriteCollider>();
+        static_cast<SpriteCollider*>(sp_pb.get_collider())->size = glm::vec2(sp_sp.size);
+        static_cast<SpriteCollider*>(sp_pb.get_collider())->origin = glm::vec2(sp_sp.size / 2.f);
         sp_pb.acceleration = glm::vec3(0, 0, 0);
     }
     
@@ -137,9 +137,9 @@ public:
             add_component<ScriptComponent>(front_entity).bind<CollisionChecker>();
             sp_sp.size = glm::vec2(50);
             sp_tr.origin = glm::vec3(sp_sp.size / 2.f, 0);
-            sp_pb.collider = new SpriteCollider();
-            dynamic_cast<SpriteCollider*>(sp_pb.collider)->size = glm::vec2(sp_sp.size);
-            dynamic_cast<SpriteCollider*>(sp_pb.collider)->origin = glm::vec2(sp_sp.size / 2.f);
+            sp_pb.set_collider<SpriteCollider>();
+            static_cast<SpriteCollider*>(sp_pb.get_collider())->size = glm::vec2(sp_sp.size);
+            static_cast<SpriteCollider*>(sp_pb.get_collider())->origin = glm::vec2(sp_sp.size / 2.f);
         }
 
         for (int i = 0; i < 1500; ++i) {

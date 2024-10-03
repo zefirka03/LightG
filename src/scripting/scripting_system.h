@@ -1,8 +1,6 @@
 #pragma once
 #include "../core/core.h"
 
-class ScriptComponent;
-
 class Script {
 friend class ScriptingSystem;
 protected:

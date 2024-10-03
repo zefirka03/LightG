@@ -5,6 +5,9 @@
 #include "quadtree.h"
 
 struct Collider : public Quadable {
+private:
+
+public:
 	virtual void update_transform(Transform& transform) = 0;
 	virtual bool check_collision(Collider* other) = 0;
 
@@ -45,7 +48,7 @@ public:
 
 	bool check_collision(Collider* other) override {
 		if (dynamic_cast<SpriteCollider*>(other))
-			return CollisionCheckers::is_collide(this, reinterpret_cast<SpriteCollider*>(other));
+			return CollisionCheckers::is_collide(this, static_cast<SpriteCollider*>(other));
 		return false;
 	}
 
