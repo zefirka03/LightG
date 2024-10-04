@@ -52,4 +52,17 @@ struct boundingBox {
 		) return true;
 		return false;
 	}
+
+	// if this bbox intersect contains point
+	bool intersect(boundingBox const& other) const {
+		if (
+			other.a.x <= b.x &&
+			other.a.y <= b.y &&
+			other.a.z <= b.z &&
+			other.b.x >= a.x &&
+			other.b.y >= a.y &&
+			other.b.z >= a.z
+		) return true;
+		return false;
+	}
 };

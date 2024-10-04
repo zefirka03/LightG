@@ -15,21 +15,21 @@ struct Quadable {
 /// 
 class QuadNode {
 private:
-    boundingBox m_subbounds_cache[8];
+    void _collect_intersections(boundingBox const& box, std::vector<Quadable*>& array) const {
+        // this quadnode
+        if(box.intersect(bounds)){
+            for(auto child : childs)
+                array.emplace_back(child);
+        }
 
-    void _update_subbounds_cache() {
-        glm::vec3 middle = (bounds.b + bounds.a) / 2.f;
-        glm::vec3 subsize = (bounds.b - bounds.a) / 2.f;
-
-        m_subbounds_cache[0] = boundingBox(bounds.a, middle);
-        m_subbounds_cache[1] = boundingBox(bounds.a + glm::vec3(subsize.x, 0, 0), middle + glm::vec3(subsize.x, 0, 0));
-        m_subbounds_cache[2] = boundingBox(bounds.a + glm::vec3(0, 0, subsize.z), middle + glm::vec3(0, 0, subsize.z));
-        m_subbounds_cache[3] = boundingBox(bounds.a + glm::vec3(subsize.x, 0, subsize.z), middle + glm::vec3(subsize.x, 0, subsize.z));
-        m_subbounds_cache[4] = boundingBox(bounds.a + glm::vec3(0, subsize.y, 0), middle + glm::vec3(0, subsize.y, 0));
-        m_subbounds_cache[5] = boundingBox(bounds.a + glm::vec3(subsize.x, subsize.y, 0), middle + glm::vec3(subsize.x, subsize.y, 0));
-        m_subbounds_cache[6] = boundingBox(bounds.a + glm::vec3(0, subsize.y, subsize.z), middle + glm::vec3(0, subsize.y, subsize.z));
-        m_subbounds_cache[7] = boundingBox(bounds.a + glm::vec3(subsize.x, subsize.y, subsize.z), middle + glm::vec3(subsize.x, subsize.y, subsize.z));
+        // other
+        if(is_devided){
+            int ppos = get_pool_position(pool_position);
+            for(int i = 0; i < 8; ++i)
+                (nodes + ppos + i)->_collect_intersections(box, array);
+        }
     }
+
 public:
     QuadNode* nodes = nullptr;
     std::vector<Quadable*> childs;
@@ -59,11 +59,10 @@ public:
             is_devided = true;
 
             int it = 0;
-            _update_subbounds_cache();
             for (int i = 0; i < childs.size(); ++i) {
-                QuadNode* quad = get_quadrant(childs[i]->get_bounds());
-                if (quad == this) childs[it++] = childs[i];
-                else if (quad) quad->add_child(childs[i]);
+                int quadrant = get_quadrant(childs[i]->get_bounds());
+                if (quadrant == -1) childs[it++] = childs[i];
+                else (nodes + ppos + quadrant)->add_child(childs[i]);
             }
             childs.resize(it);
 
@@ -72,20 +71,48 @@ public:
         }
     }
 
-    int get_pool_position(int i){
+    int get_pool_position(int i) const {
         return 8 * i + 1;
     }
 
-    QuadNode* get_quadrant(boundingBox const& box) {
-        int ppos = get_pool_position(pool_position);
-        if (bounds.contains(box)) {
-            for (int i = 0; i < 8; ++i)
-                if (m_subbounds_cache[i].contains(box))
-                    return nodes + ppos + i;
+    int get_quadrant(boundingBox const& box) {
+        glm::vec3 middle = (bounds.a + bounds.b) / 2.f;
 
-            return this;
+        if(box.a.x > middle.x){
+            if(box.a.y > middle.y){
+                if(box.a.z > middle.z){
+                    return 0;
+                }
+                else if(box.b.z <= middle.z){
+                    return 1;
+                }
+            }else if(box.b.y <= middle.y){
+                if(box.a.z > middle.z){
+                    return 2;
+                }
+                else if(box.b.z <= middle.z){
+                    return 3;
+                }
+            }
+        }else if(box.b.x <= middle.x){
+            if(box.a.y > middle.y){
+                if(box.a.z > middle.z){
+                    return 4;
+                }
+                else if(box.b.z <= middle.z){
+                    return 5;
+                }
+            }else if(box.b.y <= middle.y){
+                if(box.a.z > middle.z){
+                    return 6;
+                }
+                else if(box.b.z <= middle.z){
+                    return 7;
+                }
+            }
         }
-        return nullptr;
+
+        return -1;
     }
 
     void draw_debug(DebugSystem& debug){
@@ -97,14 +124,10 @@ public:
         }
     }
 
-    std::vector<Quadable*> const& get_colliders(Quadable* quad) {
-        if (is_devided) {
-            QuadNode* tmp = get_quadrant(quad->get_bounds());
-            if (tmp == this) return childs;
-            if(tmp) return get_quadrant(quad->get_bounds())->get_colliders(quad);
-            return std::vector<Quadable*>(0);
-        }
-        else return childs;
+    std::vector<Quadable*> get_colliders(Quadable* quad) const {
+        std::vector<Quadable*> out;
+        _collect_intersections(quad->get_bounds(), out);
+        return out;
     }
 
     ~QuadNode(){}
@@ -136,7 +159,7 @@ public:
         m_nodes[0].devide();
     }
 
-    std::vector<Quadable*> const& get(Quadable* quad) {
+    std::vector<Quadable*> get(Quadable* quad) {
         return m_nodes[0].get_colliders(quad);
     }
 

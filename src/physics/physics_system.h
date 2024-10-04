@@ -77,7 +77,7 @@ private:
         // Check collisions in quadtree
         view_pb.each([&](PhysicsBody& pb, Transform& transform) {
             for(auto on_collide : pb.m_on_collide_handers){
-                auto& childs = m_quadtree->get(pb.m_collider);
+                auto childs = m_quadtree->get(pb.m_collider);
 
                 for (auto& child : childs) {
                     Collider* collider_child = static_cast<Collider*>(child);
