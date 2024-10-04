@@ -77,10 +77,10 @@ private:
         // Check collisions in quadtree
         view_pb.each([&](PhysicsBody& pb, Transform& transform) {
             for(auto on_collide : pb.m_on_collide_handers){
-                auto childs = m_quadtree->get(pb.m_collider);
+                auto intersect_quads = m_quadtree->get(pb.m_collider);
 
-                for (auto& child : childs) {
-                    Collider* collider_child = static_cast<Collider*>(child);
+                for (auto& quad : intersect_quads) {
+                    Collider* collider_child = static_cast<Collider*>(quad);
                     if (collider_child != pb.m_collider) {
                         if (pb.m_collider->check_collision(collider_child))
                             on_collide(*pb.m_collider->m_pb_handler, *collider_child->m_pb_handler);

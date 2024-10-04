@@ -24,13 +24,9 @@ public:
     void update(float delta_time) override {
         t += delta_time * speed;
         
-        //transform->rotation = glm::vec3(0, t, 0);
+        transform->rotation = glm::vec3(0, t, 0);
         glm::vec3 forward_dir = glm::eulerAngleXYZ(transform->rotation.x, transform->rotation.y, transform->rotation.z) * glm::vec4(0, 0, -1, 1) ;
 
-        get_scene().get_system<DebugSystem>()->draw_line({
-            { transform->position, glm::vec4(1,0,0,1) }, 
-            { transform->position + forward_dir * 100.f, glm::vec4(0,0,1,1) }
-        });
     }
 };
 
@@ -111,6 +107,7 @@ class Scene1 : public Scene {
 public:
     Entity a;
     Entity cam;
+    Entity plane;
     Entity front_entity;
 
     DebugSystem* debug;
@@ -129,6 +126,18 @@ public:
         add_component<Camera3d>(cam, new Perspective(640, 480, 3.14f * 45.f / 180.f, 0.1, 100000), true);
         add_component<ScriptComponent>(cam).bind<CameraController>();
 
+        {
+            plane = create_entity();
+            auto& sp_sp = add_component<Sprite>(plane);
+            auto& sp_tr = add_component<Transform>(plane);
+            auto& sp_pb = add_component<PhysicsBody>(plane);
+            sp_sp.size = glm::vec2(1000);
+            sp_tr.origin = glm::vec3(sp_sp.size / 2.f, 0);
+            sp_tr.rotation.x = glm::half_pi<float>();
+            sp_pb.set_collider<PlaneCollider>();
+            static_cast<PlaneCollider*>(sp_pb.get_collider())->size = glm::vec2(sp_sp.size);
+            static_cast<PlaneCollider*>(sp_pb.get_collider())->origin = glm::vec2(sp_sp.size / 2.f);
+        }
         {
             front_entity = create_entity();
             auto& sp_sp = add_component<Sprite>(front_entity);
