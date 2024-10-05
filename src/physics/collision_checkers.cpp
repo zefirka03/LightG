@@ -28,22 +28,8 @@ bool CollisionCheckers::is_collide(SpriteCollider* a, SpriteCollider* b) {
 	boundingBox A(A_a, A_b);
 	boundingBox B(B_a, B_b);
 
-	glm::mat2 det = glm::mat2({
-		(A_b.z - A_a.z), -(A_b.x - A_a.x),
-		(B_b.z - B_a.z), -(B_b.x - B_a.x)
-		});
-
-	glm::mat2 x1 = glm::mat2({
-		A_a.x * (A_b.z - A_a.z) - A_a.z * (A_b.x - A_a.x), -(A_b.x - A_a.x),
-		B_a.x * (B_b.z - B_a.z) - B_a.z * (B_b.x - B_a.x), -(B_b.x - B_a.x)
-		});
-
-	glm::mat2 z1 = glm::mat2({
-		(A_b.z - A_a.z), A_a.x * (A_b.z - A_a.z) - A_a.z * (A_b.x - A_a.x),
-		(B_b.z - B_a.z), B_a.x * (B_b.z - B_a.z) - B_a.z * (B_b.x - B_a.x)
-		});
-
-	glm::vec2 xz = { glm::determinant(x1) / glm::determinant(det), glm::determinant(z1) / glm::determinant(det) };
+	auto intr = is_lines_intersect({glm::vec2(A_a.x, A_a.z), glm::vec2(A_b.x, A_b.z)}, {glm::vec2(B_a.x, B_a.z), glm::vec2(B_b.x, B_b.z)});
+	glm::vec2 xz = intr.point;
 
 	float y1 = std::min(A_b.y, B_b.y);
 	float y2 = std::max(A_a.y, B_a.y);
@@ -59,4 +45,22 @@ bool CollisionCheckers::is_collide(PlaneCollider* a, PlaneCollider* b) {
 
 bool CollisionCheckers::is_collide(SpriteCollider* a, PlaneCollider* b) {
 	return false;
+}
+
+bool CollisionCheckers::is_collide(SphereCollider* a, PlaneCollider* b){
+	glm::vec3 a_pos_xz = glm::vec3(a->world_transform.position.x, 0, a->world_transform.position.z);
+
+	glm::vec3 b_a_pos_xz = glm::vec3(b->world_transform.position.x - b->origin.x, 0, b->world_transform.position.z - b->origin.y);
+	glm::vec3 b_b_pos_xz = glm::vec3(b->world_transform.position.x - b->origin.x, 0, b->world_transform.position.z - b->origin.y + b->size.y);
+	glm::vec3 b_c_pos_xz = glm::vec3(b->world_transform.position.x - b->origin.x + b->size.x, 0, b->world_transform.position.z - b->origin.y + b->size.y);
+	glm::vec3 b_d_pos_xz = glm::vec3(b->world_transform.position.x - b->origin.x + b->size.x, 0, b->world_transform.position.z - b->origin.y);
+
+	return (
+		a->world_transform.position.y - a->radius < b->world_transform.position.y && 
+		a->world_transform.position.y + a->radius > b->world_transform.position.y &&
+		glm::cross(b_b_pos_xz-b_a_pos_xz, a_pos_xz-b_a_pos_xz).y > 0 &&
+		glm::cross(b_c_pos_xz-b_b_pos_xz, a_pos_xz-b_b_pos_xz).y > 0 &&
+		glm::cross(b_d_pos_xz-b_c_pos_xz, a_pos_xz-b_c_pos_xz).y > 0 &&
+		glm::cross(b_a_pos_xz-b_d_pos_xz, a_pos_xz-b_d_pos_xz).y > 0 
+	);
 }

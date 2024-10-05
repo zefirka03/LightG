@@ -3,6 +3,7 @@
 #include "../debug/debug.h"
 #include "../render/transform.h"
 #include "quadtree.h"
+#include "line.h"
 
 struct Collider : public Quadable {
 private:
@@ -24,11 +25,15 @@ struct spriteTransform {
 
 class SpriteCollider;
 class PlaneCollider;
+class SphereCollider;
 
 struct CollisionCheckers {
 	static bool is_collide(SpriteCollider* a, SpriteCollider* b);
+	// Always false
 	static bool is_collide(PlaneCollider* a, PlaneCollider* b);
+	// Not implemented
 	static bool is_collide(SpriteCollider* a, PlaneCollider* b);
+	static bool is_collide(SphereCollider* a, PlaneCollider* b);
 };
 
 class SpriteCollider : public Collider {
@@ -52,6 +57,19 @@ public:
 	Transform world_transform;
 
 	PlaneCollider();
+
+	boundingBox get_bounds() const override;
+	bool check_collision(Collider* other) override;
+	void update_transform(Transform& transform) override;
+	void draw_debug(DebugSystem& debug_system) const override;
+};
+
+class SphereCollider : public Collider {
+public:
+	float radius;
+	Transform world_transform;
+
+	SphereCollider();
 
 	boundingBox get_bounds() const override;
 	bool check_collision(Collider* other) override;

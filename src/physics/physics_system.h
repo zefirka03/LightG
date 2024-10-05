@@ -4,7 +4,7 @@
 #include "../core/core.h"
 #include "physics_core.h"
 
-struct PhysicsBody : public Component {
+class PhysicsBody : public Component {
 private:
 friend class PhysicsSystem;
     std::vector<std::function<void(PhysicsBody&, PhysicsBody&)>> m_on_collide_handers;

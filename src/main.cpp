@@ -15,9 +15,11 @@ public:
         sp_sp.size = glm::vec2((rand() % 100) / 100.f * 200);
         transform->position = glm::vec3((rand() % 1000) / 1000.f * 10000, (rand() % 1000) / 1000.f * 10000, (rand() % 1000) / 1000.f * 10000);
         transform->origin = glm::vec3(sp_sp.size / 2.f, 0);
-        sp_pb.set_collider<SpriteCollider>();
-        static_cast<SpriteCollider*>(sp_pb.get_collider())->size = glm::vec2(sp_sp.size);
-        static_cast<SpriteCollider*>(sp_pb.get_collider())->origin = glm::vec2(sp_sp.size / 2.f);
+        //sp_pb.set_collider<SpriteCollider>();
+        //static_cast<SpriteCollider*>(sp_pb.get_collider())->size = glm::vec2(sp_sp.size);
+        //static_cast<SpriteCollider*>(sp_pb.get_collider())->origin = glm::vec2(sp_sp.size / 2.f);
+        sp_pb.set_collider<SphereCollider>();
+        static_cast<SphereCollider*>(sp_pb.get_collider())->radius = 50;
         sp_pb.acceleration = glm::vec3(0, 0, 0);
     }
     
@@ -25,8 +27,7 @@ public:
         t += delta_time * speed;
         
         transform->rotation = glm::vec3(0, t, 0);
-        glm::vec3 forward_dir = glm::eulerAngleXYZ(transform->rotation.x, transform->rotation.y, transform->rotation.z) * glm::vec4(0, 0, -1, 1) ;
-
+        glm::vec3 forward_dir = glm::eulerAngleXYZ(transform->rotation.x, transform->rotation.y, transform->rotation.z) * glm::vec4(0, 0, -1, 1);
     }
 };
 
@@ -40,13 +41,12 @@ class CollisionChecker : public Script {
 
     void update(float delta_time) override {
         //printf("collisions: %d\n", collisions);
-        get_scene().get_component<Transform>(get_entity()).rotation.y = t;
-        
+        //get_scene().get_component<Transform>(get_entity()).rotation.y = t;
     }
 
     void on_collide(PhysicsBody& a, PhysicsBody& b) {
-        
-        b.scene->get_component<Sprite>(b.entity).size = glm::vec2(10);
+        printf("fafw\n");
+       // b.scene->get_component<Sprite>(b.entity).size = glm::vec2(10);
     }
 };
 
@@ -131,6 +131,7 @@ public:
             auto& sp_sp = add_component<Sprite>(plane);
             auto& sp_tr = add_component<Transform>(plane);
             auto& sp_pb = add_component<PhysicsBody>(plane);
+            add_component<ScriptComponent>(plane).bind<CollisionChecker>();
             sp_sp.size = glm::vec2(1000);
             sp_tr.origin = glm::vec3(sp_sp.size / 2.f, 0);
             sp_tr.rotation.x = glm::half_pi<float>();
@@ -146,9 +147,8 @@ public:
             add_component<ScriptComponent>(front_entity).bind<CollisionChecker>();
             sp_sp.size = glm::vec2(50);
             sp_tr.origin = glm::vec3(sp_sp.size / 2.f, 0);
-            sp_pb.set_collider<SpriteCollider>();
-            static_cast<SpriteCollider*>(sp_pb.get_collider())->size = glm::vec2(sp_sp.size);
-            static_cast<SpriteCollider*>(sp_pb.get_collider())->origin = glm::vec2(sp_sp.size / 2.f);
+            sp_pb.set_collider<SphereCollider>();
+            static_cast<SphereCollider*>(sp_pb.get_collider())->radius = sp_sp.size.x/2;
         }
 
         for (int i = 0; i < 1500; ++i) {
