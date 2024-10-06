@@ -20,13 +20,13 @@ private:
         if(box.intersect(bounds)){
             for(auto child : childs)
                 array.emplace_back(child);
-        }
 
-        // other
-        if(is_devided){
-            int ppos = get_pool_position(pool_position);
-            for(int i = 0; i < 8; ++i)
-                (nodes + ppos + i)->_collect_intersections(box, array);
+            // other
+            if (is_devided) {
+                int ppos = get_pool_position(pool_position);
+                for (int i = 0; i < 8; ++i)
+                    (nodes + ppos + i)->_collect_intersections(box, array);
+            }
         }
     }
 

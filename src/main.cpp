@@ -132,6 +132,7 @@ public:
             auto& sp_tr = add_component<Transform>(plane);
             auto& sp_pb = add_component<PhysicsBody>(plane);
             add_component<ScriptComponent>(plane).bind<CollisionChecker>();
+            sp_pb.tag = "env";
             sp_sp.size = glm::vec2(11000);
             sp_tr.origin = glm::vec3(sp_sp.size / 2.f, 0);
             sp_tr.rotation.x = glm::half_pi<float>();

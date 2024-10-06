@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <functional>
+#include <string_view>
 
 #include "../core/core.h"
 #include "physics_core.h"
@@ -12,6 +13,7 @@ friend class PhysicsSystem;
     Collider* m_collider = nullptr;
 public:
     bool solid = false;
+    std::string_view tag = "default";
     float m = 1.f;
     glm::vec3 acceleration = glm::vec3(0);
     glm::vec3 velocity = glm::vec3(0);
@@ -80,7 +82,8 @@ private:
         view_pb.each([&](PhysicsBody& pb, Transform& transform) {
             if (pb.m_collider) {
                 pb.m_collider->update_transform(transform);
-                m_quadtree->add_child(pb.m_collider);
+                if (pb.tag == "env") 
+                    m_quadtree->add_child(pb.m_collider);
             }
         });
         m_quadtree->devide();
