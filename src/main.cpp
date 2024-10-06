@@ -12,15 +12,16 @@ public:
         auto& sp_sp = get_scene().add_component<Sprite>(get_entity());
         auto& sp_pb = get_scene().add_component<PhysicsBody>(get_entity());
         sp_pb.solid = true;
-        sp_sp.size = glm::vec2((rand() % 100) / 100.f * 200);
-        transform->position = glm::vec3((rand() % 1000) / 1000.f * 10000, (rand() % 1000) / 1000.f * 10000, (rand() % 1000) / 1000.f * 10000);
+        sp_sp.size = glm::vec2(100+(rand() % 100) / 100.f * 100);
+        transform->position = glm::vec3(5000 - (rand() % 10000), 100 + 10000 - (rand() % 10000), 5000 - (rand() % 10000));
         transform->origin = glm::vec3(sp_sp.size / 2.f, 0);
         //sp_pb.set_collider<SpriteCollider>();
         //static_cast<SpriteCollider*>(sp_pb.get_collider())->size = glm::vec2(sp_sp.size);
         //static_cast<SpriteCollider*>(sp_pb.get_collider())->origin = glm::vec2(sp_sp.size / 2.f);
         sp_pb.set_collider<SphereCollider>();
-        sp_pb.acceleration = glm::vec3(0,-9.8,0);
-        static_cast<SphereCollider*>(sp_pb.get_collider())->radius = 50;
+        sp_pb.acceleration = glm::vec3(0,-9.8,0)*80.f;
+        sp_pb.velocity = glm::vec3(0,(rand()%1000)/1000.f * 100, 0);
+        static_cast<SphereCollider*>(sp_pb.get_collider())->radius = sp_sp.size.x/2;
     }
     
     void update(float delta_time) override {
@@ -55,7 +56,7 @@ private:
     glm::vec2 m_last_mouse_pos;
 public:
     glm::vec2 sensetivity = glm::vec2(0.2);
-    float speed = 300;
+    float speed = 600;
 
     void start() override {
         Input::set_cursor_mode(Cursor::disabled);
@@ -90,8 +91,8 @@ public:
             dir -= forward_dir;
 
         if (Input::is_key_pressed(Key::LeftShift))
-            speed = 800;
-        else speed = 300;
+            speed = 3500;
+        else speed = 1000;
 
         entity_transform.position += dir * speed * delta_time;
         
@@ -108,7 +109,6 @@ public:
     Entity a;
     Entity cam;
     Entity plane;
-    Entity front_entity;
 
     DebugSystem* debug;
     PhysicsSystem* physics;
@@ -132,25 +132,13 @@ public:
             auto& sp_tr = add_component<Transform>(plane);
             auto& sp_pb = add_component<PhysicsBody>(plane);
             add_component<ScriptComponent>(plane).bind<CollisionChecker>();
-            sp_sp.size = glm::vec2(10000);
+            sp_sp.size = glm::vec2(11000);
             sp_tr.origin = glm::vec3(sp_sp.size / 2.f, 0);
             sp_tr.rotation.x = glm::half_pi<float>();
             sp_pb.set_collider<PlaneCollider>();
             sp_pb.solid = true;
             static_cast<PlaneCollider*>(sp_pb.get_collider())->size = glm::vec2(sp_sp.size);
             static_cast<PlaneCollider*>(sp_pb.get_collider())->origin = glm::vec2(sp_sp.size / 2.f);
-        }
-        {
-            front_entity = create_entity();
-            auto& sp_sp = add_component<Sprite>(front_entity);
-            auto& sp_tr = add_component<Transform>(front_entity);
-            auto& sp_pb = add_component<PhysicsBody>(front_entity);
-            sp_pb.solid = true;
-            add_component<ScriptComponent>(front_entity).bind<CollisionChecker>();
-            sp_sp.size = glm::vec2(50);
-            sp_tr.origin = glm::vec3(sp_sp.size / 2.f, 0);
-            sp_pb.set_collider<SphereCollider>();
-            static_cast<SphereCollider*>(sp_pb.get_collider())->radius = sp_sp.size.x/2;
         }
 
         for (int i = 0; i < 1500; ++i) {
@@ -160,7 +148,7 @@ public:
     }
 
     void on_update(float delta_time) override {
-        get_component<Transform>(front_entity).position = get_component<Transform>(cam).position + get_component<Camera3d>(cam).get_forward() * 500.f;
+        //get_component<Transform>(front_entity).position = get_component<Transform>(cam).position + get_component<Camera3d>(cam).get_forward() * 500.f;
 
         // Draw coordinates
         debug->draw_line({
@@ -181,6 +169,8 @@ public:
 
         if(Input::is_key_pressed(Key::Space))
             printf("%f \n", 1.0 / delta_time);
+
+        
     }
 };
 

@@ -102,6 +102,7 @@ private:
 
                             // Solve collisions
                             transform.position += collision_data.intersection_vector;
+                            pb.velocity = -pb.velocity * 0.4f;
                         }
                     }
                 }
