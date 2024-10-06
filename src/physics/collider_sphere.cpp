@@ -9,10 +9,10 @@ boundingBox SphereCollider::get_bounds() const {
 	);
 }
 
-bool SphereCollider::check_collision(Collider* other) {
+collisionData SphereCollider::check_collision(Collider* other) {
 	if(dynamic_cast<PlaneCollider*>(other))
 		return CollisionCheckers::is_collide(this, static_cast<PlaneCollider*>(other));
-	return false;
+	return collisionData();
 }
 
 void SphereCollider::update_transform(Transform& transform) {

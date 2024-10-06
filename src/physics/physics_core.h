@@ -5,6 +5,12 @@
 #include "quadtree.h"
 #include "line.h"
 
+struct collisionData {
+	bool is_collide;
+	glm::vec3 collision_point;
+	glm::vec3 intersection_vector;
+};
+
 struct Collider : public Quadable {
 private:
 friend class PhysicsBody;
@@ -12,7 +18,7 @@ friend class PhysicsSystem;
 	PhysicsBody* m_pb_handler = nullptr;
 public:
 	virtual void update_transform(Transform& transform) = 0;
-	virtual bool check_collision(Collider* other) = 0;
+	virtual collisionData check_collision(Collider* other) = 0;
 
 	virtual void draw_debug(DebugSystem& debug_system) const {}
 };
@@ -28,12 +34,12 @@ class PlaneCollider;
 class SphereCollider;
 
 struct CollisionCheckers {
-	static bool is_collide(SpriteCollider* a, SpriteCollider* b);
+	static collisionData is_collide(SpriteCollider* a, SpriteCollider* b);
 	// Always false
-	static bool is_collide(PlaneCollider* a, PlaneCollider* b);
+	static collisionData is_collide(PlaneCollider* a, PlaneCollider* b);
 	// Not implemented
-	static bool is_collide(SpriteCollider* a, PlaneCollider* b);
-	static bool is_collide(SphereCollider* a, PlaneCollider* b);
+	static collisionData is_collide(SpriteCollider* a, PlaneCollider* b);
+	static collisionData is_collide(SphereCollider* a, PlaneCollider* b);
 };
 
 class SpriteCollider : public Collider {
@@ -45,7 +51,7 @@ public:
 	SpriteCollider();
 
 	boundingBox get_bounds() const override;
-	bool check_collision(Collider* other) override;
+	collisionData check_collision(Collider* other) override;
 	void update_transform(Transform& transform) override;
 	void draw_debug(DebugSystem& debug_system) const override;
 };
@@ -59,7 +65,7 @@ public:
 	PlaneCollider();
 
 	boundingBox get_bounds() const override;
-	bool check_collision(Collider* other) override;
+	collisionData check_collision(Collider* other) override;
 	void update_transform(Transform& transform) override;
 	void draw_debug(DebugSystem& debug_system) const override;
 };
@@ -72,7 +78,7 @@ public:
 	SphereCollider();
 
 	boundingBox get_bounds() const override;
-	bool check_collision(Collider* other) override;
+	collisionData check_collision(Collider* other) override;
 	void update_transform(Transform& transform) override;
 	void draw_debug(DebugSystem& debug_system) const override;
 };

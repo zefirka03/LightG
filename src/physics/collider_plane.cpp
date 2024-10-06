@@ -14,12 +14,12 @@ boundingBox PlaneCollider::get_bounds() const {
 	));
 }
 
-bool PlaneCollider::check_collision(Collider* other) {
+collisionData PlaneCollider::check_collision(Collider* other) {
 	if (dynamic_cast<PlaneCollider*>(other))
 		return CollisionCheckers::is_collide(this, static_cast<PlaneCollider*>(other));
 	else if (dynamic_cast<SpriteCollider*>(other))
 		return CollisionCheckers::is_collide(static_cast<SpriteCollider*>(other), this);
-	return false;
+	return collisionData();
 }
 
 void PlaneCollider::update_transform(Transform& transform) {

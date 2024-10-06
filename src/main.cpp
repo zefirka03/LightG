@@ -19,8 +19,8 @@ public:
         //static_cast<SpriteCollider*>(sp_pb.get_collider())->size = glm::vec2(sp_sp.size);
         //static_cast<SpriteCollider*>(sp_pb.get_collider())->origin = glm::vec2(sp_sp.size / 2.f);
         sp_pb.set_collider<SphereCollider>();
+        sp_pb.acceleration = glm::vec3(0,-9.8,0);
         static_cast<SphereCollider*>(sp_pb.get_collider())->radius = 50;
-        sp_pb.acceleration = glm::vec3(0, 0, 0);
     }
     
     void update(float delta_time) override {
@@ -44,8 +44,8 @@ class CollisionChecker : public Script {
         //get_scene().get_component<Transform>(get_entity()).rotation.y = t;
     }
 
-    void on_collide(PhysicsBody& a, PhysicsBody& b) {
-        printf("fafw\n");
+    void on_collide(PhysicsBody& a, PhysicsBody& b, collisionData const& data) {
+        printf("%f, %f, %f\n", data.intersection_vector.x, data.intersection_vector.y, data.intersection_vector.z);
        // b.scene->get_component<Sprite>(b.entity).size = glm::vec2(10);
     }
 };

@@ -1,16 +1,17 @@
 #pragma once
 #include <vector>
 #include <functional>
+
 #include "../core/core.h"
 #include "physics_core.h"
 
 class PhysicsBody : public Component {
 private:
 friend class PhysicsSystem;
-    std::vector<std::function<void(PhysicsBody&, PhysicsBody&)>> m_on_collide_handers;
+    std::vector<std::function<void(PhysicsBody&, PhysicsBody&, collisionData const&)>> m_on_collide_handers;
     Collider* m_collider = nullptr;
 public:
-
+    bool solid = false;
     float m = 1.f;
     glm::vec3 acceleration = glm::vec3(0);
     glm::vec3 velocity = glm::vec3(0);
@@ -31,8 +32,8 @@ public:
     }
 
     template<class T>
-    void on_collide_add(T* object, void(T::*func)(PhysicsBody&, PhysicsBody&)) {
-        m_on_collide_handers.push_back(std::bind(func, object, std::placeholders::_1, std::placeholders::_2));
+    void on_collide_add(T* object, void(T::*func)(PhysicsBody&, PhysicsBody&, collisionData const&)) {
+        m_on_collide_handers.push_back(std::bind(func, object, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
     }
 };
 
@@ -63,9 +64,19 @@ private:
     }
     
     void update(float delta_time) override {
+        // Get view of PB
+        auto view_pb = m_registry->view<PhysicsBody, Transform>();
+        //
+         
+        // Update transforms
+        view_pb.each([&](PhysicsBody& pb, Transform& transform) {
+            transform.position += pb.velocity * delta_time;
+            pb.velocity += pb.acceleration * delta_time;
+        });
+        //
+
         // Recreate quadtree
         m_quadtree->clear();
-        auto view_pb = m_registry->view<PhysicsBody, Transform>();
         view_pb.each([&](PhysicsBody& pb, Transform& transform) {
             if (pb.m_collider) {
                 pb.m_collider->update_transform(transform);
@@ -73,6 +84,7 @@ private:
             }
         });
         m_quadtree->devide();
+        //
 
         // Check collisions in quadtree
         view_pb.each([&](PhysicsBody& pb, Transform& transform) {
@@ -82,11 +94,13 @@ private:
                 for (auto& quad : intersect_quads) {
                     Collider* collider_child = static_cast<Collider*>(quad);
                     if (collider_child != pb.m_collider) {
-                        if (pb.m_collider->check_collision(collider_child))
-                            on_collide(*pb.m_collider->m_pb_handler, *collider_child->m_pb_handler);
+                        collisionData collision_data = pb.m_collider->check_collision(collider_child);
+                        if (collision_data.is_collide)
+                            on_collide(*pb.m_collider->m_pb_handler, *collider_child->m_pb_handler, collision_data);
                     }
                 }
             }
         });
+        //
     }
 };
