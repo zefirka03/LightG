@@ -16,7 +16,7 @@ public:
     float m = 1.f;
     glm::vec3 acceleration = glm::vec3(0);
     glm::vec3 velocity = glm::vec3(0);
-    bool solid = false;
+    bool solid = true;
 
     PhysicsBody() {}
     ~PhysicsBody() { delete m_collider; }
@@ -110,7 +110,6 @@ private:
                     if (m_tags_check[i].test(pb.tag))
                         m_quadtree[i]->get(pb.m_collider, intersect_quads);
                 
-
                 for (auto& quad : intersect_quads) {
                     Collider* collider_child = static_cast<Collider*>(quad);
                     if (collider_child != pb.m_collider) {

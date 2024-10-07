@@ -52,7 +52,7 @@ private:
         m_renderer.reserve({
              {0, 3, sizeof(line_vertex), (const void*)0},
              {0, 4, sizeof(line_vertex), (const void*)sizeof(glm::vec3)},
-        }, 3 * 80000);
+        }, 2 * 100000);
         m_renderer.get_shader().load_from_file(
             "shaders/line.shader",
             AIR_SHADER_VF

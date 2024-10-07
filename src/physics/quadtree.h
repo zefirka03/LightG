@@ -115,12 +115,12 @@ public:
         return -1;
     }
 
-    void draw_debug(DebugSystem& debug){
-        debug.draw_box(bounds.a, bounds.b, glm::vec4(0, float(deep + 1) / float(AIR_MAX_DEEP + 1), float(deep + 1) / float(AIR_MAX_DEEP + 1), 1));
+    void draw_debug(DebugSystem& debug, glm::vec4 color = glm::vec4(0, 1, 1, 1)){
+        debug.draw_box(bounds.a, bounds.b, color * (float(deep + 1) / float(AIR_MAX_DEEP + 1)));
         if(is_devided){
             int ppos = get_pool_position(pool_position);
             for(int i = 0; i < 8; ++i)
-                (nodes + ppos + i)->draw_debug(debug);
+                (nodes + ppos + i)->draw_debug(debug, color);
         }
     }
 
@@ -155,8 +155,8 @@ public:
         m_nodes[0].add_child(child);
     }
 
-    void draw_debug(DebugSystem& debug){
-        m_nodes[0].draw_debug(debug);
+    void draw_debug(DebugSystem& debug, glm::vec4 color = glm::vec4(0, 1, 1, 1)){
+        m_nodes[0].draw_debug(debug, color);
     }
 
     void devide() {
