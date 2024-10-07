@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 #include <functional>
-#include <string_view>
+#include <bitset>
 
 #include "../core/core.h"
 #include "physics_core.h"
@@ -12,11 +12,11 @@ friend class PhysicsSystem;
     std::vector<std::function<void(PhysicsBody&, PhysicsBody&, collisionData const&)>> m_on_collide_handers;
     Collider* m_collider = nullptr;
 public:
-    bool solid = false;
-    std::string_view tag = "default";
+    int tag = 0;
     float m = 1.f;
     glm::vec3 acceleration = glm::vec3(0);
     glm::vec3 velocity = glm::vec3(0);
+    bool solid = false;
 
     PhysicsBody() {}
     ~PhysicsBody() { delete m_collider; }
@@ -41,6 +41,18 @@ public:
 
 class PhysicsSystem : public System {
 public:
+    PhysicsSystem() {
+        m_quadtree.resize(16);
+        for (int i = 0; i < m_quadtree.size(); ++i)
+            m_quadtree[i] = new Quadtree();
+        m_tags_check.resize(16, 0xFFFF);
+    }
+
+    void set_tags(int tag_a, int tag_b, bool checkable) {
+        m_tags_check[tag_a].set(tag_b, checkable);
+        m_tags_check[tag_b].set(tag_a, checkable);
+    }
+
     void draw_debug(DebugSystem& debug_system) {
         auto view_pb = m_registry->view<PhysicsBody>();
         view_pb.each([&](PhysicsBody& pb) {
@@ -51,15 +63,14 @@ public:
             }
         });
 
-        if(m_quadtree)
-            m_quadtree->draw_debug(debug_system);
+        for(auto quadtree : m_quadtree)
+            quadtree->draw_debug(debug_system);
     }
 private:
-    Quadtree* m_quadtree = nullptr;
+    std::vector<Quadtree*> m_quadtree;
+    std::vector<std::bitset<16>> m_tags_check;
 
-    void init() override {
-        m_quadtree = new Quadtree();
-    }
+    void init() override {}
 
     void start() override {
 
@@ -78,21 +89,27 @@ private:
         //
 
         // Recreate quadtree
-        m_quadtree->clear();
+        for(auto quadtree : m_quadtree)
+            quadtree->clear();
         view_pb.each([&](PhysicsBody& pb, Transform& transform) {
             if (pb.m_collider) {
                 pb.m_collider->update_transform(transform);
-                if (pb.tag == "env") 
-                    m_quadtree->add_child(pb.m_collider);
+                m_quadtree[pb.tag]->add_child(pb.m_collider);
             }
         });
-        m_quadtree->devide();
+        for(auto quadtree : m_quadtree)
+            quadtree->devide();
         //
 
         // Check collisions in quadtree
         view_pb.each([&](PhysicsBody& pb, Transform& transform) {
             if (pb.solid) {
-                auto intersect_quads = m_quadtree->get(pb.m_collider);
+                // [!] Better to reserve
+                std::vector<Quadable*> intersect_quads;
+                for (int i = 0; i < m_quadtree.size(); ++i) 
+                    if (m_tags_check[i].test(pb.tag))
+                        m_quadtree[i]->get(pb.m_collider, intersect_quads);
+                
 
                 for (auto& quad : intersect_quads) {
                     Collider* collider_child = static_cast<Collider*>(quad);
@@ -109,7 +126,6 @@ private:
                         }
                     }
                 }
-                
             }
         });
         //

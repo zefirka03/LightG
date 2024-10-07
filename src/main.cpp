@@ -3,7 +3,7 @@
 class RotationSc : public Script {
 private:
     float t = 0;
-    float speed = rand()%100 / 100.f * 5;
+    float speed = rand() % 100 / 100.f * 5;
     
     Transform* transform;
 public:
@@ -20,7 +20,7 @@ public:
         //static_cast<SpriteCollider*>(sp_pb.get_collider())->origin = glm::vec2(sp_sp.size / 2.f);
         sp_pb.set_collider<SphereCollider>();
         sp_pb.acceleration = glm::vec3(0,-9.8,0)*80.f;
-        sp_pb.velocity = glm::vec3(0,(rand()%1000)/1000.f * 100, 0);
+        sp_pb.velocity = glm::vec3(0,(rand()%10000)/10000.f * 100, 0);
         static_cast<SphereCollider*>(sp_pb.get_collider())->radius = sp_sp.size.x/2;
     }
     
@@ -118,6 +118,9 @@ public:
         add_system<ScriptingSystem>();
         debug = add_system<DebugSystem>();
         physics = add_system<PhysicsSystem>();
+
+        physics->set_tags(0, 0, false);
+        physics->set_tags(1, 1, false);
     }
 
     void on_start() override {
@@ -132,7 +135,7 @@ public:
             auto& sp_tr = add_component<Transform>(plane);
             auto& sp_pb = add_component<PhysicsBody>(plane);
             add_component<ScriptComponent>(plane).bind<CollisionChecker>();
-            sp_pb.tag = "env";
+            sp_pb.tag = 1;
             sp_sp.size = glm::vec2(11000);
             sp_tr.origin = glm::vec3(sp_sp.size / 2.f, 0);
             sp_tr.rotation.x = glm::half_pi<float>();
@@ -142,7 +145,7 @@ public:
             static_cast<PlaneCollider*>(sp_pb.get_collider())->origin = glm::vec2(sp_sp.size / 2.f);
         }
 
-        for (int i = 0; i < 1500; ++i) {
+        for (int i = 0; i < 15000; ++i) {
             a = create_entity();
             add_component<ScriptComponent>(a).bind<RotationSc>();
         }
@@ -166,12 +169,10 @@ public:
         });
 
         // Draw physics debug
-        physics->draw_debug(*debug);
+        //physics->draw_debug(*debug);
 
         if(Input::is_key_pressed(Key::Space))
             printf("%f \n", 1.0 / delta_time);
-
-        
     }
 };
 

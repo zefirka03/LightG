@@ -130,6 +130,10 @@ public:
         return out;
     }
 
+    void get_colliders(Quadable* quad,  std::vector<Quadable*>& out) const {
+        _collect_intersections(quad->get_bounds(), out);
+    }
+
     ~QuadNode(){}
 };
 
@@ -161,6 +165,10 @@ public:
 
     std::vector<Quadable*> get(Quadable* quad) {
         return m_nodes[0].get_colliders(quad);
+    }
+
+    void get(Quadable* quad, std::vector<Quadable*>& out) const {
+        m_nodes[0].get_colliders(quad, out);
     }
 
     void clear() {
