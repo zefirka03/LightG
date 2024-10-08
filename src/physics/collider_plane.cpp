@@ -2,15 +2,15 @@
 
 PlaneCollider::PlaneCollider() {}
 
-boundingBox PlaneCollider::get_bounds() const {
-	return boundingBox(world_transform.position + glm::vec3(
-		(-origin.x) * cos(world_transform.rotation.y),
+void PlaneCollider::update_bounds() {
+	m_bbox = boundingBox(m_transform_handler->position + glm::vec3(
+		(-origin.x) * cos(m_transform_handler->rotation.y),
 		-0.01,
-		(-origin.y) * cos(world_transform.rotation.y)
-	), world_transform.position + glm::vec3(
-		(size.x - origin.x) * cos(world_transform.rotation.y),
+		(-origin.y) * cos(m_transform_handler->rotation.y)
+	), m_transform_handler->position + glm::vec3(
+		(size.x - origin.x) * cos(m_transform_handler->rotation.y),
 		0.01,
-		(size.y - origin.y) * cos(world_transform.rotation.y)
+		(size.y - origin.y) * cos(m_transform_handler->rotation.y)
 	));
 }
 
@@ -19,15 +19,13 @@ collisionData PlaneCollider::check_collision(Collider* other) {
 		return CollisionCheckers::is_collide(this, static_cast<PlaneCollider*>(other));
 	else if (dynamic_cast<SpriteCollider*>(other))
 		return CollisionCheckers::is_collide(static_cast<SpriteCollider*>(other), this);
+	else if (dynamic_cast<SphereCollider*>(other))
+		return CollisionCheckers::is_collide(static_cast<SphereCollider*>(other), this);
 	return collisionData();
 }
 
-void PlaneCollider::update_transform(Transform& transform) {
-	world_transform = transform;
-}
-
 void PlaneCollider::draw_debug(DebugSystem& debug_system) const {
-	glm::mat4 displace = glm::translate(glm::mat4(1), glm::vec3(world_transform.position)) * glm::eulerAngleXYZ(0.f, world_transform.rotation.y, 0.f);
+	glm::mat4 displace = glm::translate(glm::mat4(1), glm::vec3(m_transform_handler->position)) * glm::eulerAngleXYZ(0.f, m_transform_handler->rotation.y, 0.f);
 	glm::vec3 a1 = displace * glm::vec4(-origin.x, 0, -origin.y, 1);
 	glm::vec3 a2 = displace * glm::vec4(size.x - origin.x, 0, -origin.y, 1) ;
 	glm::vec3 a3 = displace * glm::vec4(size.x - origin.x, 0, size.y - origin.y, 1) ;

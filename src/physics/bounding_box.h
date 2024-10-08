@@ -12,9 +12,11 @@ struct boundingBox {
 		if (a.x > b.x) std::swap(a.x, b.x);
 		if (a.y > b.y) std::swap(a.y, b.y);
 		if (a.z > b.z) std::swap(a.z, b.z);
+	}
 
-		a -= glm::vec3(0.05);
-		b += glm::vec3(0.05);
+	boundingBox(boundingBox const& other) {
+		a = other.a;
+		b = other.b;
 	}
 
 	void adjust_bounds(boundingBox const& other) {
