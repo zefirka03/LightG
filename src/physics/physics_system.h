@@ -127,7 +127,7 @@ private:
                                 on_collide(*collider_child->m_pb_handler, *pb.m_collider->m_pb_handler, collision_data);
                                 
                             // Solve collisions
-                            transform.position += collision_data.normal * collision_data.distanse;
+                            transform.position += collision_data.normal * (collision_data.distanse + 0.01f);
                             pb.velocity = pb.velocity - (1.0f + pb.bouncyness) * glm::dot(pb.velocity, collision_data.normal) * collision_data.normal;
                         }
                     }
