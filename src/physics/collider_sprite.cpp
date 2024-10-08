@@ -2,15 +2,15 @@
 
 SpriteCollider::SpriteCollider() {}
 
-boundingBox SpriteCollider::get_bounds() const {
-    return boundingBox(world_transform.position + glm::vec3(
-			(-origin.x) * cos(world_transform.rotation.y),
+void SpriteCollider::update_bounds() {
+    m_bbox = boundingBox(m_transform_handler->position + glm::vec3(
+			(-origin.x) * cos(m_transform_handler->rotation.y),
 			-origin.y,
-			(-origin.x) * sin(world_transform.rotation.y)
-		), world_transform.position + glm::vec3(
-			(size.x - origin.x) * cos(world_transform.rotation.y),
+			(-origin.x) * sin(m_transform_handler->rotation.y)
+		), m_transform_handler->position + glm::vec3(
+			(size.x - origin.x) * cos(m_transform_handler->rotation.y),
 			size.y - origin.y,
-			(size.x - origin.x) * sin(world_transform.rotation.y)
+			(size.x - origin.x) * sin(m_transform_handler->rotation.y)
 	));
 }
 
@@ -24,12 +24,8 @@ collisionData SpriteCollider::check_collision(Collider* other) {
 	return collisionData();
 }
 
-void SpriteCollider::update_transform(Transform& transform) {
-	world_transform = transform;
-}
-
 void SpriteCollider::draw_debug(DebugSystem& debug_system) const {
-	glm::mat4 displace = glm::translate(glm::mat4(1), glm::vec3(world_transform.position)) * glm::eulerAngleXYZ(0.f, world_transform.rotation.y, 0.f);
+	glm::mat4 displace = glm::translate(glm::mat4(1), glm::vec3(m_transform_handler->position)) * glm::eulerAngleXYZ(0.f, m_transform_handler->rotation.y, 0.f);
 	glm::vec3 a1 = displace * glm::vec4(glm::vec2(0, 0) - origin, 0, 1);
 	glm::vec3 a2 = displace * glm::vec4(glm::vec2(size.x, 0) - origin, 0, 1) ;
 	glm::vec3 a3 = displace * glm::vec4(glm::vec2(size.x, size.y) - origin, 0, 1) ;

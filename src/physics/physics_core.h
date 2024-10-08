@@ -13,12 +13,13 @@ struct collisionData {
 };
 
 struct Collider : public Quadable {
-private:
+protected:
 friend class PhysicsBody;
 friend class PhysicsSystem;
+friend class CollisionCheckers;
 	PhysicsBody* m_pb_handler = nullptr;
+	Transform* m_transform_handler = nullptr;
 public:
-	virtual void update_transform(Transform& transform) = 0;
 	virtual collisionData check_collision(Collider* other) = 0;
 
 	virtual void draw_debug(DebugSystem& debug_system) const {}
@@ -48,13 +49,11 @@ class SpriteCollider : public Collider {
 public:
 	glm::vec2 size;
 	glm::vec2 origin;
-	Transform world_transform;
 
 	SpriteCollider();
 
-	boundingBox get_bounds() const override;
+	void update_bounds() override;
 	collisionData check_collision(Collider* other) override;
-	void update_transform(Transform& transform) override;
 	void draw_debug(DebugSystem& debug_system) const override;
 };
 
@@ -62,25 +61,21 @@ class PlaneCollider : public Collider {
 public:
 	glm::vec2 size;
 	glm::vec2 origin;
-	Transform world_transform;
 
 	PlaneCollider();
 
-	boundingBox get_bounds() const override;
+	void update_bounds() override;
 	collisionData check_collision(Collider* other) override;
-	void update_transform(Transform& transform) override;
 	void draw_debug(DebugSystem& debug_system) const override;
 };
 
 class SphereCollider : public Collider {
 public:
 	float radius;
-	Transform world_transform;
 
 	SphereCollider();
 
-	boundingBox get_bounds() const override;
+	void update_bounds() override;
 	collisionData check_collision(Collider* other) override;
-	void update_transform(Transform& transform) override;
 	void draw_debug(DebugSystem& debug_system) const override;
 };

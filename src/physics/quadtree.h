@@ -7,7 +7,14 @@
 #define AIR_MAX_DEEP 2
 
 struct Quadable {
-    virtual boundingBox get_bounds() const = 0;
+protected:
+    boundingBox m_bbox;
+public:
+    virtual void update_bounds() = 0;
+
+    boundingBox const& get_bounds() const {
+        return m_bbox;
+    };
 };
 
 /// 
@@ -152,19 +159,22 @@ public:
 class Quadtree {
 private:
     QuadNode* m_nodes;
-    int m_size;
+    int m_pool_size;
+    int m_childs_size;
 public:
     Quadtree() {
-        m_size = (2 << (3 * (AIR_MAX_DEEP + 1)) - 1) / 7;
-        m_nodes = new QuadNode[m_size]();
+        m_pool_size = (2 << (3 * (AIR_MAX_DEEP + 1)) - 1) / 7;
+        m_nodes = new QuadNode[m_pool_size]();
 
         m_nodes[0].nodes = m_nodes;
         m_nodes[0].deep = 0;
         m_nodes[0].pool_position = 0;
+        m_childs_size = 0;
     }
 
     void add_child(Quadable* child) {
         m_nodes[0].add_child(child);
+        ++m_childs_size;
     }
 
     void draw_debug(DebugSystem& debug, glm::vec4 color = glm::vec4(0, 1, 1, 1)){
@@ -188,11 +198,16 @@ public:
     }
 
     void clear() {
-        for (int i = 0; i < m_size; ++i) {
+        for (int i = 0; i < m_pool_size; ++i) {
             m_nodes[i].childs.clear();
             m_nodes[i].is_devided = false;
             m_nodes[i].bounds = boundingBox();
         }
+        m_childs_size = 0;
+    }
+
+    inline int size() const {
+        return m_childs_size;
     }
 
     ~Quadtree() {
