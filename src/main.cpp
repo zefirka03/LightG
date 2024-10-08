@@ -69,7 +69,6 @@ public:
         glm::vec2 mouse_delta = mouse_pos - m_last_mouse_pos;
         m_last_mouse_pos = mouse_pos;
         
-        //printf("%f %f\n", -mouse_delta.y * sensetivity.x, -mouse_delta.x * sensetivity.y);
         // Rotate camera
         entity_camera.roll += -mouse_delta.y * sensetivity.x * 0.01f;
         entity_camera.yaw += -mouse_delta.x * sensetivity.y * 0.01f;
@@ -164,7 +163,7 @@ public:
             //add_component<ScriptComponent>(plane3).bind<CollisionChecker>();
 
             static_cast<SpriteCollider*>(sp_pb.get_collider())->size = glm::vec2(sp_sp.size);
-            static_cast<SpriteCollider*>(sp_pb.get_collider())->origin = glm::vec2(sp_sp.size / 2.f);
+            static_cast<SpriteCollider*>(sp_pb.get_collider())->origin = glm::vec2(sp_sp.size.x / 2.f, 0);
         }
         {
             plane3 = create_entity();
@@ -180,7 +179,7 @@ public:
             //add_component<ScriptComponent>(plane3).bind<CollisionChecker>();
 
             static_cast<SpriteCollider*>(sp_pb.get_collider())->size = glm::vec2(sp_sp.size);
-            static_cast<SpriteCollider*>(sp_pb.get_collider())->origin = glm::vec2(sp_sp.size / 2.f);
+            static_cast<SpriteCollider*>(sp_pb.get_collider())->origin = glm::vec2(sp_sp.size.x / 2.f, 0);
         }
         {
             plane4 = create_entity();
@@ -195,7 +194,7 @@ public:
             //add_component<ScriptComponent>(plane3).bind<CollisionChecker>();
 
             static_cast<SpriteCollider*>(sp_pb.get_collider())->size = glm::vec2(sp_sp.size);
-            static_cast<SpriteCollider*>(sp_pb.get_collider())->origin = glm::vec2(sp_sp.size / 2.f);
+            static_cast<SpriteCollider*>(sp_pb.get_collider())->origin = glm::vec2(sp_sp.size.x / 2.f, 0);
         }
         {
             plane5 = create_entity();
@@ -210,7 +209,7 @@ public:
             //add_component<ScriptComponent>(plane3).bind<CollisionChecker>();
 
             static_cast<SpriteCollider*>(sp_pb.get_collider())->size = glm::vec2(sp_sp.size);
-            static_cast<SpriteCollider*>(sp_pb.get_collider())->origin = glm::vec2(sp_sp.size / 2.f);
+            static_cast<SpriteCollider*>(sp_pb.get_collider())->origin = glm::vec2(sp_sp.size.x / 2.f, 0);
         }   
         {
             rot_ent = create_entity();
@@ -266,7 +265,7 @@ public:
         });
 
         // Draw physics debug
-        //physics->draw_debug(*debug);
+        physics->draw_debug(*debug);
 
         if(Input::is_key_pressed(Key::Space))
             printf("%f \n", 1.0 / delta_time);
