@@ -134,6 +134,18 @@ public:
         _collect_intersections(quad->get_bounds(), out);
     }
 
+    void get_all_colliders(std::vector<Quadable*>& out) const {
+        for (auto child : childs)
+            out.emplace_back(child);
+
+        // other
+        if (is_devided) {
+            int ppos = get_pool_position(pool_position);
+            for (int i = 0; i < 8; ++i)
+                (nodes + ppos + i)->get_all_colliders(out);
+        }
+    }
+
     ~QuadNode(){}
 };
 
@@ -169,6 +181,10 @@ public:
 
     void get(Quadable* quad, std::vector<Quadable*>& out) const {
         m_nodes[0].get_colliders(quad, out);
+    }
+
+    void get_all(std::vector<Quadable*>& out) const {
+        m_nodes[0].get_all_colliders(out);
     }
 
     void clear() {
