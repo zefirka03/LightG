@@ -9,7 +9,7 @@
 class PhysicsBody : public Component {
 private:
 friend class PhysicsSystem;
-    std::vector<std::function<void(PhysicsBody&, PhysicsBody&, collisionData const&)>> m_on_collide_handers;
+    std::vector<std::function<void(PhysicsBody&, PhysicsBody&, collisionData const&)>> m_on_collide_handlers;
     Collider* m_collider = nullptr;
 public:
     int tag = 0;
@@ -39,7 +39,7 @@ public:
 
     template<class T>
     void on_collide_add(T* object, void(T::*func)(PhysicsBody&, PhysicsBody&, collisionData const&)) {
-        m_on_collide_handers.push_back(std::bind(func, object, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+        m_on_collide_handlers.push_back(std::bind(func, object, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
     }
 };
 
@@ -120,8 +120,11 @@ private:
                         collisionData collision_data = pb.m_collider->check_collision(collider_child);
                         if (collision_data.is_collide) {
                             // Start custom handlers
-                            for (auto on_collide : pb.m_on_collide_handers)
+                            for (auto on_collide : pb.m_on_collide_handlers)
                                 on_collide(*pb.m_collider->m_pb_handler, *collider_child->m_pb_handler, collision_data);
+
+                            for (auto on_collide : collider_child->m_pb_handler->m_on_collide_handlers)
+                                on_collide(*collider_child->m_pb_handler, *pb.m_collider->m_pb_handler, collision_data);
                                 
                             // Solve collisions
                             transform.position += collision_data.normal * collision_data.distanse;

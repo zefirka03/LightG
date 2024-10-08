@@ -6,7 +6,7 @@
 #include "line.h"
 
 struct collisionData {
-	bool is_collide;
+	bool is_collide = false;
 	glm::vec3 collision_point;
 	glm::vec3 normal;
 	float distanse;

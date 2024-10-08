@@ -19,6 +19,8 @@ collisionData SpriteCollider::check_collision(Collider* other) {
 		return CollisionCheckers::is_collide(this, static_cast<SpriteCollider*>(other));
 	else if (dynamic_cast<PlaneCollider*>(other))
 		return CollisionCheckers::is_collide(this, static_cast<PlaneCollider*>(other));
+	//else if (dynamic_cast<SphereCollider*>(other))
+	//	return CollisionCheckers::is_collide(static_cast<SphereCollider*>(other), this);
 	return collisionData();
 }
 
