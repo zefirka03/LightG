@@ -14,6 +14,10 @@ friend class PhysicsSystem;
 public:
     int tag = 0;
     float m = 1.f;
+
+    float bouncyness = 1.f;
+    float friction = 0.f;
+
     glm::vec3 acceleration = glm::vec3(0);
     glm::vec3 velocity = glm::vec3(0);
     bool solid = true;
@@ -118,10 +122,10 @@ private:
                             // Start custom handlers
                             for (auto on_collide : pb.m_on_collide_handers)
                                 on_collide(*pb.m_collider->m_pb_handler, *collider_child->m_pb_handler, collision_data);
-
+                                
                             // Solve collisions
-                            transform.position += collision_data.intersection_vector;
-                            pb.velocity = -pb.velocity * 0.4f;
+                            transform.position += collision_data.normal * collision_data.distanse;
+                            pb.velocity = pb.velocity - (1.0f + pb.bouncyness) * glm::dot(pb.velocity, collision_data.normal) * collision_data.normal;
                         }
                     }
                 }

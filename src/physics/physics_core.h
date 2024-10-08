@@ -8,7 +8,8 @@
 struct collisionData {
 	bool is_collide;
 	glm::vec3 collision_point;
-	glm::vec3 intersection_vector;
+	glm::vec3 normal;
+	float distanse;
 };
 
 struct Collider : public Quadable {
@@ -37,9 +38,10 @@ struct CollisionCheckers {
 	static collisionData is_collide(SpriteCollider* a, SpriteCollider* b);
 	// Always false
 	static collisionData is_collide(PlaneCollider* a, PlaneCollider* b);
-	// Not implemented
+	// Not implemented yet
 	static collisionData is_collide(SpriteCollider* a, PlaneCollider* b);
 	static collisionData is_collide(SphereCollider* a, PlaneCollider* b);
+	static collisionData is_collide(SphereCollider* a, SpriteCollider* b);
 };
 
 class SpriteCollider : public Collider {

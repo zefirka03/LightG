@@ -39,7 +39,8 @@ collisionData CollisionCheckers::is_collide(SpriteCollider* a, SpriteCollider* b
 	return { 
 		.is_collide = A.contains(xyz) && B.contains(xyz),
 		.collision_point = glm::vec3(0),
-		.intersection_vector = glm::vec3(0)
+		.normal = glm::vec3(0),
+		.distanse = 0
 	};
 }
 
@@ -47,7 +48,8 @@ collisionData CollisionCheckers::is_collide(PlaneCollider* a, PlaneCollider* b) 
 	return {
 		.is_collide = false,
 		.collision_point = glm::vec3(0),
-		.intersection_vector = glm::vec3(0)
+		.normal = glm::vec3(0),
+		.distanse = 0
 	};
 }
 
@@ -55,7 +57,8 @@ collisionData CollisionCheckers::is_collide(SpriteCollider* a, PlaneCollider* b)
 	return {
 		.is_collide = false,
 		.collision_point = glm::vec3(0),
-		.intersection_vector = glm::vec3(0)
+		.normal = glm::vec3(0),
+		.distanse = 0
 	};
 }
 
@@ -80,6 +83,38 @@ collisionData CollisionCheckers::is_collide(SphereCollider* a, PlaneCollider* b)
 	return {
 		.is_collide = is_collide,
 		.collision_point = glm::vec3(a->world_transform.position.x, b->world_transform.position.y, a->world_transform.position.z),
-		.intersection_vector = glm::vec3(0, a->radius - y_intersection_vector, 0)
+		.normal = glm::normalize(glm::vec3(0, y_intersection_vector, 0)),
+		.distanse = abs(a->radius - y_intersection_vector)
+	};
+}
+
+collisionData CollisionCheckers::is_collide(SphereCollider* a, SpriteCollider* b){
+	glm::vec3 b_a_pos_xz = b->world_transform.position + glm::vec3((-b->origin.x) * cos(b->world_transform.rotation.y), -b->origin.y, (-b->origin.x) * sin(b->world_transform.rotation.y));
+	glm::vec3 b_b_pos_xz = b->world_transform.position + glm::vec3((-b->origin.x) * cos(b->world_transform.rotation.y), -b->origin.y + b->size.y, (-b->origin.x) * sin(b->world_transform.rotation.y));
+	glm::vec3 b_c_pos_xz = b->world_transform.position + glm::vec3((-b->origin.x + b->size.x) * cos(b->world_transform.rotation.y), -b->origin.y + b->size.y, (-b->origin.x + b->size.x) * sin(b->world_transform.rotation.y));
+	glm::vec3 b_d_pos_xz = b->world_transform.position + glm::vec3((-b->origin.x + b->size.x) * cos(b->world_transform.rotation.y), -b->origin.y, (-b->origin.x + b->size.x) * sin(b->world_transform.rotation.y));
+
+	glm::vec3 l1 = b_b_pos_xz - b_a_pos_xz;
+	glm::vec3 l2 = b_c_pos_xz - b_a_pos_xz;
+
+	glm::vec3 n = glm::cross(l1, l2);
+
+	glm::vec3 a_proj = n * (glm::dot(n, b_a_pos_xz - a->world_transform.position)) / glm::dot(n, n) + a->world_transform.position;
+	
+	float y_intersection_vector = glm::length(a->world_transform.position - a_proj);
+
+	bool is_collide = (
+		abs(y_intersection_vector) < a->radius &&
+		glm::cross(b_b_pos_xz - b_a_pos_xz, a_proj - b_a_pos_xz).y > 0 &&
+		glm::cross(b_c_pos_xz - b_b_pos_xz, a_proj - b_b_pos_xz).y > 0 &&
+		glm::cross(b_d_pos_xz - b_c_pos_xz, a_proj - b_c_pos_xz).y > 0 &&
+		glm::cross(b_a_pos_xz - b_d_pos_xz, a_proj - b_d_pos_xz).y > 0
+	);
+
+	return {
+		.is_collide = is_collide,
+		.collision_point = a_proj,
+		.normal = glm::normalize(n),
+		.distanse = abs(y_intersection_vector - a->radius)
 	};
 }

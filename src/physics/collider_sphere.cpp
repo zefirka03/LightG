@@ -12,6 +12,8 @@ boundingBox SphereCollider::get_bounds() const {
 collisionData SphereCollider::check_collision(Collider* other) {
 	if(dynamic_cast<PlaneCollider*>(other))
 		return CollisionCheckers::is_collide(this, static_cast<PlaneCollider*>(other));
+	else if(dynamic_cast<SpriteCollider*>(other))
+		return CollisionCheckers::is_collide(this, static_cast<SpriteCollider*>(other));
 	return collisionData();
 }
 
