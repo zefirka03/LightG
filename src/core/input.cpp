@@ -28,4 +28,3 @@ float Input::get_mouse_x(){
 float Input::get_mouse_y(){
     return get_mouse_position().y;
 }
-

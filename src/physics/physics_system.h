@@ -160,7 +160,7 @@ private:
                             // Solve collisions
                             if (a_pb.type) {
                                 a_tr.position += collision_data.normal * (collision_data.distanse + 0.01f);
-                                a_pb.velocity *= 0.99;
+                                a_pb.velocity = a_pb.velocity - a_pb.velocity * delta_time;
                                 a_pb.velocity = a_pb.velocity - (1.0f + a_pb.bouncyness) * glm::dot(a_pb.velocity, collision_data.normal) * collision_data.normal;
                             }
 
@@ -168,7 +168,7 @@ private:
                             if (b_pb.type) {
                                 Transform& b_tr = b_pb.scene->get_component<Transform>(b_pb.entity);
                                 b_tr.position += collision_data.normal * (collision_data.distanse + 0.01f);
-                                b_pb.velocity *= 0.99;
+                                b_pb.velocity = b_pb.velocity - b_pb.velocity * delta_time;
                                 b_pb.velocity = b_pb.velocity - (1.0f + b_pb.bouncyness) * glm::dot(b_pb.velocity, -collision_data.normal) * (-collision_data.normal);
                             }
                         }
