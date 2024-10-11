@@ -43,6 +43,7 @@ struct CollisionCheckers {
 	static collisionData is_collide(SpriteCollider* a, PlaneCollider* b);
 	static collisionData is_collide(SphereCollider* a, PlaneCollider* b);
 	static collisionData is_collide(SphereCollider* a, SpriteCollider* b);
+	static collisionData is_collide(SphereCollider* a, SphereCollider* b);
 };
 
 class SpriteCollider : public Collider {

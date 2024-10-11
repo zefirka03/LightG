@@ -124,3 +124,16 @@ collisionData CollisionCheckers::is_collide(SphereCollider* a, SpriteCollider* b
 		.distanse = abs(y_intersection_vector - a->radius)
 	};
 }
+
+collisionData CollisionCheckers::is_collide(SphereCollider* a, SphereCollider* b) {
+	glm::vec3 dist = b->m_transform_handler->position - a->m_transform_handler->position;
+	glm::vec3 dist_norm = glm::normalize(dist);
+	float dist_len = glm::length(dist);
+
+	return {
+		.is_collide = dist_len < a->radius + b->radius,
+		.collision_point = dist_norm * a->radius,
+		.normal = -dist_norm,
+		.distanse = abs(a->radius + b->radius - dist_len)
+	};
+}

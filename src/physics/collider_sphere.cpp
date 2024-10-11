@@ -10,10 +10,12 @@ void SphereCollider::update_bounds() {
 }
 
 collisionData SphereCollider::check_collision(Collider* other) {
-	if(dynamic_cast<PlaneCollider*>(other))
+	if (dynamic_cast<PlaneCollider*>(other))
 		return CollisionCheckers::is_collide(this, static_cast<PlaneCollider*>(other));
-	else if(dynamic_cast<SpriteCollider*>(other))
+	else if (dynamic_cast<SpriteCollider*>(other))
 		return CollisionCheckers::is_collide(this, static_cast<SpriteCollider*>(other));
+	else if (dynamic_cast<SphereCollider*>(other))
+		return CollisionCheckers::is_collide(this, static_cast<SphereCollider*>(other));
 	return collisionData();
 }
 

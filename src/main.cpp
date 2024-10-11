@@ -14,7 +14,7 @@ public:
         transform->position = glm::vec3(5000 - (rand() % 10000), 100 + 3000 - (rand() % 3000), 5000 - (rand() % 10000));
         transform->origin = glm::vec3(sp_sp.size / 2.f, 0);
         auto& sp_pb = get_scene().add_component<PhysicsBody>(get_entity());
-        sp_pb.type = 1;
+        sp_pb.type = PhysicsBody::pbType::RIGID;
         sp_pb.bouncyness = (rand()%100)/100.f*0.7f;
         sp_pb.set_collider<SphereCollider>();
         sp_pb.acceleration = glm::vec3(0,-9.8,0) * 200.f;
@@ -126,7 +126,7 @@ public:
         physics = add_system<PhysicsSystem>();
 
         physics->set_tags(0, 0, false);
-        physics->set_tags(1, 1, false);
+        //physics->set_tags(1, 1, false);
     }
 
     void on_start() override {

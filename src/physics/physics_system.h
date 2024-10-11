@@ -14,8 +14,13 @@ friend class PhysicsSystem;
     std::vector<std::function<void(PhysicsBody&, PhysicsBody&, collisionData const&)>> m_on_collide_handlers;
     Collider* m_collider = nullptr;
 public:
+    enum pbType : int {
+        SOLID,
+        RIGID,
+    };
+
     int tag = 0;
-    int type = 0;
+    int type = pbType::SOLID;
 
     float m = 1.f;
     float bouncyness = 1.f;
@@ -159,7 +164,7 @@ private:
 
                             // Solve collisions
                             if (a_pb.type) {
-                                a_tr.position += collision_data.normal * (collision_data.distanse + 0.01f);
+                                a_tr.position += -collision_data.normal * (collision_data.distanse + 0.01f);
                                 a_pb.velocity = a_pb.velocity - a_pb.velocity * delta_time;
                                 a_pb.velocity = a_pb.velocity - (1.0f + a_pb.bouncyness) * glm::dot(a_pb.velocity, collision_data.normal) * collision_data.normal;
                             }
@@ -170,6 +175,11 @@ private:
                                 b_tr.position += collision_data.normal * (collision_data.distanse + 0.01f);
                                 b_pb.velocity = b_pb.velocity - b_pb.velocity * delta_time;
                                 b_pb.velocity = b_pb.velocity - (1.0f + b_pb.bouncyness) * glm::dot(b_pb.velocity, -collision_data.normal) * (-collision_data.normal);
+                            }
+
+                            if (a_pb.type == PhysicsBody::pbType::RIGID) {
+                                glm::vec3 a_velocity_proj = glm::dot(a_pb.velocity, collision_data.normal) * collision_data.normal;
+                                a_tr.position += -collision_data.normal * (collision_data.distanse + 0.01f);
                             }
                         }
                     }
