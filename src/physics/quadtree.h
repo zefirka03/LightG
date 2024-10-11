@@ -3,8 +3,8 @@
 #include "../debug/debug.h"
 #include "bounding_box.h"
 
-#define AIR_QUAD_DEVIDE_SIZE 16
-#define AIR_MAX_DEEP 2
+#define AIR_QUAD_DEVIDE_SIZE 8
+#define AIR_MAX_DEEP 3
 
 struct Quadable {
 protected:

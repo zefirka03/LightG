@@ -133,7 +133,7 @@ collisionData CollisionCheckers::is_collide(SphereCollider* a, SphereCollider* b
 	return {
 		.is_collide = dist_len < a->radius + b->radius,
 		.collision_point = dist_norm * a->radius,
-		.normal = -dist_norm,
+		.normal = dist_norm,
 		.distanse = abs(a->radius + b->radius - dist_len)
 	};
 }

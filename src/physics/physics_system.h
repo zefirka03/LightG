@@ -163,24 +163,24 @@ private:
                                 on_collide(*collider_child->m_pb_handler, *a_pb.m_collider->m_pb_handler, collision_data);
 
                             // Solve collisions
-                            if (a_pb.type) {
+                            if (a_pb.type == PhysicsBody::pbType::RIGID) {
                                 a_tr.position += -collision_data.normal * (collision_data.distanse + 0.01f);
                                 a_pb.velocity = a_pb.velocity - a_pb.velocity * delta_time;
                                 a_pb.velocity = a_pb.velocity - (1.0f + a_pb.bouncyness) * glm::dot(a_pb.velocity, collision_data.normal) * collision_data.normal;
                             }
 
                             PhysicsBody& b_pb = *collider_child->m_pb_handler;
-                            if (b_pb.type) {
+                            if (b_pb.type == PhysicsBody::pbType::RIGID) {
                                 Transform& b_tr = b_pb.scene->get_component<Transform>(b_pb.entity);
                                 b_tr.position += collision_data.normal * (collision_data.distanse + 0.01f);
                                 b_pb.velocity = b_pb.velocity - b_pb.velocity * delta_time;
                                 b_pb.velocity = b_pb.velocity - (1.0f + b_pb.bouncyness) * glm::dot(b_pb.velocity, -collision_data.normal) * (-collision_data.normal);
                             }
 
-                            if (a_pb.type == PhysicsBody::pbType::RIGID) {
-                                glm::vec3 a_velocity_proj = glm::dot(a_pb.velocity, collision_data.normal) * collision_data.normal;
-                                a_tr.position += -collision_data.normal * (collision_data.distanse + 0.01f);
-                            }
+                            //if (a_pb.type == PhysicsBody::pbType::RIGID) {
+                            //    glm::vec3 a_velocity_proj = glm::dot(a_pb.velocity, collision_data.normal) * collision_data.normal;
+                            //    a_tr.position += -collision_data.normal * (collision_data.distanse + 0.01f);
+                            //}
                         }
                     }
                 }

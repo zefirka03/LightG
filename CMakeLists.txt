@@ -31,6 +31,7 @@ file(GLOB_RECURSE SRC_FILES
     "src/scripting/*.h"
     "src/debug/*.cpp"
     "src/debug/*.h"
+    "src/scenes/*.h"
 )
 
 file(GLOB_RECURSE SHADERS
