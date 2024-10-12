@@ -18,7 +18,8 @@ public:
         sp_pb.type = PhysicsBody::pbType::RIGID;
         sp_pb.bouncyness = (rand()%100)/100.f*0.7f;
         sp_pb.set_collider<SphereCollider>();
-        sp_pb.acceleration = glm::vec3(0,-9.8,0) * 200.f;
+        
+        sp_pb.friction = 0.2f;
         sp_pb.velocity = glm::vec3((0.5 - (rand() % 10000) / 10000.f) * 500,(rand()%10000)/10000.f * 2000, (0.5-(rand() % 10000) / 10000.f) * 500);
         static_cast<SphereCollider*>(sp_pb.get_collider())->radius = sp_sp.size.x/2;
         sp_pb.tag = 1;
@@ -26,6 +27,7 @@ public:
     
     void update(float delta_time) override {
         t += delta_time * speed;
+        get_scene().get_component<PhysicsBody>(get_entity()).apply_force(glm::vec3(0, -9.8, 0) * 200.f);
         
         transform->rotation = glm::vec3(0, t, 0);
         glm::vec3 forward_dir = glm::eulerAngleXYZ(transform->rotation.x, transform->rotation.y, transform->rotation.z) * glm::vec4(0, 0, -1, 1);
@@ -242,7 +244,7 @@ public:
         //    static_cast<SphereCollider*>(sp_pb.get_collider())->radius = sp_sp.size.x / 2.f;
         //}
 
-        for (int i = 0; i < 555; ++i) {
+        for (int i = 0; i < 500; ++i) {
             a = create_entity();
             add_component<ScriptComponent>(a).bind<RotationSc>();
         }
@@ -267,7 +269,7 @@ public:
         });
 
         // Draw physics debug
-        physics->draw_debug(*debug);
+        //physics->draw_debug(*debug);
 
         if(Input::is_key_pressed(Key::Space))
             printf("%f \n", 1.0 / delta_time);

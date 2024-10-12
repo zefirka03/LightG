@@ -13,6 +13,8 @@ private:
 friend class PhysicsSystem;
     std::vector<std::function<void(PhysicsBody&, PhysicsBody&, collisionData const&)>> m_on_collide_handlers;
     Collider* m_collider = nullptr;
+
+    glm::vec3 m_last_force = glm::vec3(0);
 public:
     enum pbType : int {
         SOLID,
@@ -26,7 +28,7 @@ public:
     float bouncyness = 1.f;
     float friction = 0.f;
 
-    glm::vec3 acceleration = glm::vec3(0);
+    glm::vec3 force = glm::vec3(0);
     glm::vec3 velocity = glm::vec3(0);
 
     PhysicsBody() {}
@@ -48,6 +50,10 @@ public:
     template<class T>
     void on_collide_add(T* object, void(T::*func)(PhysicsBody&, PhysicsBody&, collisionData const&)) {
         m_on_collide_handlers.push_back(std::bind(func, object, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+    }
+
+    void apply_force(glm::vec3 const& _force) {
+        force += _force;
     }
 };
 
@@ -109,7 +115,9 @@ private:
         // Update transforms
         view_pb.each([&](PhysicsBody& pb, Transform& transform) {
             transform.position += pb.velocity * delta_time;
-            pb.velocity += pb.acceleration * delta_time;
+            pb.velocity += (pb.force / pb.m) * delta_time;
+            pb.m_last_force = pb.force;
+            pb.force = glm::vec3(0);
             pb.m_collider->update_bounds();
         });
         //
@@ -158,21 +166,19 @@ private:
                             // Start custom handlers
                             for (auto on_collide : a_pb.m_on_collide_handlers)
                                 on_collide(*a_pb.m_collider->m_pb_handler, *collider_child->m_pb_handler, collision_data);
-
                             for (auto on_collide : collider_child->m_pb_handler->m_on_collide_handlers)
                                 on_collide(*collider_child->m_pb_handler, *a_pb.m_collider->m_pb_handler, collision_data);
 
-
+                            // Solve collisions
                             PhysicsBody& b_pb = *collider_child->m_pb_handler;
                             Transform& b_tr = b_pb.scene->get_component<Transform>(b_pb.entity);
-                            // Solve collisions
                             if (
                                 a_pb.type == PhysicsBody::pbType::RIGID &&
                                 b_pb.type == PhysicsBody::pbType::RIGID
                             )   collision_data.distanse /= 2;
 
-                            glm::vec3 cent1 = collision_data.normal;
-                            glm::vec3 vel = a_pb.velocity - b_pb.velocity;
+                            glm::vec3 norm = collision_data.normal;
+                            glm::vec3 vel_diff = a_pb.velocity - b_pb.velocity;
 
                             if (a_pb.type == PhysicsBody::pbType::RIGID) {
                                 float m_ratio;
@@ -181,7 +187,11 @@ private:
                                 else m_ratio = b_pb.m / (a_pb.m + b_pb.m);
 
                                 a_tr.position -= collision_data.normal * (collision_data.distanse + 0.01f);
-                                a_pb.velocity = a_pb.velocity - 2.0f * m_ratio * glm::dot(vel, cent1) / glm::dot(cent1, cent1) * cent1;
+                                a_pb.velocity = a_pb.velocity - 2.0f * m_ratio * glm::dot(vel_diff, norm) / glm::dot(norm, norm) * norm;
+                                if (b_pb.type == PhysicsBody::pbType::SOLID) {
+                                    a_pb.force += -a_pb.friction * glm::dot(a_pb.m_last_force, collision_data.normal) * glm::normalize(a_pb.velocity - glm::dot(a_pb.velocity, norm) * norm);
+                                    //printf("%f %f %f\n", (a_pb.velocity - glm::dot(a_pb.velocity, norm) * norm).x, (a_pb.velocity - glm::dot(a_pb.velocity, norm) * norm).y, (a_pb.velocity - glm::dot(a_pb.velocity, norm) * norm).z);
+                                }
                             }
                             if (b_pb.type == PhysicsBody::pbType::RIGID) {
                                 float m_ratio;
@@ -190,7 +200,10 @@ private:
                                 else m_ratio = a_pb.m / (a_pb.m + b_pb.m);
 
                                 b_tr.position += collision_data.normal * (collision_data.distanse + 0.01f);
-                                b_pb.velocity = b_pb.velocity - 2.0f * m_ratio * glm::dot(-vel, -cent1) / glm::dot(cent1, cent1) * (-cent1);
+                                b_pb.velocity = b_pb.velocity - 2.0f * m_ratio * glm::dot(-vel_diff, -norm) / glm::dot(norm, norm) * (-norm);
+                                if (a_pb.type == PhysicsBody::pbType::SOLID) {
+                                    b_pb.force += -b_pb.friction * glm::dot(b_pb.m_last_force, -norm) * glm::normalize(b_pb.velocity - glm::dot(b_pb.velocity, norm) * norm);
+                                }
                             }
                         }
                     }
