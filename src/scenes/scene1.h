@@ -129,7 +129,7 @@ public:
         physics = add_system<PhysicsSystem>();
 
         physics->set_tags(0, 0, false);
-        //physics->set_tags(1, 1, false);
+        physics->set_tags(1, 1, false);
     }
 
     void on_start() override {
@@ -244,7 +244,7 @@ public:
         //    static_cast<SphereCollider*>(sp_pb.get_collider())->radius = sp_sp.size.x / 2.f;
         //}
 
-        for (int i = 0; i < 500; ++i) {
+        for (int i = 0; i < 5500; ++i) {
             a = create_entity();
             add_component<ScriptComponent>(a).bind<RotationSc>();
         }
