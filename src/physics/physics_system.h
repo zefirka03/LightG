@@ -162,25 +162,36 @@ private:
                             for (auto on_collide : collider_child->m_pb_handler->m_on_collide_handlers)
                                 on_collide(*collider_child->m_pb_handler, *a_pb.m_collider->m_pb_handler, collision_data);
 
-                            // Solve collisions
-                            if (a_pb.type == PhysicsBody::pbType::RIGID) {
-                                a_tr.position += -collision_data.normal * (collision_data.distanse + 0.01f);
-                                a_pb.velocity = a_pb.velocity - a_pb.velocity * delta_time;
-                                a_pb.velocity = a_pb.velocity - (1.0f + a_pb.bouncyness) * glm::dot(a_pb.velocity, collision_data.normal) * collision_data.normal;
-                            }
 
                             PhysicsBody& b_pb = *collider_child->m_pb_handler;
-                            if (b_pb.type == PhysicsBody::pbType::RIGID) {
-                                Transform& b_tr = b_pb.scene->get_component<Transform>(b_pb.entity);
-                                b_tr.position += collision_data.normal * (collision_data.distanse + 0.01f);
-                                b_pb.velocity = b_pb.velocity - b_pb.velocity * delta_time;
-                                b_pb.velocity = b_pb.velocity - (1.0f + b_pb.bouncyness) * glm::dot(b_pb.velocity, -collision_data.normal) * (-collision_data.normal);
-                            }
+                            Transform& b_tr = b_pb.scene->get_component<Transform>(b_pb.entity);
+                            // Solve collisions
+                            if (
+                                a_pb.type == PhysicsBody::pbType::RIGID &&
+                                b_pb.type == PhysicsBody::pbType::RIGID
+                            )   collision_data.distanse /= 2;
 
-                            //if (a_pb.type == PhysicsBody::pbType::RIGID) {
-                            //    glm::vec3 a_velocity_proj = glm::dot(a_pb.velocity, collision_data.normal) * collision_data.normal;
-                            //    a_tr.position += -collision_data.normal * (collision_data.distanse + 0.01f);
-                            //}
+                            glm::vec3 cent1 = collision_data.normal;
+                            glm::vec3 vel = a_pb.velocity - b_pb.velocity;
+
+                            if (a_pb.type == PhysicsBody::pbType::RIGID) {
+                                float m_ratio;
+                                if (b_pb.type == PhysicsBody::pbType::SOLID)
+                                    m_ratio = (1.0 + a_pb.bouncyness) / 2.0;
+                                else m_ratio = b_pb.m / (a_pb.m + b_pb.m);
+
+                                a_tr.position -= collision_data.normal * (collision_data.distanse + 0.01f);
+                                a_pb.velocity = a_pb.velocity - 2.0f * m_ratio * glm::dot(vel, cent1) / glm::dot(cent1, cent1) * cent1;
+                            }
+                            if (b_pb.type == PhysicsBody::pbType::RIGID) {
+                                float m_ratio;
+                                if (a_pb.type == PhysicsBody::pbType::SOLID)
+                                    m_ratio = (1.0 + b_pb.bouncyness) / 2.0;
+                                else m_ratio = a_pb.m / (a_pb.m + b_pb.m);
+
+                                b_tr.position += collision_data.normal * (collision_data.distanse + 0.01f);
+                                b_pb.velocity = b_pb.velocity - 2.0f * m_ratio * glm::dot(-vel, -cent1) / glm::dot(cent1, cent1) * (-cent1);
+                            }
                         }
                     }
                 }

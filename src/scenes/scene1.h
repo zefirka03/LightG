@@ -46,7 +46,7 @@ class CollisionChecker : public Script {
     }
 
     void on_collide(PhysicsBody& a, PhysicsBody& b, collisionData const& data) {
-       // printf("norm: %f, %f, %f\n", data.normal.x, data.normal.y, data.normal.z);
+        printf("norm: %f, %f, %f\n", data.collision_point.x, data.collision_point.y, data.collision_point.z);
        // printf("dist: %f\n", data.distanse);
        // b.scene->get_component<Sprite>(b.entity).size = glm::vec2(10);
     }
@@ -147,7 +147,7 @@ public:
             sp_tr.origin = glm::vec3(sp_sp.size / 2.f, 0);
             sp_tr.rotation.x = glm::half_pi<float>();
             sp_pb.set_collider<PlaneCollider>();
-            //add_component<ScriptComponent>(plane).bind<CollisionChecker>();
+
             static_cast<PlaneCollider*>(sp_pb.get_collider())->size = glm::vec2(sp_sp.size);
             static_cast<PlaneCollider*>(sp_pb.get_collider())->origin = glm::vec2(sp_sp.size / 2.f);
         }
@@ -162,7 +162,7 @@ public:
             sp_tr.rotation.y = glm::half_pi<float>();
             sp_pb.tag = 0;
             sp_pb.set_collider<SpriteCollider>();
-            //add_component<ScriptComponent>(plane3).bind<CollisionChecker>();
+            //add_component<ScriptComponent>(plane2).bind<CollisionChecker>();
 
             static_cast<SpriteCollider*>(sp_pb.get_collider())->size = glm::vec2(sp_sp.size);
             static_cast<SpriteCollider*>(sp_pb.get_collider())->origin = glm::vec2(sp_sp.size.x / 2.f, 0);
@@ -242,7 +242,7 @@ public:
         //    static_cast<SphereCollider*>(sp_pb.get_collider())->radius = sp_sp.size.x / 2.f;
         //}
 
-        for (int i = 0; i < 1000; ++i) {
+        for (int i = 0; i < 555; ++i) {
             a = create_entity();
             add_component<ScriptComponent>(a).bind<RotationSc>();
         }
@@ -267,7 +267,7 @@ public:
         });
 
         // Draw physics debug
-        //physics->draw_debug(*debug);
+        physics->draw_debug(*debug);
 
         if(Input::is_key_pressed(Key::Space))
             printf("%f \n", 1.0 / delta_time);
