@@ -11,12 +11,13 @@ public:
     void start() override {
         transform = &get_scene().add_component<Transform>(get_entity());
         auto& sp_sp = get_scene().add_component<Sprite>(get_entity());
+        sp_sp.texture = get_scene().get_system<RenderingSystem>()->get_texture_manager().get_texture("china");
         sp_sp.size = glm::vec2(100+(rand() % 100) / 100.f * 100);
         transform->position = glm::vec3(5000 - (rand() % 10000), 100 + 3000 - (rand() % 3000), 5000 - (rand() % 10000));
         transform->origin = glm::vec3(sp_sp.size / 2.f, 0);
         auto& sp_pb = get_scene().add_component<PhysicsBody>(get_entity());
         sp_pb.type = PhysicsBody::pbType::RIGID;
-        sp_pb.bouncyness = (rand()%100)/100.f*0.7f;
+        sp_pb.bouncyness = (rand()%10)/10.f*1.0f;
         sp_pb.set_collider<SphereCollider>();
         
         sp_pb.friction = 0.2f;
@@ -121,11 +122,12 @@ public:
 
     DebugSystem* debug;
     PhysicsSystem* physics;
+    RenderingSystem* rendering;
 
     void on_init() override {
         add_system<ScriptingSystem>();
         physics = add_system<PhysicsSystem>();
-        add_system<RenderingSystem>();
+        rendering = add_system<RenderingSystem>();
         debug = add_system<DebugSystem>();
 
         physics->set_tags(0, 0, false);
@@ -133,6 +135,10 @@ public:
     }
 
     void on_start() override {
+        auto& tex_man = rendering->get_texture_manager();
+        tex_man.load_texture("img/img1.jpg", "china");
+        tex_man.load_texture("img/stone.png", "stone");
+
         cam = create_entity();
         auto& cam_tr = add_component<Transform>(cam);
         cam_tr.position = glm::vec3(5000, 5000, 5000);
@@ -146,6 +152,7 @@ public:
         {
             plane = create_entity();
             auto& sp_sp = add_component<Sprite>(plane);
+            sp_sp.texture = rendering->get_texture_manager().get_texture("stone");
             auto& sp_tr = add_component<Transform>(plane);
             auto& sp_pb = add_component<PhysicsBody>(plane);
             sp_pb.tag = 0;
@@ -160,6 +167,7 @@ public:
         {
             plane2 = create_entity();
             auto& sp_sp = add_component<Sprite>(plane2);
+            sp_sp.texture = rendering->get_texture_manager().get_texture("stone");
             auto& sp_tr = add_component<Transform>(plane2);
             auto& sp_pb = add_component<PhysicsBody>(plane2);
             sp_sp.size = glm::vec2(11000, 5000);
@@ -176,6 +184,7 @@ public:
         {
             plane3 = create_entity();
             auto& sp_sp = add_component<Sprite>(plane3);
+            sp_sp.texture = rendering->get_texture_manager().get_texture("stone");
             auto& sp_tr = add_component<Transform>(plane3);
             auto& sp_pb = add_component<PhysicsBody>(plane3);
             sp_sp.size = glm::vec2(11000, 5000);
@@ -192,6 +201,7 @@ public:
         {
             plane4 = create_entity();
             auto& sp_sp = add_component<Sprite>(plane4);
+            sp_sp.texture = rendering->get_texture_manager().get_texture("stone");
             auto& sp_tr = add_component<Transform>(plane4);
             auto& sp_pb = add_component<PhysicsBody>(plane4);
             sp_sp.size = glm::vec2(11000, 5000);
@@ -207,6 +217,7 @@ public:
         {
             plane5 = create_entity();
             auto& sp_sp = add_component<Sprite>(plane5);
+            sp_sp.texture = rendering->get_texture_manager().get_texture("stone");
             auto& sp_tr = add_component<Transform>(plane5);
             auto& sp_pb = add_component<PhysicsBody>(plane5);
             sp_sp.size = glm::vec2(11000, 5000);
@@ -222,6 +233,7 @@ public:
         {
             rot_ent = create_entity();
             auto& sp_sp = add_component<Sprite>(rot_ent);
+            sp_sp.texture = rendering->get_texture_manager().get_texture("stone");
             auto& sp_tr = add_component<Transform>(rot_ent);
             auto& sp_pb = add_component<PhysicsBody>(rot_ent);
             sp_sp.size = glm::vec2(5000, 2000);

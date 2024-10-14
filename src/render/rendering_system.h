@@ -4,6 +4,7 @@
 #include "transform.h"
 #include "camera_3d.h"
 #include "render_instances.h"
+#include "texture_manager.h"
 
 #include <unordered_map>
 #include <algorithm>
@@ -11,12 +12,18 @@
 struct Sprite : public Component {
     glm::vec3 color;
     glm::vec2 size;
-    GLuint texture_id;
+    Texture* texture = nullptr;
 };
 
 class RenderingSystem : public System {
+public:
+    TextureManager& get_texture_manager(){
+        return m_texture_manager;
+    }
+
 private:
     Renderer<vertex> m_renderer;
+    TextureManager m_texture_manager;
     std::vector<QuadRenderInstance> m_instances;
     std::unordered_map<GLuint, int> m_textures_count;
 
@@ -27,20 +34,27 @@ private:
         }, 3 * 100000);
 
         m_instances.reserve(100000);
+
+        char default_texture[] = { 255,255,255,255 };
+        m_texture_manager.load_texture_by_data(default_texture, { .size_x = 1, .size_y = 1 }, "_default");
     }
     
     void update(float delta_time) override {
+        const air_texture_id default_tex_id = m_texture_manager.get_texture("_default")->id;
+
         auto view_sprites = m_registry->view<Transform, Sprite>();
         view_sprites.each([&](Transform& transform, Sprite& sprite){
+            air_texture_id texture_id = sprite.texture ? sprite.texture->id : default_tex_id;
+
             m_instances.emplace_back(QuadRenderInstance(
                 transform.position,
                 transform.origin,
                 transform.rotation,
                 sprite.size,
-                sprite.texture_id
+                texture_id
             ));
 
-            ++m_textures_count[sprite.texture_id];
+            ++m_textures_count[texture_id];
         });
 
         std::sort(m_instances.begin(), m_instances.end(), [](QuadRenderInstance const& a, QuadRenderInstance const& b){
@@ -64,9 +78,13 @@ private:
         //m_renderer.display();
 
         int it = 0;
-        while(it < m_instances.size() * QuadRenderInstance::get_count()){
-            m_renderer.display_part(GL_TRIANGLES, m_textures_count[m_instances[it].texture_id] * QuadRenderInstance::get_count(), it);
-            it += m_textures_count[m_instances[it].texture_id] * QuadRenderInstance::get_count();
+        while(it < m_instances.size()){
+            glBindTexture(GL_TEXTURE_2D, m_instances[it].texture_id);
+
+            m_renderer.display_part(GL_TRIANGLES, m_textures_count[m_instances[it].texture_id] * QuadRenderInstance::get_count(), it * QuadRenderInstance::get_count());
+            it += m_textures_count[m_instances[it].texture_id];
+
+            glBindTexture(GL_TEXTURE_2D, 0);
         }
 
         m_renderer.clear();
