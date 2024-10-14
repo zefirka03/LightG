@@ -10,13 +10,15 @@ add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/deps/glfw" glfw)
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/deps/glew-cmake" glew)
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/deps/glm" )
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/deps/entt" entt)
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/deps/soil" soil)
 
 set(DEPS_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/deps/glfw/include"
                              "${CMAKE_CURRENT_SOURCE_DIR}/deps/glew-cmake/include"
                              "${CMAKE_CURRENT_SOURCE_DIR}/deps/glm/glm"
                              "${CMAKE_CURRENT_SOURCE_DIR}/deps/entt/src"
+                             "${CMAKE_CURRENT_SOURCE_DIR}/deps/soil/inc"
                              )
-set(DEPS_LIBRARIES glfw libglew_static glm::glm)
+set(DEPS_LIBRARIES glfw libglew_static glm::glm soil)
 
 file(GLOB_RECURSE SRC_FILES
 	"src/*.cpp"

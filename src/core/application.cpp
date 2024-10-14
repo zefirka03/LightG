@@ -56,3 +56,7 @@ Application& Application::get_instance(){
 GLFWwindow* Application::get_native_window() const {
     return m_window;
 }
+
+ApplicationProperties const& Application::get_properties() const {
+    return m_properties;
+}

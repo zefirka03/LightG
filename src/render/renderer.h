@@ -6,6 +6,10 @@
 template<class vertex_t, size_t count>
 class RenderInstance {
 public:
+    static size_t get_count() {
+        return count;
+    }
+
     virtual std::array<vertex_t, count> get_vertices() const = 0;
 };
 
@@ -66,5 +70,23 @@ public:
         m_vertices_count = 0;
 
         m_shader.unuse();
+    }
+
+    void load_all() {
+        m_vao.redata(0, 0, m_vertices_count * sizeof(vertex_t), m_vertices.data());
+    }
+
+    void display_part(int object_type, int count, int first) {
+        m_shader.use();
+        m_vao.draw(count, object_type, first);
+        m_shader.unuse();
+    }
+
+    void clear() {
+        m_vertices_count = 0;
+    }
+
+    std::vector<vertex_t>& get_vertices() const {
+        return m_vertices;
     }
 };

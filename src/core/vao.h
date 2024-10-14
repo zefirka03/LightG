@@ -30,5 +30,5 @@ public:
     void add_index(GLuint buffer_index, GLint size, GLsizei stride = 0, const void* pointer = 0);
     void add_index(VAO::Index const& index);
     void redata(GLuint buffer_index, int offset, int size, const void* data);
-    void draw(int count, int type = GL_TRIANGLES);
+    void draw(int count, int type = GL_TRIANGLES, int first = 0);
 };

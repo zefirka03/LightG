@@ -1,8 +1,8 @@
-﻿#include "scenes/scene2.h"
+﻿#include "scenes/scene1.h"
 
 int main() {
-    Application game(640, 480, "Light");
-    game.run(new Scene2());
+    Application game(640, 500, "Light");
+    game.run(new Scene1());
 
     return 0;
 }
