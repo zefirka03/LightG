@@ -113,7 +113,11 @@ public:
         cam = create_entity();
         auto& cam_tr = add_component<Transform>(cam);
         cam_tr.position = glm::vec3(5000, 5000, 5000);
-        add_component<Camera3d>(cam, new Perspective(640, 480, 3.14f * 45.f / 180.f, 0.1, 100000), true);
+
+        int width = Application::get_instance().get_properties().width;
+        int height = Application::get_instance().get_properties().height;
+        add_component<Camera3d>(cam, new Perspective(width, height, 3.14f * 45.f / 180.f, 0.1, 100000), true);
+
         add_component<ScriptComponent>(cam).bind<CameraController>();
 
         {

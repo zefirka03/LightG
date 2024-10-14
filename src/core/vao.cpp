@@ -64,8 +64,8 @@ void VAO::redata(GLuint bo_index, int offset, int size, const void* data){
     unbind();
 }
 
-void VAO::draw(int count, int type) {
+void VAO::draw(int count, int type, int first) {
 	bind();
-	glDrawArrays(type, 0, count);
+	glDrawArrays(type, first, count);
 	unbind();
 }

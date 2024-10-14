@@ -27,4 +27,5 @@ public:
 
     static Application& get_instance();
     GLFWwindow* get_native_window() const;
+    ApplicationProperties const& get_properties() const;
 };

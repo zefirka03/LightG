@@ -123,10 +123,10 @@ public:
     PhysicsSystem* physics;
 
     void on_init() override {
-        add_system<RenderingSystem>();
         add_system<ScriptingSystem>();
-        debug = add_system<DebugSystem>();
         physics = add_system<PhysicsSystem>();
+        add_system<RenderingSystem>();
+        debug = add_system<DebugSystem>();
 
         physics->set_tags(0, 0, false);
         physics->set_tags(1, 1, false);
@@ -136,7 +136,11 @@ public:
         cam = create_entity();
         auto& cam_tr = add_component<Transform>(cam);
         cam_tr.position = glm::vec3(5000, 5000, 5000);
-        add_component<Camera3d>(cam, new Perspective(640, 480, 3.14f * 45.f / 180.f, 0.1, 100000), true);
+
+        int width = Application::get_instance().get_properties().width;
+        int height = Application::get_instance().get_properties().height;
+        add_component<Camera3d>(cam, new Perspective(width, height, 3.14f * 90.f / 180.f, 0.1, 100000), true);
+
         add_component<ScriptComponent>(cam).bind<CameraController>();
 
         {
@@ -244,7 +248,7 @@ public:
         //    static_cast<SphereCollider*>(sp_pb.get_collider())->radius = sp_sp.size.x / 2.f;
         //}
 
-        for (int i = 0; i < 5500; ++i) {
+        for (int i = 0; i < 25000; ++i) {
             a = create_entity();
             add_component<ScriptComponent>(a).bind<RotationSc>();
         }
