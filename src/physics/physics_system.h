@@ -44,6 +44,7 @@ public:
         m_collider = new Collider_t(args...);
         m_collider->m_pb_handler = this;
         m_collider->m_transform_handler = &this->scene->get_component<Transform>(this->entity);
+        m_collider->m_cached_type = check_collider_type<Collider_t>();
         return static_cast<Collider_t*>(m_collider);
     }
 
@@ -122,7 +123,7 @@ private:
         });
         //
 
-        // Recreate quadtree
+        // Recreate quadtrees
         for (int i = 0; i < m_quadtree.size(); ++i) {
             m_quadtree[i].tag = i;
             m_quadtree[i].quadtree->clear();

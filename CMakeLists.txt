@@ -25,6 +25,8 @@ file(GLOB_RECURSE SRC_FILES
     "src/*.h"
     "src/core/*.cpp"
     "src/core/*.h"
+    "src/core/utils/*.cpp"
+    "src/core/utils/*.h"
     "src/render/*.cpp"
     "src/render/*.h"
     "src/rtx_render/*.cpp"
