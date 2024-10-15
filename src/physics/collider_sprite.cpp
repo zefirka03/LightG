@@ -15,11 +15,11 @@ void SpriteCollider::update_bounds() {
 }
 
 collisionData SpriteCollider::check_collision(Collider* other) {
-	if (dynamic_cast<SpriteCollider*>(other))
+	if (other->cached_dynamic_cast<SpriteCollider>())
 		return CollisionCheckers::is_collide(this, static_cast<SpriteCollider*>(other));
-	else if (dynamic_cast<PlaneCollider*>(other))
+	else if (other->cached_dynamic_cast<PlaneCollider>())
 		return CollisionCheckers::is_collide(this, static_cast<PlaneCollider*>(other));
-	else if (dynamic_cast<SphereCollider*>(other))
+	else if (other->cached_dynamic_cast<SphereCollider>())
 		return CollisionCheckers::is_collide(static_cast<SphereCollider*>(other), this);
 	return collisionData();
 }

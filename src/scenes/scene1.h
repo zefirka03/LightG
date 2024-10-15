@@ -136,7 +136,7 @@ public:
 
     void on_start() override {
         auto& tex_man = rendering->get_texture_manager();
-        tex_man.load_texture("img/img1.jpg", "china");
+        tex_man.load_texture("img/exp.png", "china");
         tex_man.load_texture("img/stone.png", "stone");
 
         cam = create_entity();
@@ -260,7 +260,7 @@ public:
         //    static_cast<SphereCollider*>(sp_pb.get_collider())->radius = sp_sp.size.x / 2.f;
         //}
 
-        for (int i = 0; i < 25000; ++i) {
+        for (int i = 0; i < 35500; ++i) {
             a = create_entity();
             add_component<ScriptComponent>(a).bind<RotationSc>();
         }
