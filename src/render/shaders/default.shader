@@ -19,5 +19,9 @@ in vec2 o_texCoord;
 uniform sampler2D textureSamp;
 
 void main() {
-	out_color = texture(textureSamp, o_texCoord);
+	vec4 col = texture(textureSamp, o_texCoord);
+	if(col.a < 0.01)
+		discard;
+	else
+		out_color = col;
 }
