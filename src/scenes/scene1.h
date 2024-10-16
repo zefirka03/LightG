@@ -131,7 +131,7 @@ public:
         debug = add_system<DebugSystem>();
 
         physics->set_tags(0, 0, false);
-        physics->set_tags(1, 1, false);
+        //physics->set_tags(1, 1, false);
     }
 
     void on_start() override {
