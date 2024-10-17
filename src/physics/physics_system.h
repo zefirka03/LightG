@@ -115,6 +115,8 @@ private:
          
         // Update transforms
         view_pb.each([&](PhysicsBody& pb, Transform& transform) {
+            pb.m_collider->m_cached_already_resolved = false;
+
             transform.position += pb.velocity * delta_time;
             pb.velocity += (pb.force / pb.m) * delta_time;
             pb.m_last_force = pb.force;
@@ -153,6 +155,8 @@ private:
                 Collider* a_collider = static_cast<Collider*>(intersect_quads[q]);
                 PhysicsBody& a_pb = *a_collider->m_pb_handler;
                 Transform& a_tr = *a_collider->m_transform_handler;
+
+                a_collider->m_cached_already_resolved = true;
                  
                 potential_quads.clear();
                 for (int j = i; j < m_quadtree.size(); ++j) 
@@ -162,6 +166,9 @@ private:
                 for (auto& quad : potential_quads) {
                     Collider* collider_child = static_cast<Collider*>(quad);
                     if (quad != a_pb.m_collider) {
+                        if (collider_child->m_cached_already_resolved)
+                            continue;
+
                         collisionData collision_data = a_pb.m_collider->check_collision(collider_child);
                         if (collision_data.is_collide) {
                             // Start custom handlers

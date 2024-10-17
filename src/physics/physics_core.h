@@ -22,7 +22,9 @@ friend class PhysicsSystem;
 friend class CollisionCheckers;
 	PhysicsBody* m_pb_handler = nullptr;
 	Transform* m_transform_handler = nullptr;
+
 	uint32_t m_cached_type = check_collider_type<Collider>();
+	bool m_cached_already_resolved = false;
 public:
 	template<class Collider_t>
 	Collider_t* cached_dynamic_cast() {
