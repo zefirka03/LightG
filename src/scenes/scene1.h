@@ -119,6 +119,8 @@ public:
     Entity rot_ent;
     Entity front_entity;
     float t = 0;
+    float avg_fps = 0;
+    int frame_count = 0;
 
     DebugSystem* debug;
     PhysicsSystem* physics;
@@ -287,7 +289,13 @@ public:
         // Draw physics debug
         //physics->draw_debug(*debug);
 
-        if(Input::is_key_pressed(Key::Space))
-            printf("%f \n", 1.0 / delta_time);
+        // Avrg fps
+        avg_fps = (avg_fps * frame_count + (1.f / delta_time)) / (frame_count+1);
+        ++frame_count;
+        t += delta_time;
+        if (t > 0.5) {
+            printf("Avrg: %f \n", avg_fps);
+            t = 0;
+        }
     }
 };
