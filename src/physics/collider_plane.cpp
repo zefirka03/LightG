@@ -14,14 +14,14 @@ void PlaneCollider::update_bounds() {
 	));
 }
 
-collisionData PlaneCollider::check_collision(Collider* other) {
+void PlaneCollider::check_collision(Collider* other, collisionData& out) {
 	if (other->cached_dynamic_cast<PlaneCollider>())
-		return CollisionCheckers::is_collide(this, static_cast<PlaneCollider*>(other));
+		return CollisionCheckers::is_collide(this, static_cast<PlaneCollider*>(other), out);
 	else if (other->cached_dynamic_cast<SpriteCollider>())
-		return CollisionCheckers::is_collide(static_cast<SpriteCollider*>(other), this);
+		return CollisionCheckers::is_collide(static_cast<SpriteCollider*>(other), this, out);
 	else if (other->cached_dynamic_cast<SphereCollider>())
-		return CollisionCheckers::is_collide(static_cast<SphereCollider*>(other), this);
-	return collisionData();
+		return CollisionCheckers::is_collide(static_cast<SphereCollider*>(other), this, out);
+	return;
 }
 
 void PlaneCollider::draw_debug(DebugSystem& debug_system) const {

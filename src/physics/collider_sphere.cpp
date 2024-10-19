@@ -9,14 +9,15 @@ void SphereCollider::update_bounds() {
 	);
 }
 
-collisionData SphereCollider::check_collision(Collider* other) {
+
+void SphereCollider::check_collision(Collider* other, collisionData& out) {
 	if (other->cached_dynamic_cast<PlaneCollider>())
-		return CollisionCheckers::is_collide(this, static_cast<PlaneCollider*>(other));
+		return CollisionCheckers::is_collide(this, static_cast<PlaneCollider*>(other), out);
 	else if (other->cached_dynamic_cast<SpriteCollider>())
-		return CollisionCheckers::is_collide(this, static_cast<SpriteCollider*>(other));
+		return CollisionCheckers::is_collide(this, static_cast<SpriteCollider*>(other), out);
 	else if (other->cached_dynamic_cast<SphereCollider>())
-		return CollisionCheckers::is_collide(this, static_cast<SphereCollider*>(other));
-	return collisionData();
+		return CollisionCheckers::is_collide(this, static_cast<SphereCollider*>(other), out);
+	return;
 }
 
 void SphereCollider::draw_debug(DebugSystem& debug_system) const {

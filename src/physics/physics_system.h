@@ -151,6 +151,7 @@ private:
             std::vector<Quadable*> potential_quads;
             auto& intersect_quads = m_quadtree[i].intersections;
 
+            collisionData collision_data;
             for (int q = 0; q < intersect_quads.size(); ++q) {
                 Collider* a_collider = static_cast<Collider*>(intersect_quads[q]);
                 PhysicsBody& a_pb = *a_collider->m_pb_handler;
@@ -169,7 +170,7 @@ private:
                         if (collider_child->m_cached_already_resolved)
                             continue;
 
-                        collisionData collision_data = a_pb.m_collider->check_collision(collider_child);
+                        a_pb.m_collider->check_collision(collider_child, collision_data);
                         if (collision_data.is_collide) {
                             // Start custom handlers
                             for (auto on_collide : a_pb.m_on_collide_handlers)

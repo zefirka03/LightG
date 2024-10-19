@@ -33,7 +33,7 @@ public:
 		return nullptr;
 	}
 
-	virtual collisionData check_collision(Collider* other) = 0;
+	virtual void check_collision(Collider* other, collisionData& out) = 0;
 	virtual void draw_debug(DebugSystem& debug_system) const {}
 };
 
@@ -62,14 +62,14 @@ constexpr int check_collider_type() {
 }
 
 struct CollisionCheckers {
-	static collisionData is_collide(SpriteCollider* a, SpriteCollider* b);
+	static void is_collide(SpriteCollider* a, SpriteCollider* b, collisionData& out);
 	// Always false
-	static collisionData is_collide(PlaneCollider* a, PlaneCollider* b);
+	static void is_collide(PlaneCollider* a, PlaneCollider* b, collisionData& out);
 	// Not implemented yet
-	static collisionData is_collide(SpriteCollider* a, PlaneCollider* b);
-	static collisionData is_collide(SphereCollider* a, PlaneCollider* b);
-	static collisionData is_collide(SphereCollider* a, SpriteCollider* b);
-	static collisionData is_collide(SphereCollider* a, SphereCollider* b);
+	static void is_collide(SpriteCollider* a, PlaneCollider* b, collisionData& out);
+	static void is_collide(SphereCollider* a, PlaneCollider* b, collisionData& out);
+	static void is_collide(SphereCollider* a, SpriteCollider* b, collisionData& out);
+	static void is_collide(SphereCollider* a, SphereCollider* b, collisionData& out);
 };
 
 class SpriteCollider : public Collider {
@@ -80,7 +80,7 @@ public:
 	SpriteCollider();
 
 	void update_bounds() override;
-	collisionData check_collision(Collider* other) override;
+	void check_collision(Collider* other, collisionData& out) override;
 	void draw_debug(DebugSystem& debug_system) const override;
 };
 
@@ -92,7 +92,7 @@ public:
 	PlaneCollider();
 
 	void update_bounds() override;
-	collisionData check_collision(Collider* other) override;
+	void check_collision(Collider* other, collisionData& out) override;
 	void draw_debug(DebugSystem& debug_system) const override;
 };
 
@@ -103,6 +103,6 @@ public:
 	SphereCollider();
 
 	void update_bounds() override;
-	collisionData check_collision(Collider* other) override;
+	void check_collision(Collider* other, collisionData& out) override;
 	void draw_debug(DebugSystem& debug_system) const override;
 };

@@ -1,6 +1,6 @@
 #include "physics_core.h"
 
-collisionData CollisionCheckers::is_collide(SpriteCollider* a, SpriteCollider* b) {
+void CollisionCheckers::is_collide(SpriteCollider* a, SpriteCollider* b, collisionData& out) {
 	glm::vec3 A_a = a->m_transform_handler->position + glm::vec3(
 		(-a->origin.x) * cos(a->m_transform_handler->rotation.y),
 		-a->origin.y,
@@ -35,34 +35,28 @@ collisionData CollisionCheckers::is_collide(SpriteCollider* a, SpriteCollider* b
 	float y2 = std::max(A_a.y, B_a.y);
 
 	glm::vec3 xyz = { xz.x, (y2 + y1) / 2.f, xz.y };
-
-	return { 
-		.is_collide = A.contains(xyz) && B.contains(xyz),
-		.collision_point = glm::vec3(0),
-		.normal = glm::vec3(0),
-		.distanse = 0
-	};
+ 
+	out.is_collide = A.contains(xyz) && B.contains(xyz);
+	out.collision_point = glm::vec3(0);
+	out.normal = glm::vec3(0);
+	out.distanse = 0;
 }
 
-collisionData CollisionCheckers::is_collide(PlaneCollider* a, PlaneCollider* b) {
-	return {
-		.is_collide = false,
-		.collision_point = glm::vec3(0),
-		.normal = glm::vec3(0),
-		.distanse = 0
-	};
+void CollisionCheckers::is_collide(PlaneCollider* a, PlaneCollider* b, collisionData& out) {
+	out.is_collide = false;
+	out.collision_point = glm::vec3(0);
+	out.normal = glm::vec3(0);
+	out.distanse = 0;
 }
 
-collisionData CollisionCheckers::is_collide(SpriteCollider* a, PlaneCollider* b) {
-	return {
-		.is_collide = false,
-		.collision_point = glm::vec3(0),
-		.normal = glm::vec3(0),
-		.distanse = 0
-	};
+void CollisionCheckers::is_collide(SpriteCollider* a, PlaneCollider* b, collisionData& out) {
+	out.is_collide = false;
+	out.collision_point = glm::vec3(0);
+	out.normal = glm::vec3(0);
+	out.distanse = 0;
 }
 
-collisionData CollisionCheckers::is_collide(SphereCollider* a, PlaneCollider* b){
+void CollisionCheckers::is_collide(SphereCollider* a, PlaneCollider* b, collisionData& out){
 	glm::vec3 a_pos_xz = glm::vec3(a->m_transform_handler->position.x, 0, a->m_transform_handler->position.z);
 
 	glm::vec3 b_a_pos_xz = glm::vec3(b->m_transform_handler->position.x - b->origin.x, 0, b->m_transform_handler->position.z - b->origin.y);
@@ -80,15 +74,13 @@ collisionData CollisionCheckers::is_collide(SphereCollider* a, PlaneCollider* b)
 		glm::cross(b_a_pos_xz - b_d_pos_xz, a_pos_xz - b_d_pos_xz).y > 0
 	);
 
-	return {
-		.is_collide = is_collide,
-		.collision_point = glm::vec3(a->m_transform_handler->position.x, b->m_transform_handler->position.y, a->m_transform_handler->position.z),
-		.normal = glm::normalize(glm::vec3(0, y_intersection_vector, 0)),
-		.distanse = abs(a->radius - y_intersection_vector)
-	};
+	out.is_collide = is_collide;
+	out.collision_point = glm::vec3(a->m_transform_handler->position.x, b->m_transform_handler->position.y, a->m_transform_handler->position.z);
+	out.normal = glm::normalize(glm::vec3(0, y_intersection_vector, 0));
+	out.distanse = abs(a->radius - y_intersection_vector);
 }
 
-collisionData CollisionCheckers::is_collide(SphereCollider* a, SpriteCollider* b){
+void CollisionCheckers::is_collide(SphereCollider* a, SpriteCollider* b, collisionData& out){
 	glm::vec3 b_a_pos_xz = b->m_transform_handler->position + glm::vec3((-b->origin.x) * cos(-b->m_transform_handler->rotation.y), -b->origin.y, (-b->origin.x) * sin(-b->m_transform_handler->rotation.y));
 	glm::vec3 b_b_pos_xz = b->m_transform_handler->position + glm::vec3((-b->origin.x + b->size.x) * cos(-b->m_transform_handler->rotation.y), -b->origin.y, (-b->origin.x + b->size.x) * sin(-b->m_transform_handler->rotation.y));
 	glm::vec3 b_c_pos_xz = b->m_transform_handler->position + glm::vec3((-b->origin.x + b->size.x) * cos(-b->m_transform_handler->rotation.y), -b->origin.y + b->size.y, (-b->origin.x + b->size.x) * sin(-b->m_transform_handler->rotation.y));
@@ -117,23 +109,24 @@ collisionData CollisionCheckers::is_collide(SphereCollider* a, SpriteCollider* b
 		)
 	);
 
-	return {
-		.is_collide = is_collide,
-		.collision_point = a_proj,
-		.normal = -n,
-		.distanse = abs(y_intersection_vector - a->radius)
-	};
+	out.is_collide = is_collide;
+	out.collision_point = a_proj;
+	out.normal = -n;
+	out.distanse = abs(y_intersection_vector - a->radius);
 }
 
-collisionData CollisionCheckers::is_collide(SphereCollider* a, SphereCollider* b) {
+void CollisionCheckers::is_collide(SphereCollider* a, SphereCollider* b, collisionData& out) {
 	glm::vec3 dist = b->m_transform_handler->position - a->m_transform_handler->position;
 	float dist_len = glm::length(dist);
-	glm::vec3 dist_norm = dist / dist_len;
+	float distance = a->radius + b->radius - dist_len;
 
-	return {
-		.is_collide = dist_len < a->radius + b->radius,
-		.collision_point = dist_norm * a->radius,
-		.normal = dist_norm,
-		.distanse = abs(a->radius + b->radius - dist_len)
-	};
+	if (distance > 0) {
+		out.is_collide = true;
+		out.normal = dist / dist_len;
+		out.collision_point = out.normal * a->radius;
+		out.distanse = distance;
+	} else {
+		out.is_collide = false;
+		out.distanse = -distance;
+	}
 }
