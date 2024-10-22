@@ -7,7 +7,8 @@ private:
 	glm::vec3 a = glm::vec3(FLT_MAX);
 	glm::vec3 b = glm::vec3(-FLT_MAX);
 
-	float radius;
+	glm::vec3 center;
+	float diameter;
 public:
 	boundingBox() {}
 
@@ -16,13 +17,15 @@ public:
 		if (a.y > b.y) std::swap(a.y, b.y);
 		if (a.z > b.z) std::swap(a.z, b.z);
 
-		radius = glm::length(b - a) / 2.f;
+		center = (a + b) / 2.f;
+		diameter = glm::length(b - a);
 	}
 
 	boundingBox(boundingBox const& other) {
 		a = other.a;
 		b = other.b;
-		radius = other.radius;
+		center = (a + b) / 2.f;
+		diameter = other.diameter;
 	}
 
 	glm::vec3 const& get_a() const {
@@ -33,14 +36,20 @@ public:
 		return b;
 	}
 
+	float get_diameter() const {
+		return diameter;
+	}
+
 	void set_a(glm::vec3 const& _a) {
 		a = _a;
-		radius = glm::length(b - a) / 2.f;
+		center = (a + b) / 2.f;
+		diameter = glm::length(b - a);
 	}
 
 	void set_b(glm::vec3 const& _b)  {
 		b = _b;
-		radius = glm::length(b - a) / 2.f;
+		center = (a + b) / 2.f;
+		diameter = glm::length(b - a);
 	}
 
 	void adjust_bounds(boundingBox const& other) {
@@ -52,7 +61,8 @@ public:
 		b.y = std::max(b.y, other.b.y);
 		b.z = std::max(b.z, other.b.z);
 
-		radius = glm::length(b - a) / 2.f;
+		center = (a + b) / 2.f;
+		diameter = glm::length(b - a);
 	}
 
 	// if this bbox fully contains other
