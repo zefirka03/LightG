@@ -2,21 +2,45 @@
 #include "../core/core.h"
 
 struct boundingBox {
+private:
 	// a coordinates always must be less than b coordinates
 	glm::vec3 a = glm::vec3(FLT_MAX);
 	glm::vec3 b = glm::vec3(-FLT_MAX);
 
+	float radius;
+public:
 	boundingBox() {}
 
 	boundingBox(glm::vec3 _a, glm::vec3 _b) : a(_a), b(_b) {
 		if (a.x > b.x) std::swap(a.x, b.x);
 		if (a.y > b.y) std::swap(a.y, b.y);
 		if (a.z > b.z) std::swap(a.z, b.z);
+
+		radius = glm::length(b - a) / 2.f;
 	}
 
 	boundingBox(boundingBox const& other) {
 		a = other.a;
 		b = other.b;
+		radius = other.radius;
+	}
+
+	glm::vec3 const& get_a() const {
+		return a;
+	}
+
+	glm::vec3 const& get_b() const {
+		return b;
+	}
+
+	void set_a(glm::vec3 const& _a) {
+		a = _a;
+		radius = glm::length(b - a) / 2.f;
+	}
+
+	void set_b(glm::vec3 const& _b)  {
+		b = _b;
+		radius = glm::length(b - a) / 2.f;
 	}
 
 	void adjust_bounds(boundingBox const& other) {
@@ -27,6 +51,8 @@ struct boundingBox {
 		b.x = std::max(b.x, other.b.x);
 		b.y = std::max(b.y, other.b.y);
 		b.z = std::max(b.z, other.b.z);
+
+		radius = glm::length(b - a) / 2.f;
 	}
 
 	// if this bbox fully contains other
