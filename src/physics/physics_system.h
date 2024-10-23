@@ -65,8 +65,8 @@ public:
         for (int i = 0; i < m_quadtree.size(); ++i) {
             m_quadtree[i] = {
                 .tag = i,
-                .quadtree = new Quadtree(),
-                .intersections = std::vector<Quadable*>()
+                .quadtree = new LOctree(),
+                .intersections = std::vector<LQuadable*>()
             };
         }
 
@@ -81,23 +81,23 @@ public:
     }
 
     void draw_debug(DebugSystem& debug_system) {
-        auto view_pb = m_registry->view<PhysicsBody>();
-        view_pb.each([&](PhysicsBody& pb) {
-            if (pb.m_collider) {
-                pb.m_collider->draw_debug(debug_system);
-                auto bbox = pb.m_collider->get_bounds();
-                debug_system.draw_box(bbox.a, bbox.b, glm::vec4(1, 1, 0, 1));
-            }
-        });
-
-        for(auto quadtree : m_quadtree)
-            quadtree.quadtree->draw_debug(debug_system);
+        //auto view_pb = m_registry->view<PhysicsBody>();
+        //view_pb.each([&](PhysicsBody& pb) {
+        //    if (pb.m_collider) {
+        //        pb.m_collider->draw_debug(debug_system);
+        //        auto bbox = pb.m_collider->get_bounds();
+        //        debug_system.draw_box(bbox.a, bbox.b, glm::vec4(1, 1, 0, 1));
+        //    }
+        //});
+//
+        //for(auto quadtree : m_quadtree)
+        //    quadtree.quadtree->draw_debug(debug_system);
     }
 private:
     struct QtIntTag {
         int tag;
-        Quadtree* quadtree;
-        std::vector<Quadable*> intersections;
+        LOctree* quadtree;
+        std::vector<LQuadable*> intersections;
     };
     std::vector<QtIntTag> m_quadtree;
     std::vector<std::bitset<AIR_PHYSICS_MAX_TAGS>> m_tags_check;
@@ -105,7 +105,7 @@ private:
     void init() override {}
 
     void start() override {
-
+        
     }
     
     void update(float delta_time) override {
@@ -133,12 +133,13 @@ private:
         }
         view_pb.each([&](PhysicsBody& pb, Transform& transform) {
             if (pb.m_collider) {
-                m_quadtree[pb.tag].quadtree->add_child(pb.m_collider);
+                m_quadtree[pb.tag].quadtree->insert(pb.m_collider);
                 m_quadtree[pb.tag].intersections.emplace_back(pb.m_collider);
             }
         });
-        for (int i = 0; i < m_quadtree.size(); ++i)
+        for (int i = 0; i < m_quadtree.size(); ++i) {
             m_quadtree[i].quadtree->devide();
+        }
         //
 
         // Get all quads
@@ -147,6 +148,7 @@ private:
         });
         //
 
+        /*
         for (int i = 0; i < m_quadtree.size(); ++i) {
             std::vector<Quadable*> potential_quads;
             auto& intersect_quads = m_quadtree[i].intersections;
@@ -216,5 +218,6 @@ private:
                 }
             }
         }
+        */
     }
 };

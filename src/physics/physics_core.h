@@ -2,7 +2,8 @@
 #include "../core/core.h"
 #include "../debug/debug.h"
 #include "../render/transform.h"
-#include "quadtree.h"
+//#include "quadtree.h"
+#include "loose_octree.h"
 #include "line.h"
 
 struct collisionData {
@@ -15,7 +16,7 @@ struct collisionData {
 template<typename T>
 constexpr int check_collider_type();
 
-struct Collider : public Quadable {
+struct Collider : public LQuadable {
 protected:
 friend class PhysicsBody;
 friend class PhysicsSystem;

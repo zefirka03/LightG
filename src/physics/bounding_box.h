@@ -36,6 +36,10 @@ public:
 		return b;
 	}
 
+	glm::vec3 const& get_center() const {
+		return center;
+	}
+
 	float get_diameter() const {
 		return diameter;
 	}
@@ -47,6 +51,13 @@ public:
 	}
 
 	void set_b(glm::vec3 const& _b)  {
+		b = _b;
+		center = (a + b) / 2.f;
+		diameter = glm::length(b - a);
+	}
+
+	void set(glm::vec3 const& _a, glm::vec3 const& _b) {
+		a = _a;
 		b = _b;
 		center = (a + b) / 2.f;
 		diameter = glm::length(b - a);
