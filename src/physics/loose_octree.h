@@ -53,7 +53,7 @@ private:
     float m_min_diameter = FLT_MAX;
     int m_deep = 0;
 
-    void _find_and_place(int quad_it){
+    void _find_and_place(int quad_it) {
         auto& quad_l = m_childs[quad_it];
         auto& quad = quad_l.quad;
         int deep_pos = std::min(int(std::log(m_bounds.get_diameter() / quad->get_bounds().get_diameter())), MAX_DEEP);
@@ -62,17 +62,18 @@ private:
         glm::vec3 pos = (quad->get_bounds().get_center() - m_bounds.get_a()) / m_nodes[first_it].side_size;
         auto& node = m_nodes[first_it + int(pos.x) * 4 + int(pos.y) * 2 + pos.z];
 
-        if(node.first_child == -1){
+        if (node.first_child == -1) {
             node.first_child = quad_it;
             node.last_child = quad_it;
-        } else {
+        }
+        else {
             m_childs[node.last_child].next_child = quad_it;
             node.last_child = quad_it;
         }
     }
 
     void _get_potential_colliders(LQuadable* quad) {
-        
+
     }
 
     int _get_index(glm::vec3 const& center, int deep) {
@@ -86,6 +87,18 @@ private:
     int _get_deep(float diameter) {
         const float rate = m_bounds.get_diameter() / diameter;
         return std::min(rate > 1 ? int(std::log(rate)) : 0, m_deep);
+    }
+
+    void _add_child(int node_it, int child_it) {
+        auto& node = m_nodes[node_it];
+        if (node.first_child != -1) {
+            m_childs[node.last_child].next_child = child_it;
+            node.last_child = child_it;
+        }
+        else {
+            node.first_child = child_it;
+            node.last_child = child_it;
+        }
     }
 
 public:
@@ -123,7 +136,16 @@ public:
         //printf("childs size: %d\n", m_childs.size());
         //printf("-----------------\n");
 
-        
+        // Add childs
+        for (int child_i = 0; child_i < m_childs.size(); ++child_i) {
+            _add_child(
+                _get_index(
+                    m_childs[child_i].quad->get_bounds().get_center(),
+                    _get_deep(m_childs[child_i].quad->get_bounds().get_diameter())
+                ),
+                child_i
+            );
+        }
     }
 
     void clear() {
