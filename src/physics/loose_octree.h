@@ -90,12 +90,21 @@ private:
         const glm::vec3 displace = glm::vec3(1.f / std::sqrt(3.f)) * outer_radius / 4.f;
         const float half_outer_radius = outer_radius / 2.f;
         
-        for (int x = 1; x != -1; x*=-1) {
-            for (int y = 1; y != -1; y*=-1) {
-                for (int z = 1; z < -1; z*=-1) {
+        int last = -1;
+        for (int x = 1; x != -3; x-=2) {
+            for (int y = 1; y != -3; y-=2) {
+                for (int z = 1; z != -3; z-=2) {
                     glm::vec3 curr_center = center + displace * glm::vec3(x, y, z);
+                    const int indx = _get_index(curr_center, deep + 1);
+                    if (last != -1) {
+                        m_nodes[last].next_node = indx;
+                        last = indx;
+                    } else {
+                        node.deep_down = indx;
+                        last = indx;
+                    }
                     _setup_nodes(
-                        _get_index(curr_center, deep + 1),
+                        indx,
                         curr_center,
                         half_outer_radius,
                         deep + 1
