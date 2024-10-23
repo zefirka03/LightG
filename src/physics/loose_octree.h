@@ -21,18 +21,16 @@ struct LQuadNode {
     int last_child = -1;
 
     int deep = -1;
-    int deep_up = -1;
     int deep_down = -1;
 
     int next_node = -1;
 
     glm::vec3 center;
-    float side_size;
+    float radius;
 
     void reset(){
         first_child = -1;
         last_child = -1;
-        deep_up = -1;
         deep_down = -1;
     }
 };
@@ -53,25 +51,6 @@ private:
     float m_min_diameter = FLT_MAX;
     int m_deep = 0;
 
-    void _find_and_place(int quad_it) {
-        auto& quad_l = m_childs[quad_it];
-        auto& quad = quad_l.quad;
-        int deep_pos = std::min(int(std::log(m_bounds.get_diameter() / quad->get_bounds().get_diameter())), MAX_DEEP);
-        int first_it = ((1 << (3 * deep_pos)) - 1) / 7;
-
-        glm::vec3 pos = (quad->get_bounds().get_center() - m_bounds.get_a()) / m_nodes[first_it].side_size;
-        auto& node = m_nodes[first_it + int(pos.x) * 4 + int(pos.y) * 2 + pos.z];
-
-        if (node.first_child == -1) {
-            node.first_child = quad_it;
-            node.last_child = quad_it;
-        }
-        else {
-            m_childs[node.last_child].next_child = quad_it;
-            node.last_child = quad_it;
-        }
-    }
-
     void _get_potential_colliders(LQuadable* quad) {
 
     }
@@ -81,7 +60,7 @@ private:
         const int sides = 1 << deep;
         const glm::vec3 side_size = (m_bounds.get_b() - m_bounds.get_a()) / float(sides);
         glm::vec3 pos = (center - m_bounds.get_a()) / side_size;
-        return first_it + int(pos.x) + int(pos.y) * sides + int(pos.z) * sides * sides;
+        return first_it + int(pos.x) + int(pos.z) * sides + int(pos.y) * sides * sides;
     }
 
     int _get_deep(float diameter) {
@@ -98,6 +77,31 @@ private:
         else {
             node.first_child = child_it;
             node.last_child = child_it;
+        }
+    }
+
+    void _setup_nodes(int node_it, glm::vec3 const& center, float outer_radius, int deep) {
+        auto& node = m_nodes[node_it];
+        node.center = center;
+        node.deep = deep;
+        node.radius = outer_radius;
+        if (deep >= m_deep) return;
+
+        const glm::vec3 displace = glm::vec3(1.f / std::sqrt(3.f)) * outer_radius / 4.f;
+        const float half_outer_radius = outer_radius / 2.f;
+        
+        for (int x = 1; x != -1; x*=-1) {
+            for (int y = 1; y != -1; y*=-1) {
+                for (int z = 1; z < -1; z*=-1) {
+                    glm::vec3 curr_center = center + displace * glm::vec3(x, y, z);
+                    _setup_nodes(
+                        _get_index(curr_center, deep + 1),
+                        curr_center,
+                        half_outer_radius,
+                        deep + 1
+                    );
+                }
+            }
         }
     }
 
@@ -135,6 +139,8 @@ public:
         //printf("nodes size: %d\n", m_nodes.size());
         //printf("childs size: %d\n", m_childs.size());
         //printf("-----------------\n");
+
+        _setup_nodes(0, m_bounds.get_center(), m_bounds.get_diameter(), 0);
 
         // Add childs
         for (int child_i = 0; child_i < m_childs.size(); ++child_i) {
