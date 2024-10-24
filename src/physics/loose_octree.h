@@ -1,5 +1,6 @@
 // https://www.yumpu.com/en/document/read/33628186/loose-octree-a-data-structure-for-the-simulation-of-polydisperse-
 #pragma once
+#include <array>
 #include <vector>
 #include "bounding_box.h"
 
@@ -51,16 +52,55 @@ private:
     float m_min_diameter = FLT_MAX;
     int m_deep = 0;
 
+    std::array<glm::vec3, MAX_DEEP + 1> m_cached_side_sizes;
+    std::vector<std::array<int, 8>> m_cached_down_indices;
+
     void _get_potential_colliders(LQuadable* quad) {
 
+    }
+
+    void _update_dinamic_cache() {
+        glm::vec3 init_size = m_bounds.get_b() - m_bounds.get_a();
+        for (int d = 0; d < MAX_DEEP + 1; ++d) {
+            m_cached_side_sizes[d] = init_size;
+            init_size /= 2.f;
+        }
     }
 
     int _get_index(glm::vec3 const& center, int deep) {
         const int first_it = ((1 << (3 * deep)) - 1) / 7;
         const int sides = 1 << deep;
-        const glm::vec3 side_size = (m_bounds.get_b() - m_bounds.get_a()) / float(sides);
-        glm::vec3 pos = (center - m_bounds.get_a()) / side_size;
+        glm::vec3 pos = (center - m_bounds.get_a()) / m_cached_side_sizes[deep];
         return first_it + int(pos.x) + int(pos.z) * sides + int(pos.y) * sides * sides;
+    }
+
+    void _cache_down_indices() {
+        int nodes_count = ((1 << (3 * (MAX_DEEP + 1))) - 1) / 7;
+        m_cached_down_indices.resize(nodes_count);
+        int side_size = 2;
+        int half_side_size = 1;
+        int last_pos = 0;
+        int curr_pos = 1;
+
+        for (int d = 1; d < MAX_DEEP + 1; ++d) {
+            for (int x = 0; x < side_size; ++x) {
+                for (int y = 0; y < side_size; ++y) {
+                    for (int z = 0; z < side_size; ++z) {
+                        int parent_index = last_pos + (x / 2) + (y / 2) * half_side_size * half_side_size + (z / 2) * half_side_size;
+
+                        m_cached_down_indices[parent_index][x % 2 + y % 2 * 2 * 2 + z % 2 * 2] = curr_pos;
+                        ++curr_pos;
+                    }
+                }
+            }
+            last_pos += half_side_size * half_side_size * half_side_size;
+            half_side_size = side_size;
+            side_size <<= 1;
+        }
+    }
+
+    std::array<int, 8>& _get_down_indexes(int index) {
+        return m_cached_down_indices[index];
     }
 
     int _get_deep(float diameter) {
@@ -87,15 +127,18 @@ private:
         node.radius = outer_radius;
         if (deep >= m_deep) return;
 
-        const glm::vec3 displace = glm::vec3(1.f / std::sqrt(3.f)) * outer_radius / 4.f;
+        glm::vec3 displace = glm::vec3(1.f / std::sqrt(3.f)) * outer_radius / 4.f;
         const float half_outer_radius = outer_radius / 2.f;
         
         int last = -1;
-        for (int x = 1; x != -3; x-=2) {
-            for (int y = 1; y != -3; y-=2) {
-                for (int z = 1; z != -3; z-=2) {
-                    glm::vec3 curr_center = center + displace * glm::vec3(x, y, z);
-                    const int indx = _get_index(curr_center, deep + 1);
+        int* index = &_get_down_indexes(node_it)[0];
+
+        for (int y = 0; y < 2; ++y) {
+            for (int z = 0; z < 2; ++z) {
+                for (int x = 0; x < 2; ++x) {
+                    glm::vec3 curr_center = center + displace;
+                    const int indx = *index;
+
                     if (last != -1) {
                         m_nodes[last].next_node = indx;
                         last = indx;
@@ -109,13 +152,20 @@ private:
                         half_outer_radius,
                         deep + 1
                     );
+
+                    ++index;
+                    displace.z = -displace.z;
                 }
+                displace.y = -displace.y;
             }
+            displace.x = -displace.x;
         }
     }
 
 public:
-    LOctree() {}
+    LOctree() {
+        _cache_down_indices();
+    }
 
     void insert(LQuadable* child) {
         m_childs.emplace_back(child);
@@ -149,6 +199,7 @@ public:
         //printf("childs size: %d\n", m_childs.size());
         //printf("-----------------\n");
 
+        _update_dinamic_cache();
         _setup_nodes(0, m_bounds.get_center(), m_bounds.get_diameter(), 0);
 
         // Add childs
