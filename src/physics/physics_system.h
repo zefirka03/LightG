@@ -115,13 +115,17 @@ private:
          
         // Update transforms
         view_pb.each([&](PhysicsBody& pb, Transform& transform) {
-            pb.m_collider->m_cached_already_resolved = false;
-
             transform.position += pb.velocity * delta_time;
             pb.velocity += (pb.force / pb.m) * delta_time;
+            glm::vec3 c_vel = pb.velocity;
+            glm::vec3 c_force = pb.force;
             pb.m_last_force = pb.force;
             pb.force = glm::vec3(0);
-            pb.m_collider->update_bounds();
+
+            if (pb.m_collider) {
+                pb.m_collider->m_cached_already_resolved = false;
+                pb.m_collider->update_bounds();
+            }
         });
         //
 
@@ -166,6 +170,7 @@ private:
                 for (int j = i; j < m_quadtree.size(); ++j) 
                     if (m_tags_check[m_quadtree[j].tag].test(a_pb.tag))
                         m_quadtree[j].quadtree->get(a_pb.m_collider, potential_quads);
+                //printf("pot_quads size : %d\n", potential_quads.size());
 
                 for (auto& quad : potential_quads) {
                     Collider* collider_child = static_cast<Collider*>(quad);
@@ -200,8 +205,11 @@ private:
 
                                 a_tr.position -= norm * (collision_data.distanse + 0.01f);
                                 a_pb.velocity = a_pb.velocity - 2.0f * m_ratio * glm::dot(vel_diff, norm) / glm::dot(norm, norm) * norm;
-                                if (b_pb.type == PhysicsBody::pbType::SOLID)
-                                    a_pb.force += -a_pb.friction * glm::dot(a_pb.m_last_force, norm) * glm::normalize(a_pb.velocity - glm::dot(a_pb.velocity, norm) * norm);
+                                if (b_pb.type == PhysicsBody::pbType::SOLID) {
+                                    if (glm::length(a_pb.velocity))
+                                        a_pb.force += -a_pb.friction * glm::dot(a_pb.m_last_force, norm) * glm::normalize(a_pb.velocity - glm::dot(a_pb.velocity, norm) * norm);
+                                    assert(glm::length(a_pb.force) <  10000);
+                                }
                             }
                             if (b_pb.type == PhysicsBody::pbType::RIGID) {
                                 float m_ratio;
@@ -211,8 +219,11 @@ private:
 
                                 b_tr.position += norm * (collision_data.distanse + 0.01f);
                                 b_pb.velocity = b_pb.velocity - 2.0f * m_ratio * glm::dot(-vel_diff, -norm) / glm::dot(norm, norm) * (-norm);
-                                if (a_pb.type == PhysicsBody::pbType::SOLID) 
-                                    b_pb.force += -b_pb.friction * glm::dot(b_pb.m_last_force, -norm) * glm::normalize(b_pb.velocity - glm::dot(b_pb.velocity, norm) * norm);
+                                if (a_pb.type == PhysicsBody::pbType::SOLID) {
+                                    if(glm::length(b_pb.velocity))
+                                        b_pb.force += -b_pb.friction * glm::dot(b_pb.m_last_force, -norm) * glm::normalize(b_pb.velocity - glm::dot(b_pb.velocity, norm) * norm);
+                                    assert(glm::length(b_pb.force) < 10000);
+                                }
                             }
                         }
                     }

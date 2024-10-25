@@ -263,7 +263,7 @@ public:
         //    static_cast<SphereCollider*>(sp_pb.get_collider())->radius = sp_sp.size.x / 2.f;
         //}
 
-        for (int i = 0; i < 1500; ++i) {
+        for (int i = 0; i < 3500; ++i) {
             a = create_entity();
             add_component<ScriptComponent>(a).bind<RotationSc>();
         }

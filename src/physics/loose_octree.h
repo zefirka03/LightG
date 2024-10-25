@@ -5,7 +5,7 @@
 #include <sstream>
 #include "bounding_box.h"
 
-#define MAX_DEEP 3
+#define MAX_DEEP 4
 
 class LQuadable {
 friend class LQuadNode;
@@ -58,18 +58,18 @@ private:
     std::array<glm::vec3, MAX_DEEP + 1> m_cached_side_sizes;
     std::vector<std::array<int, 8>> m_cached_down_indices;
 
-    bool _is_spheres_intersect(glm::vec3 c1, float r1, glm::vec3 c2, float r2) {
+    bool _is_spheres_intersect(glm::vec3 c1, float r1, glm::vec3 c2, float r2) const {
         return glm::length(c2 - c1) < (r1 + r2);
     }
 
-    bool _is_quad_node_intersect(LQuadable* quad, LQuadNode& node) {
+    bool _is_quad_node_intersect(LQuadable* quad, LQuadNode const& node) const {
         return _is_spheres_intersect(
             quad->get_bounds().get_center(), quad->get_bounds().get_diameter() / 2,
             node.center, node.radius
         );
     }
 
-    void _get_potential_colliders(LQuadable* quad, int node_it, std::vector<LQuadable*>& colliders) {
+    void _get_potential_colliders(LQuadable* quad, int node_it, std::vector<LQuadable*>& colliders) const {
         auto& node = m_nodes[node_it];
         if (_is_quad_node_intersect(quad, node)) {
             // get this node colliders
@@ -78,7 +78,7 @@ private:
                 c != -1;
                 c = m_childs[c].next_child
             ) {
-                colliders.push_back(m_childs[c].quad);
+                colliders.emplace_back(m_childs[c].quad);
             }
 
             // recursive try to get subnodes colliders
