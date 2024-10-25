@@ -142,15 +142,16 @@ private:
         }
         //
 
+        //m_quadtree[0].quadtree->print_debug();
+
         // Get all quads
         std::sort(m_quadtree.begin(), m_quadtree.end(), [](QtIntTag const& a, QtIntTag const& b) -> bool {
             return a.intersections.size() < b.intersections.size();
         });
         //
 
-        /*
         for (int i = 0; i < m_quadtree.size(); ++i) {
-            std::vector<Quadable*> potential_quads;
+            std::vector<LQuadable*> potential_quads;
             auto& intersect_quads = m_quadtree[i].intersections;
 
             collisionData collision_data;
@@ -160,7 +161,7 @@ private:
                 Transform& a_tr = *a_collider->m_transform_handler;
 
                 a_collider->m_cached_already_resolved = true;
-                 
+                
                 potential_quads.clear();
                 for (int j = i; j < m_quadtree.size(); ++j) 
                     if (m_tags_check[m_quadtree[j].tag].test(a_pb.tag))
@@ -218,6 +219,6 @@ private:
                 }
             }
         }
-        */
+        
     }
 };

@@ -24,7 +24,7 @@ public:
 	boundingBox(boundingBox const& other) {
 		a = other.a;
 		b = other.b;
-		center = (a + b) / 2.f;
+		center = other.center;
 		diameter = other.diameter;
 	}
 

@@ -2,9 +2,10 @@
 #pragma once
 #include <array>
 #include <vector>
+#include <sstream>
 #include "bounding_box.h"
 
-#define MAX_DEEP 5
+#define MAX_DEEP 4
 
 class LQuadable {
 friend class LQuadNode;
@@ -20,6 +21,7 @@ public:
 struct LQuadNode {
     int first_child = -1;
     int last_child = -1;
+    int childs_count = 0;
 
     int deep = -1;
     int deep_down = -1;
@@ -30,8 +32,9 @@ struct LQuadNode {
     float radius;
 
     void reset(){
-        first_child = -1;
+        first_child = -1;  
         last_child = -1;
+        childs_count = 0;
         deep_down = -1;
     }
 };
@@ -55,12 +58,42 @@ private:
     std::array<glm::vec3, MAX_DEEP + 1> m_cached_side_sizes;
     std::vector<std::array<int, 8>> m_cached_down_indices;
 
-    void _get_potential_colliders(LQuadable* quad) {
+    bool _is_spheres_intersect(glm::vec3 c1, float r1, glm::vec3 c2, float r2) {
+        return glm::length(c2 - c1) < (r1 + r2);
+    }
 
+    bool _is_quad_node_intersect(LQuadable* quad, LQuadNode& node) {
+        return _is_spheres_intersect(
+            quad->get_bounds().get_center(), quad->get_bounds().get_diameter() / 2,
+            node.center, node.radius
+        );
+    }
+
+    void _get_potential_colliders(LQuadable* quad, int node_it, std::vector<LQuadable*>& colliders) {
+        auto& node = m_nodes[node_it];
+        if (_is_quad_node_intersect(quad, node)) {
+            // get this node colliders
+            for (
+                int c = node.first_child;
+                c != -1;
+                c = m_childs[c].next_child
+            ) {
+                colliders.push_back(m_childs[c].quad);
+            }
+
+            // recursive try to get subnodes colliders
+            for (
+                int n = node.deep_down;
+                n != -1;
+                n = m_nodes[n].next_node
+            ) {
+                _get_potential_colliders(quad, n, colliders);
+            }
+        }
     }
 
     void _update_dinamic_cache() {
-        glm::vec3 init_size = m_bounds.get_b() - m_bounds.get_a();
+        glm::vec3 init_size = (m_bounds.get_b() - m_bounds.get_a()) * (1.f + 0.001f);
         for (int d = 0; d < MAX_DEEP + 1; ++d) {
             m_cached_side_sizes[d] = init_size;
             init_size /= 2.f;
@@ -83,12 +116,12 @@ private:
         int curr_pos = 1;
 
         for (int d = 1; d < MAX_DEEP + 1; ++d) {
-            for (int x = 0; x < side_size; ++x) {
-                for (int y = 0; y < side_size; ++y) {
-                    for (int z = 0; z < side_size; ++z) {
-                        int parent_index = last_pos + (x / 2) + (y / 2) * half_side_size * half_side_size + (z / 2) * half_side_size;
+            for (int y = 0; y < side_size; ++y) {
+                for (int z = 0; z < side_size; ++z) {
+                    for (int x = 0; x < side_size; ++x) {
+                        const int parent_index = last_pos + (x / 2) + (y / 2) * half_side_size * half_side_size + (z / 2) * half_side_size;
 
-                        m_cached_down_indices[parent_index][x % 2 + y % 2 * 2 * 2 + z % 2 * 2] = curr_pos;
+                        m_cached_down_indices[parent_index][(x % 2) + (y % 2) * 2 * 2 + (z % 2) * 2] = curr_pos;
                         ++curr_pos;
                     }
                 }
@@ -118,6 +151,7 @@ private:
             node.first_child = child_it;
             node.last_child = child_it;
         }
+        ++node.childs_count;
     }
 
     void _setup_nodes(int node_it, glm::vec3 const& center, float outer_radius, int deep) {
@@ -127,9 +161,9 @@ private:
         node.radius = outer_radius;
         if (deep >= m_deep) return;
 
-        glm::vec3 displace = glm::vec3(1.f / std::sqrt(3.f)) * outer_radius / 4.f;
+        glm::vec3 displace = -glm::vec3(1.f / std::sqrt(3.f)) * outer_radius / 4.f;
         const float half_outer_radius = outer_radius / 2.f;
-        
+
         int last = -1;
         int* index = &_get_down_indexes(node_it)[0];
 
@@ -154,11 +188,37 @@ private:
                     );
 
                     ++index;
-                    displace.z = -displace.z;
+                    displace.x = -displace.x;
                 }
-                displace.y = -displace.y;
+                displace.z = -displace.z;
             }
-            displace.x = -displace.x;
+            displace.y = -displace.y;
+        }
+    }
+
+    void _print_debug(int node_it) {
+        if (m_nodes[node_it].childs_count) {
+            for (int i = 0; i < m_nodes[node_it].deep; ++i)
+                printf("-");
+            printf("node: %d, radius: %f, childs: %d\n", node_it, m_nodes[node_it].radius, m_nodes[node_it].childs_count);
+            
+            for (
+                int c = m_nodes[node_it].first_child;
+                c != -1;
+                c = m_childs[c].next_child
+            ) {
+                for (int i = 0; i < m_nodes[node_it].deep + 1; ++i)
+                    printf("*");
+                printf("child: %d, radius: %f\n", c, m_childs[c].quad->get_bounds().get_diameter()/2.f);
+            }
+        }
+
+        for (
+            int n = m_nodes[node_it].deep_down;
+            n != -1;
+            n = m_nodes[n].next_node
+        ) {
+            _print_debug(n);
         }
     }
 
@@ -212,6 +272,16 @@ public:
                 child_i
             );
         }
+    }
+
+    void get(LQuadable* quad, std::vector<LQuadable*>& colliders) {
+        _get_potential_colliders(quad, 0, colliders);
+    }
+
+    void print_debug() {
+        printf("------START------\n");
+        _print_debug(0);
+        printf("-------END-------\n");
     }
 
     void clear() {

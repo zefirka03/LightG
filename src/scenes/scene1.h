@@ -134,6 +134,7 @@ public:
 
         physics->set_tags(0, 0, false);
         //physics->set_tags(1, 1, false);
+        //physics->set_tags(0, 1, false);
     }
 
     void on_start() override {
@@ -253,11 +254,11 @@ public:
         //    auto& sp_sp = add_component<Sprite>(front_entity);
         //    auto& sp_tr = add_component<Transform>(front_entity);
         //    auto& sp_pb = add_component<PhysicsBody>(front_entity);
-        //    //add_component<ScriptComponent>(front_entity).bind<CollisionChecker>();
+        //    add_component<ScriptComponent>(front_entity).bind<CollisionChecker>();
         //    sp_sp.size = glm::vec2(100);
         //    sp_tr.origin = glm::vec3(sp_sp.size / 2.f, 0);
         //    sp_tr.position = glm::vec3(14,14, 14);
-        //    sp_pb.solid = true;
+        //    sp_pb.tag = 2;
         //    sp_pb.set_collider<SphereCollider>();
         //    static_cast<SphereCollider*>(sp_pb.get_collider())->radius = sp_sp.size.x / 2.f;
         //}
@@ -269,7 +270,7 @@ public:
     }
 
     void on_update(float delta_time) override {
-        //get_component<Transform>(front_entity).position = get_component<Transform>(cam).position + get_component<Camera3d>(cam).get_forward() * 500.f;
+       // get_component<Transform>(front_entity).position = get_component<Transform>(cam).position + get_component<Camera3d>(cam).get_forward() * 500.f;
         get_component<Transform>(rot_ent).rotation.y += delta_time * 0.5f;
 
         // Draw coordinates
