@@ -5,7 +5,7 @@
 #include <sstream>
 #include "bounding_box.h"
 
-#define MAX_DEEP 4
+#define MAX_DEEP 3
 
 class LQuadable {
 friend class LQuadNode;
