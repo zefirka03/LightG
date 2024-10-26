@@ -2,8 +2,7 @@
 #include "../core/core.h"
 #include "../debug/debug.h"
 #include "../render/transform.h"
-//#include "quadtree.h"
-#include "loose_octree.h"
+#include "quadtree.h"
 #include "line.h"
 
 struct collisionData {
@@ -16,11 +15,11 @@ struct collisionData {
 template<typename T>
 constexpr int check_collider_type();
 
-struct Collider : public LQuadable {
+struct Collider : public Quadable {
 protected:
-friend class PhysicsBody;
-friend class PhysicsSystem;
-friend class CollisionCheckers;
+	friend class PhysicsBody;
+	friend class PhysicsSystem;
+	friend class CollisionCheckers;
 	PhysicsBody* m_pb_handler = nullptr;
 	Transform* m_transform_handler = nullptr;
 
@@ -54,11 +53,11 @@ constexpr int check_collider_type() {
 		return -1;
 	else if constexpr (std::is_same<T, SpriteCollider>::value)
 		return 0;
-	else if constexpr (std::is_same<T, PlaneCollider>::value) 
+	else if constexpr (std::is_same<T, PlaneCollider>::value)
 		return 1;
-	else if constexpr (std::is_same<T, SphereCollider>::value) 
+	else if constexpr (std::is_same<T, SphereCollider>::value)
 		return 2;
-	else 
+	else
 		return 3;
 }
 

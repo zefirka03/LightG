@@ -65,8 +65,8 @@ public:
         for (int i = 0; i < m_quadtree.size(); ++i) {
             m_quadtree[i] = {
                 .tag = i,
-                .quadtree = new LOctree(),
-                .intersections = std::vector<LQuadable*>()
+                .quadtree = new Quadtree(),
+                .intersections = std::vector<Quadable*>()
             };
         }
 
@@ -81,23 +81,23 @@ public:
     }
 
     void draw_debug(DebugSystem& debug_system) {
-        //auto view_pb = m_registry->view<PhysicsBody>();
-        //view_pb.each([&](PhysicsBody& pb) {
-        //    if (pb.m_collider) {
-        //        pb.m_collider->draw_debug(debug_system);
-        //        auto bbox = pb.m_collider->get_bounds();
-        //        debug_system.draw_box(bbox.a, bbox.b, glm::vec4(1, 1, 0, 1));
-        //    }
-        //});
-//
-        //for(auto quadtree : m_quadtree)
-        //    quadtree.quadtree->draw_debug(debug_system);
+        auto view_pb = m_registry->view<PhysicsBody>();
+        view_pb.each([&](PhysicsBody& pb) {
+            if (pb.m_collider) {
+                pb.m_collider->draw_debug(debug_system);
+                auto bbox = pb.m_collider->get_bounds();
+                debug_system.draw_box(bbox.get_a(), bbox.get_b(), glm::vec4(1, 1, 0, 1));
+            }
+        });
+
+        for(auto quadtree : m_quadtree)
+            quadtree.quadtree->draw_debug(debug_system);
     }
 private:
     struct QtIntTag {
         int tag;
-        LOctree* quadtree;
-        std::vector<LQuadable*> intersections;
+        Quadtree* quadtree;
+        std::vector<Quadable*> intersections;
     };
     std::vector<QtIntTag> m_quadtree;
     std::vector<std::bitset<AIR_PHYSICS_MAX_TAGS>> m_tags_check;
@@ -105,7 +105,7 @@ private:
     void init() override {}
 
     void start() override {
-        
+
     }
     
     void update(float delta_time) override {
@@ -115,17 +115,13 @@ private:
          
         // Update transforms
         view_pb.each([&](PhysicsBody& pb, Transform& transform) {
+            pb.m_collider->m_cached_already_resolved = false;
+
             transform.position += pb.velocity * delta_time;
             pb.velocity += (pb.force / pb.m) * delta_time;
-            glm::vec3 c_vel = pb.velocity;
-            glm::vec3 c_force = pb.force;
             pb.m_last_force = pb.force;
             pb.force = glm::vec3(0);
-
-            if (pb.m_collider) {
-                pb.m_collider->m_cached_already_resolved = false;
-                pb.m_collider->update_bounds();
-            }
+            pb.m_collider->update_bounds();
         });
         //
 
@@ -137,16 +133,13 @@ private:
         }
         view_pb.each([&](PhysicsBody& pb, Transform& transform) {
             if (pb.m_collider) {
-                m_quadtree[pb.tag].quadtree->insert(pb.m_collider);
+                m_quadtree[pb.tag].quadtree->add_child(pb.m_collider);
                 m_quadtree[pb.tag].intersections.emplace_back(pb.m_collider);
             }
         });
-        for (int i = 0; i < m_quadtree.size(); ++i) {
+        for (int i = 0; i < m_quadtree.size(); ++i)
             m_quadtree[i].quadtree->devide();
-        }
         //
-
-        //m_quadtree[1].quadtree->print_debug('s');
 
         // Get all quads
         std::sort(m_quadtree.begin(), m_quadtree.end(), [](QtIntTag const& a, QtIntTag const& b) -> bool {
@@ -154,10 +147,8 @@ private:
         });
         //
 
-        int collider_checks = 0;
-
         for (int i = 0; i < m_quadtree.size(); ++i) {
-            std::vector<LQuadable*> potential_quads;
+            std::vector<Quadable*> potential_quads;
             auto& intersect_quads = m_quadtree[i].intersections;
 
             collisionData collision_data;
@@ -167,13 +158,11 @@ private:
                 Transform& a_tr = *a_collider->m_transform_handler;
 
                 a_collider->m_cached_already_resolved = true;
-                
+                 
                 potential_quads.clear();
                 for (int j = i; j < m_quadtree.size(); ++j) 
                     if (m_tags_check[m_quadtree[j].tag].test(a_pb.tag))
                         m_quadtree[j].quadtree->get(a_pb.m_collider, potential_quads);
-                if(potential_quads.size()>0)
-                printf("pot_quads size : %d\n", potential_quads.size());
 
                 for (auto& quad : potential_quads) {
                     Collider* collider_child = static_cast<Collider*>(quad);
@@ -182,7 +171,6 @@ private:
                             continue;
 
                         a_pb.m_collider->check_collision(collider_child, collision_data);
-                        ++collider_checks;
                         if (collision_data.is_collide) {
                             // Start custom handlers
                             for (auto on_collide : a_pb.m_on_collide_handlers)
@@ -209,12 +197,8 @@ private:
 
                                 a_tr.position -= norm * (collision_data.distanse + 0.01f);
                                 a_pb.velocity = a_pb.velocity - 2.0f * m_ratio * glm::dot(vel_diff, norm) / glm::dot(norm, norm) * norm;
-                                if (b_pb.type == PhysicsBody::pbType::SOLID) {
-                                    glm::vec3 not_norm_velocity = a_pb.velocity - glm::dot(a_pb.velocity, norm) * norm;
-                                    if (glm::length(a_pb.velocity))
-                                        a_pb.force += -a_pb.friction * glm::dot(a_pb.m_last_force, norm) * glm::normalize(not_norm_velocity);
-                                    assert(glm::length(a_pb.force) <  10000);
-                                }
+                                if (b_pb.type == PhysicsBody::pbType::SOLID)
+                                    a_pb.force += -a_pb.friction * glm::dot(a_pb.m_last_force, norm) * glm::normalize(a_pb.velocity - glm::dot(a_pb.velocity, norm) * norm);
                             }
                             if (b_pb.type == PhysicsBody::pbType::RIGID) {
                                 float m_ratio;
@@ -224,18 +208,13 @@ private:
 
                                 b_tr.position += norm * (collision_data.distanse + 0.01f);
                                 b_pb.velocity = b_pb.velocity - 2.0f * m_ratio * glm::dot(-vel_diff, -norm) / glm::dot(norm, norm) * (-norm);
-                                if (a_pb.type == PhysicsBody::pbType::SOLID) {
-                                    glm::vec3 not_norm_velocity = b_pb.velocity - glm::dot(b_pb.velocity, norm) * norm;
-                                    if(glm::length(not_norm_velocity))
-                                        b_pb.force += -b_pb.friction * glm::dot(b_pb.m_last_force, -norm) * glm::normalize(not_norm_velocity);
-                                    assert(glm::length(b_pb.force) < 10000);
-                                }
+                                if (a_pb.type == PhysicsBody::pbType::SOLID) 
+                                    b_pb.force += -b_pb.friction * glm::dot(b_pb.m_last_force, -norm) * glm::normalize(b_pb.velocity - glm::dot(b_pb.velocity, norm) * norm);
                             }
                         }
                     }
                 }
             }
         }
-        printf("COLLIDER_CHECKS: %d\n", collider_checks);
     }
 };
