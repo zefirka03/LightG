@@ -83,37 +83,39 @@ public:
     }
 
     int get_quadrant(boundingBox const& box) {
-        glm::vec3 middle = (bounds.a + bounds.b) / 2.f;
+        glm::vec3 a = box.get_a();
+        glm::vec3 b = box.get_b();
+        glm::vec3 middle = (a + b) / 2.f;
 
-        if(box.a.x > middle.x){
-            if(box.a.y > middle.y){
-                if(box.a.z > middle.z){
+        if(a.x > middle.x){
+            if(a.y > middle.y){
+                if(a.z > middle.z){
                     return 0;
                 }
-                else if(box.b.z <= middle.z){
+                else if(b.z <= middle.z){
                     return 1;
                 }
-            }else if(box.b.y <= middle.y){
-                if(box.a.z > middle.z){
+            }else if(b.y <= middle.y){
+                if(a.z > middle.z){
                     return 2;
                 }
-                else if(box.b.z <= middle.z){
+                else if(b.z <= middle.z){
                     return 3;
                 }
             }
-        }else if(box.b.x <= middle.x){
-            if(box.a.y > middle.y){
-                if(box.a.z > middle.z){
+        }else if(b.x <= middle.x){
+            if(a.y > middle.y){
+                if(a.z > middle.z){
                     return 4;
                 }
-                else if(box.b.z <= middle.z){
+                else if(b.z <= middle.z){
                     return 5;
                 }
-            }else if(box.b.y <= middle.y){
-                if(box.a.z > middle.z){
+            }else if(b.y <= middle.y){
+                if(a.z > middle.z){
                     return 6;
                 }
-                else if(box.b.z <= middle.z){
+                else if(b.z <= middle.z){
                     return 7;
                 }
             }
@@ -123,7 +125,7 @@ public:
     }
 
     void draw_debug(DebugSystem& debug, glm::vec4 color = glm::vec4(0, 1, 1, 1)){
-        debug.draw_box(bounds.a, bounds.b, color * (float(deep + 1) / float(AIR_MAX_DEEP + 1)));
+        debug.draw_box(bounds.get_a(), bounds.get_b(), color * (float(deep + 1) / float(AIR_MAX_DEEP + 1)));
         if(is_devided){
             int ppos = get_pool_position(pool_position);
             for(int i = 0; i < 8; ++i)

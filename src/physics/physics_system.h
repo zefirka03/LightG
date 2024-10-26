@@ -86,7 +86,7 @@ public:
             if (pb.m_collider) {
                 pb.m_collider->draw_debug(debug_system);
                 auto bbox = pb.m_collider->get_bounds();
-                debug_system.draw_box(bbox.a, bbox.b, glm::vec4(1, 1, 0, 1));
+                debug_system.draw_box(bbox.get_a(), bbox.get_b(), glm::vec4(1, 1, 0, 1));
             }
         });
 

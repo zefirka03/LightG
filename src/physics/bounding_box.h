@@ -2,21 +2,65 @@
 #include "../core/core.h"
 
 struct boundingBox {
+private:
 	// a coordinates always must be less than b coordinates
 	glm::vec3 a = glm::vec3(FLT_MAX);
 	glm::vec3 b = glm::vec3(-FLT_MAX);
 
+	glm::vec3 center = glm::vec3(0);
+	float diameter = 0;
+public:
 	boundingBox() {}
 
 	boundingBox(glm::vec3 _a, glm::vec3 _b) : a(_a), b(_b) {
 		if (a.x > b.x) std::swap(a.x, b.x);
 		if (a.y > b.y) std::swap(a.y, b.y);
 		if (a.z > b.z) std::swap(a.z, b.z);
+
+		center = (a + b) / 2.f;
+		diameter = glm::length(b - a);
 	}
 
 	boundingBox(boundingBox const& other) {
 		a = other.a;
 		b = other.b;
+		center = other.center;
+		diameter = other.diameter;
+	}
+
+	glm::vec3 const& get_a() const {
+		return a;
+	}
+
+	glm::vec3 const& get_b() const {
+		return b;
+	}
+
+	glm::vec3 const& get_center() const {
+		return center;
+	}
+
+	float get_diameter() const {
+		return diameter;
+	}
+
+	void set_a(glm::vec3 const& _a) {
+		a = _a;
+		center = (a + b) / 2.f;
+		diameter = glm::length(b - a);
+	}
+
+	void set_b(glm::vec3 const& _b)  {
+		b = _b;
+		center = (a + b) / 2.f;
+		diameter = glm::length(b - a);
+	}
+
+	void set(glm::vec3 const& _a, glm::vec3 const& _b) {
+		a = _a;
+		b = _b;
+		center = (a + b) / 2.f;
+		diameter = glm::length(b - a);
 	}
 
 	void adjust_bounds(boundingBox const& other) {
@@ -27,6 +71,9 @@ struct boundingBox {
 		b.x = std::max(b.x, other.b.x);
 		b.y = std::max(b.y, other.b.y);
 		b.z = std::max(b.z, other.b.z);
+
+		center = (a + b) / 2.f;
+		diameter = glm::length(b - a);
 	}
 
 	// if this bbox fully contains other
