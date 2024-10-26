@@ -7,8 +7,8 @@ private:
 	glm::vec3 a = glm::vec3(FLT_MAX);
 	glm::vec3 b = glm::vec3(-FLT_MAX);
 
-	glm::vec3 center;
-	float diameter;
+	glm::vec3 center = glm::vec3(0);
+	float diameter = 0;
 public:
 	boundingBox() {}
 

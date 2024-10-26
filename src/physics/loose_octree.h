@@ -35,7 +35,6 @@ struct LQuadNode {
         first_child = -1;  
         last_child = -1;
         childs_count = 0;
-        deep_down = -1;
     }
 };
 
@@ -51,12 +50,32 @@ private:
     std::vector<LQuadableList> m_childs;
 
     boundingBox m_bounds;
+    boundingBox m_last_bounds;
 
     float m_min_diameter = FLT_MAX;
     int m_deep = 0;
 
     std::array<glm::vec3, MAX_DEEP + 1> m_cached_side_sizes;
     std::vector<std::array<int, 8>> m_cached_down_indices;
+
+    void _expand_bounds(float t) {
+        m_bounds.set(
+            m_last_bounds.get_center() + t * (m_last_bounds.get_a() - m_last_bounds.get_center()),
+            m_last_bounds.get_center() + t * (m_last_bounds.get_b() - m_last_bounds.get_center())
+        );
+
+        printf("----------Expanded----------\n");
+
+        //printf("-----------------\n");
+        //printf("bounds a: %f %f %f\n", m_bounds.get_a().x, m_bounds.get_a().y, m_bounds.get_a().z);
+        //printf("bounds b: %f %f %f\n", m_bounds.get_b().x, m_bounds.get_b().y, m_bounds.get_b().z);
+        //printf("deep: %d\n", deep);
+        //printf("s: %f\n", s);
+        //printf("min diameter: %f\n", m_min_diameter);
+        //printf("nodes size: %d\n", m_nodes.size());
+        //printf("childs size: %d\n", m_childs.size());
+        //printf("-----------------\n");
+    }
 
     bool _is_spheres_intersect(glm::vec3 c1, float r1, glm::vec3 c2, float r2) const {
         return glm::length(c2 - c1) < (r1 + r2);
@@ -196,6 +215,38 @@ private:
         }
     }
 
+    void _nodes_check_state() {
+
+        if (!m_childs.empty() && !m_bounds.contains(m_last_bounds)) {
+            // Make m_bounds cubic
+            glm::vec3 sizes = m_last_bounds.get_b() - m_last_bounds.get_a();
+            float max_size = std::max(std::max(sizes.x, sizes.y), sizes.z);
+            m_last_bounds.set_b(m_last_bounds.get_a() + glm::vec3(max_size));
+
+            _expand_bounds(2.f);
+
+            // Calculate new deep, nodes_count...
+            float s = m_bounds.get_diameter() / std::sqrt(3.f);
+            m_deep = std::min(int(std::log2(std::max(s / m_min_diameter, 1.f))) + 1, MAX_DEEP);
+            int nodes_count = ((1 << (3 * (m_deep + 1))) - 1) / 7;
+
+            m_nodes.resize(nodes_count);
+
+            //printf("-----------------\n");
+            //printf("bounds a: %f %f %f\n", m_bounds.get_a().x, m_bounds.get_a().y, m_bounds.get_a().z);
+            //printf("bounds a: %f %f %f\n", m_bounds.get_b().x, m_bounds.get_b().y, m_bounds.get_b().z);
+            //printf("deep: %d\n", deep);
+            //printf("s: %f\n", s);
+            //printf("min diameter: %f\n", m_min_diameter);
+            //printf("nodes size: %d\n", m_nodes.size());
+            //printf("childs size: %d\n", m_childs.size());
+            //printf("-----------------\n");
+
+            _update_dinamic_cache();
+            _setup_nodes(0, m_bounds.get_center(), m_bounds.get_diameter(), 0);
+        }
+    }
+
     void _print_debug(int node_it) {
         if (m_nodes[node_it].childs_count) {
             for (int i = 0; i < m_nodes[node_it].deep; ++i)
@@ -229,38 +280,13 @@ public:
 
     void insert(LQuadable* child) {
         m_childs.emplace_back(child);
-        m_bounds.adjust_bounds(child->get_bounds());
+        m_last_bounds.adjust_bounds(child->get_bounds());
 
         m_min_diameter = std::min(m_min_diameter, child->get_bounds().get_diameter());
     }
 
     void devide() {
-        // Make m_bounds cubic
-        {
-            glm::vec3 sizes = m_bounds.get_b() - m_bounds.get_a();
-            float max_size = std::max(std::max(sizes.x, sizes.y), sizes.z);
-            m_bounds.set_b(m_bounds.get_a() + glm::vec3(max_size));
-        }
-
-        // Calculate new deep, nodes_count...
-        float s = m_bounds.get_diameter() / std::sqrt(3.f);
-        m_deep = std::min(int(std::log2(std::max(s / m_min_diameter, 1.f))) + 1, MAX_DEEP);
-        int nodes_count = ((1 << (3 * (m_deep + 1))) - 1) / 7;
-
-        m_nodes.resize(nodes_count);
-
-        //printf("-----------------\n");
-        //printf("bounds a: %f %f %f\n", m_bounds.get_a().x, m_bounds.get_a().y, m_bounds.get_a().z);
-        //printf("bounds a: %f %f %f\n", m_bounds.get_b().x, m_bounds.get_b().y, m_bounds.get_b().z);
-        //printf("deep: %d\n", deep);
-        //printf("s: %f\n", s);
-        //printf("min diameter: %f\n", m_min_diameter);
-        //printf("nodes size: %d\n", m_nodes.size());
-        //printf("childs size: %d\n", m_childs.size());
-        //printf("-----------------\n");
-
-        _update_dinamic_cache();
-        _setup_nodes(0, m_bounds.get_center(), m_bounds.get_diameter(), 0);
+        _nodes_check_state();
 
         // Add childs
         for (int child_i = 0; child_i < m_childs.size(); ++child_i) {
@@ -286,7 +312,10 @@ public:
 
     void clear() {
         m_childs.clear();
-        m_nodes.clear();
+        for (auto& node : m_nodes)
+            node.reset();
+        //m_nodes.clear();
+        m_last_bounds = boundingBox();
 
         m_min_diameter = FLT_MAX;
     }

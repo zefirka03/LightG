@@ -206,8 +206,9 @@ private:
                                 a_tr.position -= norm * (collision_data.distanse + 0.01f);
                                 a_pb.velocity = a_pb.velocity - 2.0f * m_ratio * glm::dot(vel_diff, norm) / glm::dot(norm, norm) * norm;
                                 if (b_pb.type == PhysicsBody::pbType::SOLID) {
+                                    glm::vec3 not_norm_velocity = a_pb.velocity - glm::dot(a_pb.velocity, norm) * norm;
                                     if (glm::length(a_pb.velocity))
-                                        a_pb.force += -a_pb.friction * glm::dot(a_pb.m_last_force, norm) * glm::normalize(a_pb.velocity - glm::dot(a_pb.velocity, norm) * norm);
+                                        a_pb.force += -a_pb.friction * glm::dot(a_pb.m_last_force, norm) * glm::normalize(not_norm_velocity);
                                     assert(glm::length(a_pb.force) <  10000);
                                 }
                             }
@@ -220,8 +221,9 @@ private:
                                 b_tr.position += norm * (collision_data.distanse + 0.01f);
                                 b_pb.velocity = b_pb.velocity - 2.0f * m_ratio * glm::dot(-vel_diff, -norm) / glm::dot(norm, norm) * (-norm);
                                 if (a_pb.type == PhysicsBody::pbType::SOLID) {
-                                    if(glm::length(b_pb.velocity))
-                                        b_pb.force += -b_pb.friction * glm::dot(b_pb.m_last_force, -norm) * glm::normalize(b_pb.velocity - glm::dot(b_pb.velocity, norm) * norm);
+                                    glm::vec3 not_norm_velocity = b_pb.velocity - glm::dot(b_pb.velocity, norm) * norm;
+                                    if(glm::length(not_norm_velocity))
+                                        b_pb.force += -b_pb.friction * glm::dot(b_pb.m_last_force, -norm) * glm::normalize(not_norm_velocity);
                                     assert(glm::length(b_pb.force) < 10000);
                                 }
                             }
