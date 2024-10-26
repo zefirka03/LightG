@@ -146,13 +146,15 @@ private:
         }
         //
 
-        //m_quadtree[0].quadtree->print_debug();
+        //m_quadtree[1].quadtree->print_debug('s');
 
         // Get all quads
         std::sort(m_quadtree.begin(), m_quadtree.end(), [](QtIntTag const& a, QtIntTag const& b) -> bool {
             return a.intersections.size() < b.intersections.size();
         });
         //
+
+        int collider_checks = 0;
 
         for (int i = 0; i < m_quadtree.size(); ++i) {
             std::vector<LQuadable*> potential_quads;
@@ -170,7 +172,8 @@ private:
                 for (int j = i; j < m_quadtree.size(); ++j) 
                     if (m_tags_check[m_quadtree[j].tag].test(a_pb.tag))
                         m_quadtree[j].quadtree->get(a_pb.m_collider, potential_quads);
-                //printf("pot_quads size : %d\n", potential_quads.size());
+                if(potential_quads.size()>0)
+                printf("pot_quads size : %d\n", potential_quads.size());
 
                 for (auto& quad : potential_quads) {
                     Collider* collider_child = static_cast<Collider*>(quad);
@@ -179,6 +182,7 @@ private:
                             continue;
 
                         a_pb.m_collider->check_collision(collider_child, collision_data);
+                        ++collider_checks;
                         if (collision_data.is_collide) {
                             // Start custom handlers
                             for (auto on_collide : a_pb.m_on_collide_handlers)
@@ -232,6 +236,6 @@ private:
                 }
             }
         }
-        
+        printf("COLLIDER_CHECKS: %d\n", collider_checks);
     }
 };

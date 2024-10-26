@@ -5,7 +5,7 @@
 #include <sstream>
 #include "bounding_box.h"
 
-#define MAX_DEEP 4
+#define MAX_DEEP 5
 
 class LQuadable {
 friend class LQuadNode;
@@ -247,12 +247,13 @@ private:
         }
     }
 
-    void _print_debug(int node_it) {
+    void _print_debug(int node_it, char type = 'd') {
         if (m_nodes[node_it].childs_count) {
             for (int i = 0; i < m_nodes[node_it].deep; ++i)
                 printf("-");
             printf("node: %d, radius: %f, childs: %d\n", node_it, m_nodes[node_it].radius, m_nodes[node_it].childs_count);
             
+            if (type != 's')
             for (
                 int c = m_nodes[node_it].first_child;
                 c != -1;
@@ -269,7 +270,7 @@ private:
             n != -1;
             n = m_nodes[n].next_node
         ) {
-            _print_debug(n);
+            _print_debug(n, type);
         }
     }
 
@@ -304,9 +305,9 @@ public:
         _get_potential_colliders(quad, 0, colliders);
     }
 
-    void print_debug() {
+    void print_debug(char type = 'd') {
         printf("------START------\n");
-        _print_debug(0);
+        _print_debug(0, type);
         printf("-------END-------\n");
     }
 
