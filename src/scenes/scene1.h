@@ -4,7 +4,7 @@
 class RotationSc : public Script {
 private:
     float t = 0;
-    float destroy_time = 4 + (rand() % 4);
+    float destroy_time = 4 + (rand() % 400) / 100.f;
     float speed = 0.5 + rand() % 100 / 100.f * 5;
     
     Transform* transform;
@@ -33,7 +33,7 @@ public:
         
         transform->rotation = glm::vec3(0, t, 0);
         glm::vec3 forward_dir = glm::eulerAngleXYZ(transform->rotation.x, transform->rotation.y, transform->rotation.z) * glm::vec4(0, 0, -1, 1);
-        if (destroy_time != 5 && t / speed > destroy_time)
+        if (t / speed > destroy_time)
             get_scene().destroy_entity(get_entity());
     }
 };
