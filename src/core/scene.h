@@ -3,7 +3,6 @@
 #include <typeindex>
 #include <unordered_map>
 
-struct _DestroyedEntityComponent : Component {};
 
 class Scene{
 private:
@@ -18,7 +17,7 @@ friend class Application;
         // Call systems update
         for(auto& t_system : m_systems)
             t_system.second->update(delta_time);
-    };
+    }
 
     void _init() {
         on_init();

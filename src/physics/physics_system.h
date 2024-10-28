@@ -176,6 +176,8 @@ private:
          
         // Update transforms
         view_pb.each([&](PhysicsBody& pb, Transform& transform) {
+            pb.m_collider->m_pb_handler = &pb;
+            pb.m_collider->m_transform_handler = &transform;
             pb.m_collider->m_cached_already_resolved = false;
 
             transform.position += pb.velocity * delta_time;
