@@ -33,8 +33,8 @@ public:
         
         transform->rotation = glm::vec3(0, t, 0);
         glm::vec3 forward_dir = glm::eulerAngleXYZ(transform->rotation.x, transform->rotation.y, transform->rotation.z) * glm::vec4(0, 0, -1, 1);
-        if (t / speed > destroy_time)
-            get_scene().destroy_entity(get_entity());
+        //if (t / speed > destroy_time)
+            
     }
 };
 
@@ -53,6 +53,7 @@ class CollisionChecker : public Script {
 
     void on_collide(PhysicsBody& a, PhysicsBody& b, collisionData const& data) {
         printf("norm: %f, %f, %f\n", data.collision_point.x, data.collision_point.y, data.collision_point.z);
+        get_scene().destroy_entity(get_entity());
        // printf("dist: %f\n", data.distanse);
        // b.scene->get_component<Sprite>(b.entity).size = glm::vec2(10);
     }
@@ -266,9 +267,10 @@ public:
         //    static_cast<SphereCollider*>(sp_pb.get_collider())->radius = sp_sp.size.x / 2.f;
         //}
 
-        for (int i = 0; i < 300; ++i) {
+        for (int i = 0; i < 10000; ++i) {
             a = create_entity();
             add_component<ScriptComponent>(a).bind<RotationSc>();
+            get_component<ScriptComponent>(a).bind<CollisionChecker>();
         }
     }
 

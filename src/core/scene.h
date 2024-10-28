@@ -3,6 +3,7 @@
 #include <typeindex>
 #include <unordered_map>
 
+struct _DestroyedEntityComponent : public Component {};
 
 class Scene{
 private:
@@ -17,6 +18,11 @@ friend class Application;
         // Call systems update
         for(auto& t_system : m_systems)
             t_system.second->update(delta_time);
+
+        // Delete destroyed entities
+        m_registry.view<_DestroyedEntityComponent>().each([&](auto const entity, _DestroyedEntityComponent& dec) {
+            m_registry.destroy(entity);
+        });
     }
 
     void _init() {
@@ -45,7 +51,8 @@ public:
     }
 
     void destroy_entity(Entity const& entity) {
-        m_registry.destroy(entity.m_id);
+        if (!has_component<_DestroyedEntityComponent>(entity))
+            add_component<_DestroyedEntityComponent>(entity);
     }
 
     template<class System_t, class ...Args>
