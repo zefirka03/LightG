@@ -229,7 +229,15 @@ public:
         float t = std::min(
             std::min(a.x, std::min(a.y, a.z)),
             std::min(b.x, std::min(b.y, b.z))
-        )
+        );
+        
+        if(t>0)
+
+        Ray new_ray(
+            ray.origin + (t + 0.001f) * ray.direction,
+            ray.direction,
+            ray.length - t
+        );
         
         m_nodes[0].ray_traversal(ray, out);
     }
