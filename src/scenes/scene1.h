@@ -33,8 +33,6 @@ public:
         
         transform->rotation = glm::vec3(0, t, 0);
         glm::vec3 forward_dir = glm::eulerAngleXYZ(transform->rotation.x, transform->rotation.y, transform->rotation.z) * glm::vec4(0, 0, -1, 1);
-        //if (t / speed > destroy_time)
-            
     }
 };
 
@@ -52,10 +50,10 @@ class CollisionChecker : public Script {
     }
 
     void on_collide(PhysicsBody& a, PhysicsBody& b, collisionData const& data) {
-        printf("norm: %f, %f, %f\n", data.collision_point.x, data.collision_point.y, data.collision_point.z);
+        //printf("norm: %f, %f, %f\n", data.collision_point.x, data.collision_point.y, data.collision_point.z);
         get_scene().destroy_entity(get_entity());
-       // printf("dist: %f\n", data.distanse);
-       // b.scene->get_component<Sprite>(b.entity).size = glm::vec2(10);
+        // printf("dist: %f\n", data.distanse);
+        // b.scene->get_component<Sprite>(b.entity).size = glm::vec2(10);
     }
 };
 
@@ -77,7 +75,7 @@ public:
         glm::vec2 mouse_pos = Input::get_mouse_position();
         glm::vec2 mouse_delta = mouse_pos - m_last_mouse_pos;
         m_last_mouse_pos = mouse_pos;
-        
+
         // Rotate camera
         entity_camera.roll += -mouse_delta.y * sensetivity.x * 0.01f;
         entity_camera.yaw += -mouse_delta.x * sensetivity.y * 0.01f;
@@ -88,7 +86,7 @@ public:
 
         // Apply velocity
         glm::vec3 dir(0);
-;       if(Input::is_key_pressed(Key::D))
+        ;       if (Input::is_key_pressed(Key::D))
             dir += right_dir;
         if (Input::is_key_pressed(Key::A))
             dir -= right_dir;
@@ -100,6 +98,15 @@ public:
         if (Input::is_key_pressed(Key::LeftShift))
             speed = 3500;
         else speed = 1000;
+
+        if (Input::is_mouse_button_pressed(Mouse::Button0)) {
+            std::vector<Collider> out;
+            get_scene().get_system<PhysicsSystem>()->ray_intersection(Ray(
+                entity_transform.position,
+                forward_dir,
+                10000
+            ), out);
+        }
 
         entity_transform.position += dir * speed * delta_time;
         
@@ -131,8 +138,8 @@ public:
     RenderingSystem* rendering;
 
     void on_init() override {
-        add_system<ScriptingSystem>();
         physics = add_system<PhysicsSystem>();
+        add_system<ScriptingSystem>();
         rendering = add_system<RenderingSystem>();
         debug = add_system<DebugSystem>();
 

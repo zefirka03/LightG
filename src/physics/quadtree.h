@@ -2,6 +2,7 @@
 #include <vector>
 #include "../debug/debug.h"
 #include "bounding_box.h"
+#include "ray.h"
 
 #define AIR_QUAD_DEVIDE_SIZE 8
 #define AIR_MAX_DEEP 3
@@ -124,6 +125,28 @@ public:
         return -1;
     }
 
+    void ray_traversal(Ray const& ray, std::vector<Quadable*>& out){
+        if(bounds.contains(ray.origin)){
+            for (int i = 0; i < childs.size(); ++i)
+                out.emplace_back(childs[i]);
+
+            glm::vec3 diff = (bounds.get_center() - ray.origin) / ray.direction;
+            float t = std::min(diff.x, std::min(diff.y, diff.z));
+
+            Ray new_ray(
+                ray.origin + (t + 0.001f) * ray.direction,
+                ray.direction,
+                ray.length - t
+            );
+
+            if (new_ray.length < 0) return;
+
+            int ppos = get_pool_position(pool_position);
+            for(int i = 0; i < 8; ++i)
+                (nodes + ppos + i)->ray_traversal(new_ray, out);
+        }
+    }
+
     void draw_debug(DebugSystem& debug, glm::vec4 color = glm::vec4(0, 1, 1, 1)){
         debug.draw_box(bounds.get_a(), bounds.get_b(), color * (float(deep + 1) / float(AIR_MAX_DEEP + 1)));
         if(is_devided){
@@ -139,7 +162,7 @@ public:
         return out;
     }
 
-    void get_colliders(Quadable* quad,  std::vector<Quadable*>& out) const {
+    void get_colliders(Quadable* quad, std::vector<Quadable*>& out) const {
         _collect_intersections(quad->get_bounds(), out);
     }
 
@@ -197,6 +220,18 @@ public:
 
     void get_all(std::vector<Quadable*>& out) const {
         m_nodes[0].get_all_colliders(out);
+    }
+
+    void ray_traversal(Ray const& ray, std::vector<Quadable*>& out){
+        glm::vec3 a = (m_nodes[0].bounds.get_a() - ray.origin) / ray.direction;
+        glm::vec3 b = (m_nodes[0].bounds.get_b() - ray.origin) / ray.direction;
+
+        float t = std::min(
+            std::min(a.x, std::min(a.y, a.z)),
+            std::min(b.x, std::min(b.y, b.z))
+        )
+        
+        m_nodes[0].ray_traversal(ray, out);
     }
 
     void clear() {

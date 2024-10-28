@@ -128,6 +128,15 @@ public:
         for(auto quadtree : m_quadtree)
             quadtree.quadtree->draw_debug(debug_system);
     }
+
+    void ray_intersection(Ray const& ray, std::vector<Collider>& out) {
+        std::vector<Quadable*> potential_quads;
+        for (int i = 0; i < m_quadtree.size(); ++i) 
+            m_quadtree[i].quadtree->ray_traversal(ray, potential_quads);
+        
+        printf("Potential quads: %d \n", potential_quads.size());
+    }
+
 private:
     struct QtIntTag {
         int tag;
