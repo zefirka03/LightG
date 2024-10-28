@@ -35,6 +35,8 @@ public:
 
 	virtual void check_collision(Collider* other, collisionData& out) = 0;
 	virtual void draw_debug(DebugSystem& debug_system) const {}
+
+	virtual ~Collider() {}
 };
 
 struct spriteTransform {
@@ -82,6 +84,8 @@ public:
 	void update_bounds() override;
 	void check_collision(Collider* other, collisionData& out) override;
 	void draw_debug(DebugSystem& debug_system) const override;
+
+	~SpriteCollider() {}
 };
 
 class PlaneCollider : public Collider {
@@ -94,6 +98,8 @@ public:
 	void update_bounds() override;
 	void check_collision(Collider* other, collisionData& out) override;
 	void draw_debug(DebugSystem& debug_system) const override;
+
+	~PlaneCollider() {}
 };
 
 class SphereCollider : public Collider {
@@ -105,4 +111,6 @@ public:
 	void update_bounds() override;
 	void check_collision(Collider* other, collisionData& out) override;
 	void draw_debug(DebugSystem& debug_system) const override;
+
+	~SphereCollider() {}
 };

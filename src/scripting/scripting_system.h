@@ -14,6 +14,8 @@ protected:
     inline Entity get_entity() const {
         return m_entity;
     }
+
+    virtual ~Script() {}
 private:
 friend class ScriptComponent;
     Scene* m_scene;
@@ -22,6 +24,12 @@ friend class ScriptComponent;
 
 class ScriptComponent : public Component {
 public:
+    ScriptComponent() {}
+
+    ScriptComponent(ScriptComponent&& sc) noexcept {
+        m_script_instances = sc.m_script_instances;
+    }
+
     template<class Script_t, class ...Args>
     void bind(Args&&... args) {
         static_assert(std::is_base_of<Script, Script_t>::value, "Script_t class must be derived by Script");

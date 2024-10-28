@@ -32,7 +32,68 @@ public:
     glm::vec3 velocity = glm::vec3(0);
 
     PhysicsBody() {}
-    ~PhysicsBody() { delete m_collider; }
+    ~PhysicsBody() { delete m_collider; printf("delete\n");
+    }
+
+    PhysicsBody(PhysicsBody&& pb) noexcept {
+        entity = pb.entity;
+        scene = pb.scene;
+        
+        delete m_collider;
+        m_collider = pb.m_collider;
+        pb.m_collider = nullptr;
+
+        if (m_collider) {
+            m_collider->m_pb_handler = this;
+            m_collider->m_transform_handler = &scene->get_component<Transform>(entity);
+        }
+
+        m_last_force = pb.m_last_force;
+        m_on_collide_handlers = pb.m_on_collide_handlers;
+
+        tag = pb.tag;
+        type = pb.type;
+
+        m = pb.m;
+        bouncyness = pb.bouncyness;
+        friction = pb.friction;
+
+        force = pb.force;
+        velocity = pb.velocity;
+        printf("Swap\n");
+    }
+
+    PhysicsBody& operator=(PhysicsBody&& pb) noexcept {
+        entity = pb.entity;
+        scene = pb.scene;
+
+        delete m_collider; 
+        m_collider = pb.m_collider;
+        pb.m_collider = nullptr;
+
+        if (m_collider) {
+            m_collider->m_pb_handler = this;
+            m_collider->m_transform_handler = &scene->get_component<Transform>(entity);
+        }
+
+        m_last_force = pb.m_last_force;
+        m_on_collide_handlers = pb.m_on_collide_handlers;
+
+        tag = pb.tag;
+        type = pb.type;
+
+        m = pb.m;
+        bouncyness = pb.bouncyness;
+        friction = pb.friction;
+
+        force = pb.force;
+        velocity = pb.velocity;
+        printf("Swap\n");
+        return *this;
+    }
+
+    PhysicsBody(PhysicsBody const&) = delete;
+    PhysicsBody& operator=(PhysicsBody const&) = delete;
 
     Collider* get_collider() const {
         return m_collider;

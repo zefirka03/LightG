@@ -3,6 +3,8 @@
 #include <typeindex>
 #include <unordered_map>
 
+struct _DestroyedEntityComponent : Component {};
+
 class Scene{
 private:
 friend class Application;
@@ -10,8 +12,10 @@ friend class Application;
     entt::registry m_registry;
     
     void _update(float delta_time) {
+        // Call self update
         on_update(delta_time);
 
+        // Call systems update
         for(auto& t_system : m_systems)
             t_system.second->update(delta_time);
     };
@@ -39,6 +43,10 @@ public:
 
     Entity create_entity(){
         return Entity(m_registry.create());
+    }
+
+    void destroy_entity(Entity const& entity) {
+        m_registry.destroy(entity.m_id);
     }
 
     template<class System_t, class ...Args>
