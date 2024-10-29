@@ -235,7 +235,7 @@ public:
         });
 
         // Draw physics debug
-        //physics->draw_debug(*debug);
+        physics->draw_debug(*debug);
 
         // Avrg fps
         avg_fps = (avg_fps * frame_count + (1.f / delta_time)) / (frame_count+1);

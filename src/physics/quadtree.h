@@ -84,9 +84,9 @@ public:
     }
 
     int get_quadrant(boundingBox const& box) {
-        glm::vec3 a = box.get_a();
-        glm::vec3 b = box.get_b();
-        glm::vec3 middle = (a + b) / 2.f;
+        glm::vec3 const& a = box.get_a();
+        glm::vec3 const& b = box.get_b();
+        glm::vec3 const& middle = bounds.get_center();
 
         if(a.x > middle.x){
             if(a.y > middle.y){
