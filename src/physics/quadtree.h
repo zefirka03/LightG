@@ -4,7 +4,7 @@
 #include "bounding_box.h"
 #include "ray.h"
 
-#define AIR_QUAD_DEVIDE_SIZE 8
+#define AIR_QUAD_DEVIDE_SIZE 4
 #define AIR_MAX_DEEP 3
 
 struct Quadable {
