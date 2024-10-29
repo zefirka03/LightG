@@ -37,5 +37,15 @@ void SpriteCollider::draw_debug(DebugSystem& debug_system) const {
 }
 
 void SpriteCollider::ray_intersect(Ray const& ray, rayIntersection& out) const {
-	
+	glm::vec3 n(sin(m_transform_handler->rotation.y), 0, cos(m_transform_handler->rotation.y));
+	float t = glm::dot(n, m_transform_handler->position - ray.origin) / glm::dot(n, ray.direction);
+	glm::vec3 intersection_point = ray.origin + t * ray.direction;
+
+	if(t <= ray.length && m_bbox.contains(intersection_point)){
+		out.is_intersect = true;
+		out.points.emplace_back(intersection_point);
+		return;
+	}
+	out.is_intersect = false;
+	return;
 }

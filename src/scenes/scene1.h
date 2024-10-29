@@ -309,7 +309,7 @@ public:
         //    static_cast<SphereCollider*>(sp_pb.get_collider())->radius = sp_sp.size.x / 2.f;
         //}
 
-        for (int i = 0; i < 1000; ++i) {
+        for (int i = 0; i < 100; ++i) {
             a = create_entity();
             add_component<ScriptComponent>(a).bind<RotationSc>();
             get_component<ScriptComponent>(a).bind<CollisionChecker>();
@@ -319,6 +319,8 @@ public:
     void on_update(float delta_time) override {
        // get_component<Transform>(front_entity).position = get_component<Transform>(cam).position + get_component<Camera3d>(cam).get_forward() * 500.f;
         get_component<Transform>(rot_ent).rotation.y += delta_time * 0.5f;
+        get_component<Transform>(plane).rotation.y += delta_time * 0.1f;
+        //printf("Fuck: %f %f %f \n", get_component<Transform>(plane).rotation.x, get_component<Transform>(plane).rotation.y, get_component<Transform>(plane).rotation.z);
 
         // Draw coordinates
         debug->draw_line({
@@ -335,7 +337,7 @@ public:
         });
 
         // Draw physics debug
-        //physics->draw_debug(*debug);
+        physics->draw_debug(*debug);
 
         // Avrg fps
         avg_fps = (avg_fps * frame_count + (1.f / delta_time)) / (frame_count+1);

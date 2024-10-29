@@ -22,7 +22,7 @@ struct QuadRenderInstance : public RenderInstance<vertex, 6> {
     ) : position(position), origin(origin), rotation(rotation), size(size), texture_id(texture_id) {}
 
     std::array<vertex, 6> get_vertices() const override {
-        glm::mat4 rotation_mat = glm::eulerAngleXYZ(rotation.x, rotation.y, rotation.z);
+        glm::mat4 rotation_mat = glm::eulerAngleYXZ(rotation.y, rotation.x, rotation.z);
         glm::vec4 origin4 = glm::vec4(origin, 0);
         glm::vec4 position4 = glm::vec4(position, 0);
 
