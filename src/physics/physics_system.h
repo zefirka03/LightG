@@ -129,12 +129,18 @@ public:
             quadtree.quadtree->draw_debug(debug_system);
     }
 
-    void ray_intersection(Ray const& ray, std::vector<Collider>& out) {
+    void ray_intersection(Ray const& ray, std::vector<std::pair<PhysicsBody*, rayIntersection>>& out) {
         std::vector<Quadable*> potential_quads;
         for (int i = 0; i < m_quadtree.size(); ++i) 
             m_quadtree[i].quadtree->ray_traversal(ray, potential_quads);
         
-        printf("Potential quads: %d \n", potential_quads.size());
+        for(int i = 0; i < potential_quads.size(); ++i){
+            Collider* coll = static_cast<Collider*>(potential_quads[i]);
+            rayIntersection ri;
+            coll->ray_intersect(ray, ri);
+            if(ri.is_intersect)
+                out.emplace_back(std::make_pair(coll->m_pb_handler, ri));
+        }
     }
 
 private:

@@ -35,3 +35,7 @@ void SpriteCollider::draw_debug(DebugSystem& debug_system) const {
 	debug_system.draw_line({ {a3, glm::vec4(1)}, {a4, glm::vec4(1)} });
 	debug_system.draw_line({ {a4, glm::vec4(1)}, {a1, glm::vec4(1)} });
 }
+
+void SpriteCollider::ray_intersect(Ray const& ray, rayIntersection& out) const {
+	
+}

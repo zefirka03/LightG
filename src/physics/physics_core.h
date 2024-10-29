@@ -3,6 +3,7 @@
 #include "../debug/debug.h"
 #include "../render/transform.h"
 #include "quadtree.h"
+#include "ray.h"
 #include "line.h"
 
 struct collisionData {
@@ -10,6 +11,11 @@ struct collisionData {
 	glm::vec3 collision_point;
 	glm::vec3 normal;
 	float distanse;
+};
+
+struct rayIntersection{
+	bool is_intersect = false;
+	std::vector<glm::vec3> points;
 };
 
 template<typename T>
@@ -35,6 +41,7 @@ public:
 
 	virtual void check_collision(Collider* other, collisionData& out) = 0;
 	virtual void draw_debug(DebugSystem& debug_system) const {}
+	virtual void ray_intersect(Ray const& ray, rayIntersection& out) const {}
 
 	virtual ~Collider() {}
 };
@@ -84,6 +91,7 @@ public:
 	void update_bounds() override;
 	void check_collision(Collider* other, collisionData& out) override;
 	void draw_debug(DebugSystem& debug_system) const override;
+	void ray_intersect(Ray const& ray, rayIntersection& out) const override;
 
 	~SpriteCollider() {}
 };
@@ -98,6 +106,7 @@ public:
 	void update_bounds() override;
 	void check_collision(Collider* other, collisionData& out) override;
 	void draw_debug(DebugSystem& debug_system) const override;
+	void ray_intersect(Ray const& ray, rayIntersection& out) const override;
 
 	~PlaneCollider() {}
 };
@@ -111,6 +120,7 @@ public:
 	void update_bounds() override;
 	void check_collision(Collider* other, collisionData& out) override;
 	void draw_debug(DebugSystem& debug_system) const override;
+	void ray_intersect(Ray const& ray, rayIntersection& out) const override;
 
 	~SphereCollider() {}
 };

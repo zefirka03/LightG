@@ -100,12 +100,13 @@ public:
         else speed = 1000;
 
         if (Input::is_mouse_button_pressed(Mouse::Button0)) {
-            std::vector<Collider> out;
+            std::vector<std::pair<PhysicsBody*, rayIntersection>> out;
             get_scene().get_system<PhysicsSystem>()->ray_intersection(Ray(
                 entity_transform.position,
                 forward_dir,
                 10000
             ), out);
+            printf("Ray intersects: %d\n", out.size());
         }
 
         entity_transform.position += dir * speed * delta_time;
