@@ -51,7 +51,7 @@ class CollisionChecker : public Script {
 
     void on_collide(PhysicsBody& a, PhysicsBody& b, collisionData const& data) {
         //printf("norm: %f, %f, %f\n", data.collision_point.x, data.collision_point.y, data.collision_point.z);
-        get_scene().destroy_entity(get_entity());
+        //get_scene().destroy_entity(get_entity());
         // printf("dist: %f\n", data.distanse);
         // b.scene->get_component<Sprite>(b.entity).size = glm::vec2(10);
     }
@@ -274,7 +274,7 @@ public:
         //    static_cast<SphereCollider*>(sp_pb.get_collider())->radius = sp_sp.size.x / 2.f;
         //}
 
-        for (int i = 0; i < 10000; ++i) {
+        for (int i = 0; i < 1000; ++i) {
             a = create_entity();
             add_component<ScriptComponent>(a).bind<RotationSc>();
             get_component<ScriptComponent>(a).bind<CollisionChecker>();
@@ -300,7 +300,7 @@ public:
         });
 
         // Draw physics debug
-        physics->draw_debug(*debug);
+        //physics->draw_debug(*debug);
 
         // Avrg fps
         avg_fps = (avg_fps * frame_count + (1.f / delta_time)) / (frame_count+1);

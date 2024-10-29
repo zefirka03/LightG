@@ -132,7 +132,7 @@ public:
 
             glm::vec3 diff = (bounds.get_center() - ray.origin) / ray.direction;
             float t = std::min(diff.x, std::min(diff.y, diff.z));
-
+            
             Ray new_ray(
                 ray.origin + (t + 0.001f) * ray.direction,
                 ray.direction,
@@ -223,23 +223,17 @@ public:
     }
 
     void ray_traversal(Ray const& ray, std::vector<Quadable*>& out){
-        glm::vec3 a = (m_nodes[0].bounds.get_a() - ray.origin) / ray.direction;
-        glm::vec3 b = (m_nodes[0].bounds.get_b() - ray.origin) / ray.direction;
-
-        float t = std::min(
-            std::min(a.x, std::min(a.y, a.z)),
-            std::min(b.x, std::min(b.y, b.z))
-        );
-        
-        if(t>0)
+        float t;
+        if (!ray.intersect(m_nodes[0].bounds, t))
+            return;
 
         Ray new_ray(
             ray.origin + (t + 0.001f) * ray.direction,
             ray.direction,
-            ray.length - t
+            ray.length - t - 0.001f
         );
         
-        m_nodes[0].ray_traversal(ray, out);
+        m_nodes[0].ray_traversal(new_ray, out);
     }
 
     void clear() {
