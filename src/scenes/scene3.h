@@ -26,7 +26,7 @@ public:
         sp_pb.set_collider<SphereCollider>();
         
         sp_pb.friction = 0.2f;
-        sp_pb.velocity = init_force * glm::vec3((0.5 - (rand() % 10000) / 10000.f) ,(rand()%10000)/10000.f, (0.5-(rand() % 10000) / 10000.f));
+        sp_pb.velocity = init_force * glm::vec3((0.5 - (rand() % 10000) / 10000.f) , 2 + (rand()%10000)/2000.f, (0.5-(rand() % 10000) / 10000.f));
         static_cast<SphereCollider*>(sp_pb.get_collider())->radius = sp_sp.size.x/2;
         sp_pb.tag = 1;
     }
@@ -76,6 +76,8 @@ public:
 class CameraController : public Script {
 private:
     glm::vec2 m_last_mouse_pos;
+
+    float m_reload = 0;
 public:
     glm::vec2 sensetivity = glm::vec2(0.2);
     float speed = 600;
@@ -115,7 +117,7 @@ public:
             speed = 3500;
         else speed = 1000;
 
-        if (Input::is_mouse_button_pressed(Mouse::Button0)) {
+        if (Input::is_mouse_button_pressed(Mouse::Button0) && m_reload > 0.1) {
             std::vector<std::pair<PhysicsBody*, rayIntersection>> out;
             auto ray = Ray(
                 entity_transform.position,
@@ -136,10 +138,12 @@ public:
                     }
                 }
             }
+            m_reload = 0;
             //printf("Ray intersects: %d\n", out.size());
         }
 
         entity_transform.position += dir * speed * delta_time;
+        m_reload += delta_time;
         
         // Hide/Show mouse cursor
         if (Input::is_key_pressed(Key::Escape))
@@ -229,7 +233,7 @@ public:
         });
 
         // Draw physics debug
-        physics->draw_debug(*debug);
+        //physics->draw_debug(*debug);
 
         // Avrg fps
         avg_fps = (avg_fps * frame_count + (1.f / delta_time)) / (frame_count+1);
