@@ -126,12 +126,10 @@ public:
     }
 
     void ray_traversal(Ray const& ray, std::vector<Quadable*>& out){
-        if(bounds.contains(ray.origin)){
+        float t;
+        if(ray.intersect(bounds, t)) {
             for (int i = 0; i < childs.size(); ++i)
                 out.emplace_back(childs[i]);
-
-            glm::vec3 diff = (bounds.get_center() - ray.origin) / ray.direction;
-            float t = std::min(diff.x, std::min(diff.y, diff.z));
             
             Ray new_ray(
                 ray.origin + (t + 0.001f) * ray.direction,
@@ -141,9 +139,11 @@ public:
 
             if (new_ray.length < 0) return;
 
-            int ppos = get_pool_position(pool_position);
-            for(int i = 0; i < 8; ++i)
-                (nodes + ppos + i)->ray_traversal(new_ray, out);
+            if (is_devided) {
+                int ppos = get_pool_position(pool_position);
+                for (int i = 0; i < 8; ++i)
+                    (nodes + ppos + i)->ray_traversal(new_ray, out);
+            }
         }
     }
 
