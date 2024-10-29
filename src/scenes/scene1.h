@@ -57,6 +57,36 @@ class CollisionChecker : public Script {
     }
 };
 
+class RayDraw : public Script{
+private:
+    float t = 0;
+    Ray ray;
+    std::vector<std::pair<PhysicsBody*, rayIntersection>> intersections;
+    DebugSystem* ds;
+
+public:
+    RayDraw(Ray const& _ray, std::vector<std::pair<PhysicsBody*, rayIntersection>>& _intersections){
+        ray=_ray;
+        intersections = _intersections;
+    }
+
+    void start() override {
+        ds = get_scene().get_system<DebugSystem>();
+    }
+    void update(float delta_time) override {
+        ds->draw_line(line(ray.origin, ray.origin + ray.length * ray.direction));
+
+        for (int i = 0; i < intersections.size(); ++i) {
+            glm::vec3 point = intersections[i].second.points[0];
+            ds->draw_box(point - glm::vec3(10), point + glm::vec3(10), glm::vec4(1,0,0,1));
+        }
+
+        t+=delta_time;
+        if(t>5)
+            get_scene().destroy_entity(get_entity());
+    }
+};
+
 class CameraController : public Script {
 private:
     glm::vec2 m_last_mouse_pos;
@@ -101,12 +131,16 @@ public:
 
         if (Input::is_mouse_button_pressed(Mouse::Button0)) {
             std::vector<std::pair<PhysicsBody*, rayIntersection>> out;
-            get_scene().get_system<PhysicsSystem>()->ray_intersection(Ray(
+            auto ray = Ray(
                 entity_transform.position,
                 forward_dir,
                 10000
-            ), out);
-            printf("Ray intersects: %d\n", out.size());
+            );
+            get_scene().get_system<PhysicsSystem>()->ray_intersection(ray, out);
+
+            auto ray_ent = get_scene().create_entity();
+            get_scene().add_component<ScriptComponent>(ray_ent).bind<RayDraw>(ray, out);
+            //printf("Ray intersects: %d\n", out.size());
         }
 
         entity_transform.position += dir * speed * delta_time;

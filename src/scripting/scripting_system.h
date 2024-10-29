@@ -3,6 +3,7 @@
 
 class Script {
 friend class ScriptingSystem;
+friend class ScriptComponent;
 protected:
     virtual void start() {}
     virtual void update(float delta_time) {}
@@ -17,7 +18,6 @@ protected:
 
     virtual ~Script() {}
 private:
-friend class ScriptComponent;
     Scene* m_scene;
     Entity m_entity;
 };
@@ -39,6 +39,7 @@ public:
         t_script->m_entity = entity;
 
         m_script_instances.push_back(t_script);
+        m_script_instances.back()->start();
     }
 
     ~ScriptComponent() {
@@ -48,11 +49,6 @@ public:
 private:
 friend class ScriptingSystem;
     std::vector<Script*> m_script_instances;
-
-    void _start() {
-        for (Script* script_instance : m_script_instances)
-            script_instance->start();
-    }
 
     void _update(float delta_time) {
         for (Script* script_instance : m_script_instances)
@@ -64,12 +60,7 @@ class ScriptingSystem : public System {
 private:
     void init() override {}
 
-    void start() override {
-        auto view_scripts = m_registry->view<ScriptComponent>();
-        view_scripts.each([&](ScriptComponent& script) {
-            script._start();
-        });
-    }
+    void start() override {}
 
     void update(float delta_time) override {
         auto view_scripts = m_registry->view<ScriptComponent>();

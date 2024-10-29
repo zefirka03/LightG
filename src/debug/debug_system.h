@@ -12,6 +12,10 @@ struct line : RenderInstance<line_vertex, 2> {
     line_vertex p2;
 
     line(line_vertex p1, line_vertex p2) : p1(p1), p2(p2) {}
+    line(glm::vec3 _p1, glm::vec3 _p2, glm::vec4 _color = glm::vec4(1)) {
+        p1.pos = _p1, p1.color = _color;
+        p2.pos = _p2, p2.color = _color;
+    }
 
     std::array<line_vertex, 2> get_vertices() const override {
         return {
