@@ -32,7 +32,6 @@ void SphereCollider::ray_intersect(Ray const& ray, rayIntersection& out) const {
     // if (tca < 0) return false;
     float d2 = glm::dot(L, L) - tca * tca;
     if (d2 > radius * radius) {
-		out.is_intersect = false;
 		return;
 	}
 
@@ -45,15 +44,26 @@ void SphereCollider::ray_intersect(Ray const& ray, rayIntersection& out) const {
     if (t0 < 0) {
     	t0 = t1; // If t0 is negative, let's use t1 instead.
         if (t0 < 0) {
-			out.is_intersect = false;
 			return;
 		}
     }
-	if(t0 < ray.length) 
-		out.points.emplace_back(ray.origin + ray.direction * t0);
-	if (t1 < ray.length) 
-		out.points.emplace_back(ray.origin + ray.direction * t1);
-
-	out.is_intersect = !out.points.empty();
+	if (t0 < ray.length) {
+		glm::vec3 inter = ray.origin + ray.direction * t0;
+		out.points.emplace_back(
+			false,
+			inter,
+			glm::normalize(inter - m_transform_handler->position),
+			t0
+		);
+	}
+	if (t1 < ray.length) {
+		glm::vec3 inter = ray.origin + ray.direction * t1;
+		out.points.emplace_back(
+			false,
+			inter,
+			glm::normalize(inter - m_transform_handler->position),
+			t1
+		);
+	}
     return;
 }

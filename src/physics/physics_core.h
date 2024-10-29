@@ -11,11 +11,22 @@ struct collisionData {
 	glm::vec3 collision_point;
 	glm::vec3 normal;
 	float distanse;
+
+	collisionData() {}
+
+	collisionData(
+		bool is_collide,
+		glm::vec3 collision_point, 
+		glm::vec3 normal, 
+		float distanse
+	) : is_collide(is_collide),
+		collision_point(collision_point), 
+		normal(normal), 
+		distanse(distanse) {}
 };
 
 struct rayIntersection{
-	bool is_intersect = false;
-	std::vector<glm::vec3> points;
+	std::vector<collisionData> points;
 };
 
 template<typename T>

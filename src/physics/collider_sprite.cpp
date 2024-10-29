@@ -42,10 +42,13 @@ void SpriteCollider::ray_intersect(Ray const& ray, rayIntersection& out) const {
 	glm::vec3 intersection_point = ray.origin + t * ray.direction;
 
 	if(t <= ray.length && m_bbox.contains(intersection_point)){
-		out.is_intersect = true;
-		out.points.emplace_back(intersection_point);
-		return;
+		out.points.emplace_back(
+			true,
+			intersection_point,
+			n,
+			t
+		);
 	}
-	out.is_intersect = false;
+
 	return;
 }

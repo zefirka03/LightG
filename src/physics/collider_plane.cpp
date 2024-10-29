@@ -49,10 +49,14 @@ void PlaneCollider::ray_intersect(Ray const& ray, rayIntersection& out) const {
 	printf("projects: %f %f\n", x_proj, z_proj);
 
 	if (x_proj < size.x - origin.x && x_proj > -origin.x && z_proj < size.y - origin.y && z_proj > -origin.y) {
-		out.is_intersect = true;
-		out.points.emplace_back(intersection_point);
+		out.points.emplace_back(
+			true,
+			intersection_point,
+			n,
+			t
+		);
 		return;
 	}
-	out.is_intersect = false;
+
 	return;
 }

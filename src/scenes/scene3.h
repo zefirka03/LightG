@@ -6,12 +6,13 @@ private:
     float t = 0;
     float destroy_time = 4 + (rand() % 400) / 100.f;
     float speed = 0.5 + rand() % 100 / 100.f * 2;
-    float init_force;
+    glm::vec3 init_velocity;
     
     Transform* transform;
 public:
-    RotationSc(float force){
-        init_force = force;
+    RotationSc(glm::vec3 _init_velocity){
+        init_velocity = _init_velocity;
+        printf("Init velocity %f %f %f\n", init_velocity.x, init_velocity.y, init_velocity.z);
     }
 
     void start() override {
@@ -25,8 +26,8 @@ public:
         sp_pb.bouncyness = (rand()%10)/10.f*1.0f;
         sp_pb.set_collider<SphereCollider>();
         
-        sp_pb.friction = 0.2f;
-        sp_pb.velocity = init_force * glm::vec3((0.5 - (rand() % 10000) / 10000.f) , 2 + (rand()%10000)/2000.f, (0.5-(rand() % 10000) / 10000.f));
+        sp_pb.friction = 0.99f;
+        sp_pb.velocity = init_velocity;
         static_cast<SphereCollider*>(sp_pb.get_collider())->radius = sp_sp.size.x/2;
         sp_pb.tag = 1;
     }
@@ -63,7 +64,7 @@ public:
         ds->draw_line(line(ray.origin, ray.origin + ray.length * ray.direction));
 
         for (int i = 0; i < intersections.size(); ++i) {
-            glm::vec3 point = intersections[i].second.points[0];
+            glm::vec3 point = intersections[i].second.points[0].collision_point;
             ds->draw_box(point - glm::vec3(10), point + glm::vec3(10), glm::vec4(1,0,0,1));
         }
 
@@ -117,7 +118,7 @@ public:
             speed = 3500;
         else speed = 1000;
 
-        if (Input::is_mouse_button_pressed(Mouse::Button0) && m_reload > 0.1) {
+        if (Input::is_mouse_button_pressed(Mouse::Button0) && m_reload > 0.01) {
             std::vector<std::pair<PhysicsBody*, rayIntersection>> out;
             auto ray = Ray(
                 entity_transform.position,
@@ -131,10 +132,11 @@ public:
 
             if(!out.empty()){
                 if(out[0].first->tag == 0){
+                    glm::vec3 norm = out[0].second.points[0].normal;
                     for (int i = 0; i < 10; ++i) {
                         auto a = get_scene().create_entity();
-                        get_scene().add_component<ScriptComponent>(a).bind<RotationSc>((rand()%10000)/10000.f * 5000);
-                        get_scene().get_component<Transform>(a).position = out[0].second.points[0];
+                        get_scene().add_component<ScriptComponent>(a).bind<RotationSc>((1000 + (rand()%10000)/10000.f * 15000) * (glm::normalize(ray.direction - 2.f * norm * glm::dot(norm, ray.direction)) + ray.direction * glm::ballRand(0.5f)) );
+                        get_scene().get_component<Transform>(a).position = out[0].second.points[0].collision_point;
                     }
                 }
             }

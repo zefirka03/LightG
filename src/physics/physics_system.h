@@ -138,7 +138,7 @@ public:
             Collider* coll = static_cast<Collider*>(potential_quads[i]);
             rayIntersection ri;
             coll->ray_intersect(ray, ri);
-            if(ri.is_intersect)
+            if(!ri.points.empty())
                 out.emplace_back(std::make_pair(coll->m_pb_handler, ri));
         }
     }
