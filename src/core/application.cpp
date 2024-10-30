@@ -24,6 +24,9 @@ Application::Application(int width, int height, const char* title){
     glfwSwapInterval(0);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_ALPHA_TEST);
+
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 }
 
 Application::~Application(){

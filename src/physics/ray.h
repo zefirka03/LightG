@@ -31,7 +31,7 @@ struct Ray {
             std::min(
                 std::max(a.x, b.x),
                 std::max(a.y, b.y)
-            ), std::max(a.z, b.z)
+            ),  std::max(a.z, b.z)
         );
         //printf("Tmax: %f, Tmin: %f\n", tmax, t);
         if (tmax >= std::max(0.0f, t) && t < length)
