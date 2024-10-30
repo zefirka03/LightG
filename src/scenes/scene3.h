@@ -12,7 +12,7 @@ private:
 public:
     RotationSc(glm::vec3 _init_velocity){
         init_velocity = _init_velocity;
-        printf("Init velocity %f %f %f\n", init_velocity.x, init_velocity.y, init_velocity.z);
+        //printf("Init velocity %f %f %f\n", init_velocity.x, init_velocity.y, init_velocity.z);
     }
 
     void start() override {
@@ -123,7 +123,7 @@ public:
             auto ray = Ray(
                 entity_transform.position,
                 forward_dir,
-                10000
+                15000
             );
             get_scene().get_system<PhysicsSystem>()->ray_intersection(ray, out);
 
@@ -181,14 +181,17 @@ public:
         debug = add_system<DebugSystem>();
 
         physics->set_tags(0, 0, false);
-        physics->set_tags(1, 1, false);
+        //physics->set_tags(1, 1, false);
         //physics->set_tags(0, 1, false);
+
+        const GLubyte* version = glGetString(GL_VERSION);
+        printf("OGL version supported by this platform: %s\n", version);
     }
 
     void on_start() override {
         auto& tex_man = rendering->get_texture_manager();
         tex_man.load_texture("img/exp.png", "china");
-        tex_man.load_texture("img/stone.png", "stone");
+        tex_man.load_texture("img/tex_checker_1024.png", "stone");
 
         cam = create_entity();
         auto& cam_tr = add_component<Transform>(cam);
@@ -207,7 +210,7 @@ public:
             auto& sp_tr = add_component<Transform>(plane);
             auto& sp_pb = add_component<PhysicsBody>(plane);
             sp_pb.tag = 0;
-            sp_sp.size = glm::vec2(11000);
+            sp_sp.size = glm::vec2(12000);
             sp_tr.origin = glm::vec3(sp_sp.size / 2.f, 0);
             sp_tr.rotation.x = glm::half_pi<float>();
             sp_pb.set_collider<PlaneCollider>();
@@ -215,7 +218,23 @@ public:
             static_cast<PlaneCollider*>(sp_pb.get_collider())->size = glm::vec2(sp_sp.size);
             static_cast<PlaneCollider*>(sp_pb.get_collider())->origin = glm::vec2(sp_sp.size / 2.f);
         }
-        
+        {
+            plane2 = create_entity();
+            auto& sp_sp = add_component<Sprite>(plane2);
+            sp_sp.texture = rendering->get_texture_manager().get_texture("stone");
+            auto& sp_tr = add_component<Transform>(plane2);
+            auto& sp_pb = add_component<PhysicsBody>(plane2);
+            sp_sp.size = glm::vec2(12000, 6000);
+            sp_tr.origin = glm::vec3(sp_sp.size.x / 2.f, 0, 0);
+            sp_tr.position = glm::vec3(6000, 0, 0);
+            sp_tr.rotation.y = glm::half_pi<float>();
+            sp_pb.tag = 0;
+            sp_pb.set_collider<SpriteCollider>();
+            //add_component<ScriptComponent>(plane2).bind<CollisionChecker>();
+
+            static_cast<SpriteCollider*>(sp_pb.get_collider())->size = glm::vec2(sp_sp.size);
+            static_cast<SpriteCollider*>(sp_pb.get_collider())->origin = glm::vec2(sp_sp.size.x / 2.f, 0);
+        }
     }
 
     void on_update(float delta_time) override {
@@ -235,7 +254,7 @@ public:
         });
 
         // Draw physics debug
-        physics->draw_debug(*debug);
+        //physics->draw_debug(*debug);
 
         // Avrg fps
         avg_fps = (avg_fps * frame_count + (1.f / delta_time)) / (frame_count+1);
