@@ -25,7 +25,10 @@ public:
         sp_pb.type = PhysicsBody::pbType::RIGID;
         sp_pb.bouncyness = (rand()%10)/10.f*1.0f;
         sp_pb.set_collider<SphereCollider>();
-        
+
+        auto& rtx_draw = get_scene().add_component<RTX_Object>(get_entity());
+        rtx_draw.instance = new RTX_Sphere(sp_sp.size.x / 2);
+
         sp_pb.friction = 0.99f;
         sp_pb.velocity = init_velocity;
         static_cast<SphereCollider*>(sp_pb.get_collider())->radius = sp_sp.size.x/2;
@@ -170,12 +173,13 @@ public:
     DebugSystem* debug;
     PhysicsSystem* physics;
     RenderingSystem* rendering;
+    RenderRTXSystem* rtx_rendering;
 
     void on_init() override {
         physics = add_system<PhysicsSystem>();
         add_system<ScriptingSystem>();
         rendering = add_system<RenderingSystem>();
-        add_system<RenderRTXSystem>();
+        rtx_rendering=add_system<RenderRTXSystem>();
         debug = add_system<DebugSystem>();
 
         physics->set_tags(0, 0, false);
@@ -240,7 +244,7 @@ public:
             add_component<Transform>(canvas_camera);
             
             canvas = create_entity();
-            auto& canvas_canvas = add_component<RTXCanvas>(canvas);
+            auto& canvas_canvas = add_component<RTX_Canvas>(canvas);
             auto& canvas_transform = add_component<Transform>(canvas);
             canvas_transform.position = glm::vec3(-640, 0, 1);
             canvas_canvas.camera = &get_component<Camera3d>(canvas_camera);
@@ -265,7 +269,8 @@ public:
         });
 
         // Draw physics debug
-        physics->draw_debug(*debug);
+        //physics->draw_debug(*debug);
+        rtx_rendering->draw_debug(*debug);
 
         // Avrg fps
         avg_fps = (avg_fps * frame_count + (1.f / delta_time)) / (frame_count+1);

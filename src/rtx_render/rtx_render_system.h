@@ -13,23 +13,37 @@
 #pragma once
 #include "../core/core.h"
 #include "../render/render.h"
+#include "rtx_core.h"
 
-struct RTXCanvas : public Component {
+struct RTX_Canvas : public Component {
     glm::vec2 size;
-
     Camera3d* camera = nullptr;
 };
 
-struct RTXSprite : public Component {
-
+struct RTX_Object : public Component {
+    RTX_Drawable* instance = nullptr;
 };
 
 class RenderRTXSystem : public System {
+public:
+    void draw_debug(DebugSystem& debug_system) {
+        auto view_pb = m_registry->view<RTX_Object>();
+        view_pb.each([&](RTX_Object& pb) {
+            if (pb.instance) {
+                auto bbox = pb.instance->get_bounds();
+                debug_system.draw_box(bbox.get_a(), bbox.get_b(), glm::vec4(1, 0, 1, 1));
+            }
+        });
+        
+        m_quadtree.draw_debug(debug_system, glm::vec4(0.9,0.1,0.1,1));
+    }
+
 private:
     Renderer<vertex> m_renderer;
     ComputeShader m_compute_shader;
     TextureManager m_texture_manager;
-public:
+    Quadtree m_quadtree;
+
     void init() override {
         m_renderer.reserve({
              {0, 3, sizeof(vertex), (const void*)0},
@@ -47,9 +61,9 @@ public:
     
     void update(float delta_time) override {
         // Draw and get canvas
-        RTXCanvas* t_canvas = nullptr;
-        auto view_canvas = m_registry->view<Transform, RTXCanvas>();
-        view_canvas.each([&](Transform& transform, RTXCanvas& canvas){
+        RTX_Canvas* t_canvas = nullptr;
+        auto view_canvas = m_registry->view<Transform, RTX_Canvas>();
+        view_canvas.each([&](Transform& transform, RTX_Canvas& canvas){
             m_renderer.draw(QuadRenderInstance(
                 transform.position,
                 transform.origin,
@@ -60,6 +74,15 @@ public:
             t_canvas = &canvas;
         });
 
+        m_quadtree.clear();
+        auto view_rtx_objects = m_registry->view<Transform, RTX_Object>();
+        view_rtx_objects.each([&](Transform& transform, RTX_Object& rtx_object){
+            rtx_object.instance->m_transform_handler = &transform;
+            rtx_object.instance->update_bounds();
+            m_quadtree.add_child(rtx_object.instance);
+        });
+        m_quadtree.devide();
+
         // Get main camera
         Camera3d* t_main_camera;
         auto view_cameras = m_registry->view<Camera3d>();
@@ -69,15 +92,14 @@ public:
         });
 
         // Send data to shader
-        GLfloat c[] = {1, 1, 0.5F };
-        m_renderer.get_vao().redata(1, 0, 3 * sizeof(GLfloat), c);
         if(t_canvas && t_canvas->camera)
             m_renderer.get_shader().set_matrix4f(t_canvas->camera->get_projection() * t_canvas->camera->get_view(), "camera");
         //m_renderer.get_shader().set_matrix4f(t_main_camera->get_projection() * t_main_camera->get_view(), "camera_rtx");
 
+        // Do rtx compute
         m_compute_shader.use();
         glBindImageTexture(0, m_texture_manager.get_texture("_canvas")->id, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-        glDispatchCompute(640, 360, 1);
+        glDispatchCompute((640 + 7) / 8, (360 + 7) / 8, 1);
         glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
         // Display
