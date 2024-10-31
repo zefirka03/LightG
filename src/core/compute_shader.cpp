@@ -1,5 +1,7 @@
 #include "compute_shader.h"
 
+#define AIR_DEBUG 1 
+
 ComputeShader::ComputeShader() {
 	m_inited = false;
 }

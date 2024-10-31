@@ -22,10 +22,25 @@ void TextureManager::load_texture_by_data(char* data, TextureParameters params, 
 	GLuint id;
 	glGenTextures(1, &id);
 	glBindTexture(GL_TEXTURE_2D, id);
-	glTexImage2D(GL_TEXTURE_2D, 0, params.internalFormat, params.size_x, params.size_y, 0, params.format, GL_UNSIGNED_BYTE, data);
+	glTexImage2D(GL_TEXTURE_2D, 1, params.internalFormat, params.size_x, params.size_y, 0, params.format, GL_UNSIGNED_BYTE, data);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	Texture* tx = new Texture();
+	tx->id = id;
+	textures_names.insert(std::make_pair(name, tx));
+}
+
+void TextureManager::texture_storage(TextureStorageParameters params, const char* name) {
+	GLuint id;
+	glGenTextures(1, &id);
+	glBindTexture(GL_TEXTURE_2D, id);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexStorage2D(GL_TEXTURE_2D, 1, params.internalFormat, params.size_x, params.size_y);
+
 	Texture* tx = new Texture();
 	tx->id = id;
 	textures_names.insert(std::make_pair(name, tx));

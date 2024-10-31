@@ -17,13 +17,8 @@ void main() {
 out vec4 out_color;
 in vec2 o_texCoord;
 
-uniform mat4 camera_rtx;
-
-layout(std430, binding = 3) buffer SceneLayout
-{
-    float Scene[];
-};
+uniform sampler2D textureSamp;
 
 void main() {
-	out_color = vec4(o_texCoord * vec2(Scene[0], Scene[1]), 1, 1);
+	out_color = texture(textureSamp, o_texCoord);
 }
