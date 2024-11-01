@@ -1,12 +1,50 @@
 #pragma once
 #include "../physics/quadtree.h"
 
+
+struct RTX_DrawablePack {
+    uint8_t packed_data[64];
+};
+
+struct RTX_ReferencePack {
+    int child_next;
+    int child_prev;
+    int node_it;
+
+    RTX_ReferencePack() {}
+    RTX_ReferencePack(
+        int _child_next,
+        int _child_prev,
+        int _node_it
+    ) : child_next(_child_next),
+        child_prev(_child_prev),
+        node_it(_node_it) {}
+};
+
+struct RTX_FullPack {
+    RTX_ReferencePack reference_pack;
+    RTX_DrawablePack drawable_pack;
+
+    RTX_FullPack() {}
+    RTX_FullPack(
+        RTX_ReferencePack _reference_pack,
+        RTX_DrawablePack _drawable_pack
+    ) : reference_pack(_reference_pack), 
+        drawable_pack(_drawable_pack) {}
+};
+
+/*
+    m_packed_data is 64 bytes of data, that contains:
+    [64 bytes, for full object representation]
+*/
 class RTX_Drawable : public Quadable {
 protected:
 friend class RenderRTXSystem;
     Transform* m_transform_handler = nullptr;
+    RTX_DrawablePack m_packed_data;
 
     virtual void draw_debug(DebugSystem& debug_system) const {}
+    virtual void pack_data() = 0;
 };
 
 class RTX_Sphere : public RTX_Drawable {
@@ -17,4 +55,5 @@ public:
    RTX_Sphere(float _radius);
    void update_bounds() override;
    void draw_debug(DebugSystem& debug_system) const override;
+   void pack_data() override;
 };

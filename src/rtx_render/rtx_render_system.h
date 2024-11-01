@@ -44,6 +44,8 @@ private:
     TextureManager m_texture_manager;
     Quadtree m_quadtree;
 
+    std::vector<RTX_FullPack> m_packed_rtx_objects;
+
     void init() override {
         m_renderer.reserve({
              {0, 3, sizeof(vertex), (const void*)0},
@@ -96,6 +98,10 @@ private:
             m_renderer.get_shader().set_matrix4f(t_canvas->camera->get_projection() * t_canvas->camera->get_view(), "camera");
         //m_renderer.get_shader().set_matrix4f(t_main_camera->get_projection() * t_main_camera->get_view(), "camera_rtx");
 
+        // Send quadlist
+        _repack_quadlist();
+
+
         // Do rtx compute
         m_compute_shader.use();
         glBindImageTexture(0, m_texture_manager.get_texture("_canvas")->id, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
@@ -107,5 +113,19 @@ private:
         m_renderer.display();
         glBindTexture(GL_TEXTURE_2D,0);
         m_renderer.clear();
+    }
+
+    void _repack_quadlist() {
+        std::vector<QuadableList> const& quadlist = m_quadtree.get_quadlist();
+        m_packed_rtx_objects.clear();
+        for (auto& quad : quadlist) {
+            auto* drawable = static_cast<RTX_Drawable*>(quad.quad);
+
+            drawable->pack_data();
+            m_packed_rtx_objects.emplace_back(
+                RTX_ReferencePack(quad.child_next, quad.child_prev, quad.node_it), 
+                drawable->m_packed_data
+            );
+        }
     }
 };

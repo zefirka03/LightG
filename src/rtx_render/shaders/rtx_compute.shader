@@ -11,5 +11,5 @@ void main() {
         return;
     }
     
-    imageStore(colorbuffer, pixelPos, vec4(pixelPos/vec2(640.0, 360.0), 0.5, 1.0));
+    imageStore(colorbuffer, pixelPos, vec4(pixelPos / vec2(640.0, 360.0), 0.5, 1.0));
 }

@@ -23,12 +23,12 @@ public:
 /// 
 struct QuadNode {
     boundingBox bounds = boundingBox();
-    bool is_devided = false;
     int childs_size = 0;
     int child_first = -1;
     int child_last = -1;
     int deep = 0;
     int pool_position = 0;
+    bool is_devided = false;
 
     QuadNode() {}
 
@@ -45,17 +45,18 @@ struct QuadNode {
     }
 };
 
+struct QuadableList {
+    int child_next = -1;
+    int child_prev = -1;
+    int node_it = -1;
+    Quadable* quad;
+
+    QuadableList(){}
+    QuadableList(Quadable* _quad) : quad(_quad) {}
+};
+
 class Quadtree {
 private:
-    struct QuadableList {
-        Quadable* quad;
-        int child_next = -1;
-        int child_prev = -1;
-        int node_it = -1;
-
-        QuadableList(Quadable* _quad) : quad(_quad) {}
-    };
-
     QuadNode* m_nodes;
     std::vector<QuadableList> m_childs;
     int m_pool_size;
@@ -287,6 +288,14 @@ public:
         );
         
         _ray_traversal(0, new_ray, out);
+    }
+
+    QuadNode const* get_quadnodes_pool() const {
+        return m_nodes;
+    }
+
+    std::vector<QuadableList> const& get_quadlist() const {
+        return m_childs;
     }
 
     void clear() {
