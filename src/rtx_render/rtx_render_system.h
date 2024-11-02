@@ -43,9 +43,10 @@ private:
     ComputeShader m_compute_shader;
     TextureManager m_texture_manager;
     Quadtree m_quadtree;
-    GLuint m_ssbo;
+    GLuint m_quadnodes_ssbo;
+    GLuint m_childs_ssbo;
 
-    std::vector<RTX_FullPack> m_packed_rtx_objects;
+    std::vector<RTX_FullChildsPack> m_packed_rtx_objects;
 
     void init() override {
         m_renderer.reserve({
@@ -61,7 +62,8 @@ private:
         m_compute_shader.load_from_file("shaders/rtx_compute.shader");
         m_texture_manager.texture_storage(TextureStorageParameters({ 640, 360, AIR_TEXTURE_RGBA32F }), "_canvas");
         
-        glGenBuffers(1, &m_ssbo);
+        glGenBuffers(1, &m_childs_ssbo);
+        glGenBuffers(1, &m_quadnodes_ssbo);
     }
     
     void update(float delta_time) override {
@@ -104,10 +106,28 @@ private:
         // Send quadlist
         _repack_quadlist();
         
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_ssbo);
-        glBufferData(GL_SHADER_STORAGE_BUFFER, m_packed_rtx_objects.size() * sizeof(RTX_FullPack), m_packed_rtx_objects.data(), GL_STATIC_DRAW);
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_ssbo); 
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_childs_ssbo);
+        glBufferData(GL_SHADER_STORAGE_BUFFER, m_packed_rtx_objects.size() * sizeof(RTX_FullChildsPack), m_packed_rtx_objects.data(), GL_STATIC_DRAW);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_childs_ssbo); 
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+        // Send nodes
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_quadnodes_ssbo);
+        glBufferData(GL_SHADER_STORAGE_BUFFER, m_quadtree.get_quadnodes_pool_size() * sizeof(QuadNode), m_quadtree.get_quadnodes_pool(), GL_STATIC_DRAW);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_quadnodes_ssbo); 
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+        // Send camera
+        auto& t_main_camera_transform = t_main_camera->scene->get_component<Transform>(t_main_camera->entity);
+        glm::vec3 forward_dir = t_main_camera->get_forward();
+        glm::vec3 right_dir = glm::normalize(glm::cross(forward_dir, glm::vec3(0, 1, 0)));
+        glm::vec3 up_dir = glm::normalize(glm::cross(right_dir, forward_dir));
+        m_compute_shader.set_vector3f(t_main_camera_transform.position, std::string("cam.cameraPos").c_str());
+        m_compute_shader.set_vector3f(up_dir, std::string("cam.cameraUp").c_str());
+        m_compute_shader.set_vector3f(right_dir, std::string("cam.cameraRight").c_str());
+        m_compute_shader.set_vector3f(forward_dir, std::string("cam.cameraFront").c_str());
+        m_compute_shader.set_float(3.14f * 90.f / 180.f, std::string("cam.fov").c_str());
+        m_compute_shader.set_float(0.01f, std::string("cam.dist").c_str());
 
         // Do rtx compute
         m_compute_shader.use();

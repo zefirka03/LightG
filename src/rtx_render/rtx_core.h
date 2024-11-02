@@ -21,12 +21,12 @@ struct RTX_ReferencePack {
         node_it(_node_it) {}
 };
 
-struct RTX_FullPack {
+struct RTX_FullChildsPack {
     RTX_ReferencePack reference_pack;
     RTX_DrawablePack drawable_pack;
 
-    RTX_FullPack() {}
-    RTX_FullPack(
+    RTX_FullChildsPack() {}
+    RTX_FullChildsPack(
         RTX_ReferencePack _reference_pack,
         RTX_DrawablePack _drawable_pack
     ) : reference_pack(_reference_pack), 

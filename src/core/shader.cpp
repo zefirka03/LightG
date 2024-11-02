@@ -184,18 +184,18 @@ void Shader::set_matrix4f(glm::mat4 val, const char* path) {
 
 void Shader::set_float(GLfloat val, const char* path) {
 	this->use();
-	glUniform1f(glGetUniformLocation(_request_location(path), path), val);
+	glUniform1f(_request_location(path), val);
 	this->unuse();
 }
 
 void Shader::set_vector2f(glm::vec2 val, const char* path) {
 	this->use();
-	glUniform2f(glGetUniformLocation(_request_location(path), path), val.x, val.y);
+	glUniform2f(_request_location(path), val.x, val.y);
 	this->unuse();
 }
 
 void Shader::set_vector4f(glm::vec4 val, const char* path) {
 	this->use();
-	glUniform4f(glGetUniformLocation(_request_location(path), path), val.r, val.g, val.b, val.a);
+	glUniform4f(_request_location(path), val.r, val.g, val.b, val.a);
 	this->unuse();
 }

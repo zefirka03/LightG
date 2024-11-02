@@ -294,6 +294,10 @@ public:
         return m_nodes;
     }
 
+    int get_quadnodes_pool_size() const {
+        return m_pool_size;
+    }
+
     std::vector<QuadableList> const& get_quadlist() const {
         return m_childs;
     }
