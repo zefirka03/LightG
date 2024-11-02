@@ -61,7 +61,7 @@ private:
         m_compute_shader.load_from_file("shaders/rtx_compute.shader");
         m_texture_manager.texture_storage(TextureStorageParameters({ 640, 360, AIR_TEXTURE_RGBA32F }), "_canvas");
         
-        glGenBuffers(1, &ssbo);
+        glGenBuffers(1, &m_ssbo);
     }
     
     void update(float delta_time) override {
