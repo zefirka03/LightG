@@ -43,6 +43,7 @@ private:
     ComputeShader m_compute_shader;
     TextureManager m_texture_manager;
     Quadtree m_quadtree;
+    GLuint m_ssbo;
 
     std::vector<RTX_FullPack> m_packed_rtx_objects;
 
@@ -59,6 +60,8 @@ private:
 
         m_compute_shader.load_from_file("shaders/rtx_compute.shader");
         m_texture_manager.texture_storage(TextureStorageParameters({ 640, 360, AIR_TEXTURE_RGBA32F }), "_canvas");
+        
+        glGenBuffers(1, &ssbo);
     }
     
     void update(float delta_time) override {
@@ -100,7 +103,11 @@ private:
 
         // Send quadlist
         _repack_quadlist();
-
+        
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_ssbo);
+        glBufferData(GL_SHADER_STORAGE_BUFFER, m_packed_rtx_objects.size() * sizeof(RTX_FullPack), m_packed_rtx_objects.data(), GL_STATIC_DRAW);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_ssbo); 
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
         // Do rtx compute
         m_compute_shader.use();
