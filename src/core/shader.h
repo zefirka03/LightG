@@ -2,7 +2,6 @@
 #include "ogl.h"
 #include "log.h"
 
-#include <iostream>
 #include <fstream>
 #include <string>
 #include <sstream>

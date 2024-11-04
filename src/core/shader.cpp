@@ -74,14 +74,14 @@ void Shader::load_from_file(const char* path, uint8_t usings) {
 		glCompileShader(geometry_id);
 
 #ifdef AIR_DEBUG
-	std::cout << "Shader::Debugging\n";
+	printf("Shader::Debugging\n");
 	GLchar info[2048];
 	glGetShaderInfoLog(vertex_id, 2048, 0, info);
-	std::cout << info;
+	printf("%s\n", info);
 	glGetShaderInfoLog(geometry_id, 2048, 0, info);
-	std::cout << info;
+	printf("%s\n", info);
 	glGetShaderInfoLog(fragment_id, 2048, 0, info);
-	std::cout << info;
+	printf("%s\n", info);
 #endif
 
 	glAttachShader(m_prog_id, vertex_id);
@@ -140,11 +140,11 @@ void Shader::load_from_string(const char* string, uint8_t usings) {
 #ifdef AIR_DEBUG
 		GLchar info[2048];
 		glGetShaderInfoLog(vertex_id, 2048, 0, info);
-		std::cout << info;
+		printf("%s\n", info);
 		glGetShaderInfoLog(geometry_id, 2048, 0, info);
-		std::cout << info;
+		printf("%s\n", info);
 		glGetShaderInfoLog(fragment_id, 2048, 0, info);
-		std::cout << info;
+		printf("%s\n", info);
 #endif
 
 	glAttachShader(m_prog_id, vertex_id);

@@ -56,10 +56,10 @@ void ComputeShader::load_from_file(const char* path) {
 	glCompileShader(compute_id);
 
 #ifdef AIR_DEBUG
-	std::cout << "ComputeShader::Debugging\n";
+	printf("ComputeShader::Debugging\n");
 	GLchar info[2048];
 	glGetShaderInfoLog(compute_id, 2048, 0, info);
-	std::cout << info;
+	printf("%s\n", info);
 #endif
 
 	glAttachShader(m_prog_id, compute_id);
@@ -94,7 +94,7 @@ void ComputeShader::load_from_string(const char* string) {
 #ifdef AIR_DEBUG
 		GLchar info[2048];
 		glGetShaderInfoLog(compute_id, 2048, 0, info);
-		std::cout << info;
+		printf("%s\n", info);
 #endif
 
 	glAttachShader(m_prog_id, compute_id);

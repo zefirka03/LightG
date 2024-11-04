@@ -49,9 +49,9 @@ struct QuadableList {
     int child_next = -1;
     int child_prev = -1;
     int node_it = -1;
-    Quadable* quad;
+    Quadable* quad = nullptr;
 
-    QuadableList(){}
+    QuadableList() {}
     QuadableList(Quadable* _quad) : quad(_quad) {}
 };
 
@@ -102,7 +102,6 @@ private:
     void _devide(int node_it) {
         auto& node = m_nodes[node_it];
         if (node.deep < AIR_MAX_DEEP && node.childs_size >= AIR_QUAD_DEVIDE_SIZE) {
-            // printf("DEEP %d\n", node.deep);
             int ppos = _get_pool_position(node.pool_position);
             for (int i = 0; i < 8; ++i)
                 m_nodes[ppos + i] = QuadNode(node.deep + 1, ppos + i);

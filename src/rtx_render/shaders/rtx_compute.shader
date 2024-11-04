@@ -150,20 +150,10 @@ void rayTraversal(Ray ray, inout vec4 o_color) {
     ray.origin += (t + d) * ray.direction;
     ray.length -= t + d;
 
+    int node_field = 0;
+
     while(maxIterations > 0) {
         maxIterations--;
-
-        int ppos_up = get_pool_position_up(node_it);
-        if(ppos_up >= 0 && !contains(nodes[ppos_up].bounds, ray.origin)){
-            int ppos_up_up = get_pool_position_up(ppos_up);
-            if(ppos_up_up < 0)
-                break;
-
-            int ppos_down = get_pool_position(ppos_up_up);
-            int indx = get_down_index(ppos_up_up, ray.origin);
-
-            node_it = ppos_down + indx;
-        }
 
         Node node = nodes[node_it];
         if(node.childs_size > 0 && intersect(ray, node.bounds, t)) {
@@ -182,8 +172,10 @@ void rayTraversal(Ray ray, inout vec4 o_color) {
                 int ppos = get_pool_position(node_it);
                 int indx = get_down_index(node_it, ray.origin);        
                 
+                node_field = node_it;
                 node_it = ppos + indx;
             } else {
+                int ppos_up = get_pool_position_up(node_it);
                 // displace ray origin
                 vec3 a = (node.bounds.a - ray.origin) / ray.direction;
                 vec3 b = (node.bounds.b - ray.origin) / ray.direction;
