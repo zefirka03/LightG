@@ -66,6 +66,10 @@ private:
         return 8 * i + 1;
     }
 
+    inline int _get_pool_position_up(int i) const {
+        return (i - 1) / 8;
+    }
+
     void _add_child(int node_it, int child_it) {
         auto& node = m_nodes[node_it];
         if (node.child_last == -1) {
@@ -239,6 +243,79 @@ private:
         }
     }
 
+    void _fill_bounds(int node_it) {
+        if (node_it <= 0 || node_it >= m_pool_size)
+            return;
+
+        auto& curr_node = m_nodes[node_it];
+        auto& upper_node = m_nodes[_get_pool_position_up(node_it)];
+        const glm::vec3& a = curr_node.bounds.get_a();
+        const glm::vec3& b = curr_node.bounds.get_b();
+        const glm::vec3& middle = upper_node.bounds.get_center();
+        const glm::vec3 half = (upper_node.bounds.get_b() - upper_node.bounds.get_a()) / 2.f;
+
+        if (a.x > middle.x) {
+            if (a.y > middle.y) {
+                if (a.z > middle.z) {
+                    curr_node.bounds.adjust_bounds(boundingBox(
+                        middle,
+                        upper_node.bounds.get_b()
+                    ));
+                }
+                else if (b.z <= middle.z) {
+                    curr_node.bounds.adjust_bounds(boundingBox(
+                        middle - glm::vec3(0, 0, half.z),
+                        upper_node.bounds.get_b() - glm::vec3(0, 0, half.z)
+                    ));
+                }
+            }
+            else if (b.y <= middle.y) {
+                if (a.z > middle.z) {
+                    curr_node.bounds.adjust_bounds(boundingBox(
+                        middle - glm::vec3(0, half.y, 0),
+                        upper_node.bounds.get_b() - glm::vec3(0, half.y, 0)
+                    ));
+                }
+                else if (b.z <= middle.z) {
+                    curr_node.bounds.adjust_bounds(boundingBox(
+                        middle - glm::vec3(0, half.y, half.z),
+                        upper_node.bounds.get_b() - glm::vec3(0, half.y, half.z)
+                    ));
+                }
+            }
+        }
+        else if (b.x <= middle.x) {
+            if (a.y > middle.y) {
+                if (a.z > middle.z) {
+                    curr_node.bounds.adjust_bounds(boundingBox(
+                        middle - glm::vec3(half.x, 0, 0),
+                        upper_node.bounds.get_b() - glm::vec3(half.x, 0, 0)
+                    ));
+                }
+                else if (b.z <= middle.z) {
+                    curr_node.bounds.adjust_bounds(boundingBox(
+                        middle - glm::vec3(half.x, 0, half.z),
+                        upper_node.bounds.get_b() - glm::vec3(half.x, 0, half.z)
+                    ));
+                }
+            }
+            else if (b.y <= middle.y) {
+                if (a.z > middle.z) {
+                    curr_node.bounds.adjust_bounds(boundingBox(
+                        middle - glm::vec3(half.x, half.y, 0),
+                        upper_node.bounds.get_b() - glm::vec3(half.x, half.y, 0)
+                    ));
+                }
+                else if (b.z <= middle.z) {
+                    curr_node.bounds.adjust_bounds(boundingBox(
+                        middle - glm::vec3(half.x, half.y, half.z),
+                        upper_node.bounds.get_b() - glm::vec3(half.x, half.y, half.z)
+                    ));
+                }
+            }
+        }
+    }
+
 public:
     Quadtree() {
         m_pool_size = (2 << (3 * (AIR_MAX_DEEP + 1)) - 1) / 7;
@@ -299,6 +376,11 @@ public:
 
     std::vector<QuadableList> const& get_quadlist() const {
         return m_childs;
+    }
+
+    void fill_bounds() {
+        for (int i = 0; i < m_pool_size; ++i)
+            _fill_bounds(i);
     }
 
     void clear() {

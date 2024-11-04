@@ -136,8 +136,8 @@ int get_down_index(int node_it, vec3 point) {
 
 void rayTraversal(Ray ray, inout vec4 o_color) {
     o_color = vec4(0);
-    int maxIterations = 128;
-    const float d = 0.005;
+    int maxIterations = 32;
+    const float d = 0.01;
 
     int node_it = 0;
 
@@ -145,19 +145,30 @@ void rayTraversal(Ray ray, inout vec4 o_color) {
     if(!intersect(ray, nodes[0].bounds, t))
         return;
 
-    o_color += vec4(0.05);
-
     ray.origin += (t + d) * ray.direction;
     ray.length -= t + d;
 
-    int node_field = 0;
+    o_color += vec4(15.0/255.0);
+
 
     while(maxIterations > 0) {
         maxIterations--;
 
+        if(!contains(nodes[node_it].bounds, ray.origin)){
+            int ppos_up = get_pool_position_up(node_it);
+            if(node_it <= 0)
+                break;
+
+            node_it = ppos_up;
+            continue;
+        }
+
+        node_it = get_down_index(node_it, ray.origin) + get_pool_position(node_it);
         Node node = nodes[node_it];
-        if(node.childs_size > 0 && intersect(ray, node.bounds, t)) {
-            o_color += vec4(0.01);
+
+        if(node.childs_size >0) {
+            // go deep
+            o_color += vec4(15.0/255.0);
             for(
                 int child = node.child_first; 
                 child != -1; 
@@ -166,31 +177,9 @@ void rayTraversal(Ray ray, inout vec4 o_color) {
                 //check childs intersection...
                 continue;
             }
-            
-            if(node.is_devided) {
-                // go deep
-                int ppos = get_pool_position(node_it);
-                int indx = get_down_index(node_it, ray.origin);        
-                
-                node_field = node_it;
-                node_it = ppos + indx;
-            } else {
-                int ppos_up = get_pool_position_up(node_it);
-                // displace ray origin
-                vec3 a = (node.bounds.a - ray.origin) / ray.direction;
-                vec3 b = (node.bounds.b - ray.origin) / ray.direction;
-
-                float tmax = min(
-                    min(
-                        max(a.x, b.x),
-                        max(a.y, b.y)
-                    ),  max(a.z, b.z)
-                );
-
-                ray.origin += (tmax + d) * ray.direction;
-                ray.length -= tmax + d;
-            }
-        } else {
+            continue;
+        } 
+        if(!node.is_devided)  {
             // displace ray origin
             vec3 a = (node.bounds.a - ray.origin) / ray.direction;
             vec3 b = (node.bounds.b - ray.origin) / ray.direction;
@@ -204,6 +193,9 @@ void rayTraversal(Ray ray, inout vec4 o_color) {
 
             ray.origin += (tmax + d) * ray.direction;
             ray.length -= tmax + d;
+
+            int ppos_up = get_pool_position_up(node_it);
+             node_it = ppos_up;
         }
     }
     o_color.a = 1;
