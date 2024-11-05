@@ -269,7 +269,7 @@ public:
         });
 
         // Draw physics debug
-        //physics->draw_debug(*debug);
+        physics->draw_debug(*debug);
         rtx_rendering->draw_debug(*debug);
 
         // Avrg fps

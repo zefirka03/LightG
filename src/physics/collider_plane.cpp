@@ -40,6 +40,7 @@ void PlaneCollider::draw_debug(DebugSystem& debug_system) const {
 void PlaneCollider::ray_intersect(Ray const& ray, rayIntersection& out) const {
 	glm::vec3 n(0, 1, 0);
 	float t = glm::dot(n, m_transform_handler->position - ray.origin) / glm::dot(n, ray.direction);
+	if(t > ray.length) return;
 	glm::vec3 intersection_point = ray.origin + t * ray.direction;
 
 	glm::vec3 diff = intersection_point - m_transform_handler->position;

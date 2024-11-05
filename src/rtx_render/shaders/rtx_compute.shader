@@ -155,6 +155,8 @@ void rayTraversal(Ray ray, inout vec4 o_color) {
     int depth = 1;
     int max_depth = 0;
 
+    o_color = vec4(0.1);
+
     while(maxIterations > 0) {
         max_depth = max(depth, max_depth);
         maxIterations--;
@@ -167,6 +169,7 @@ void rayTraversal(Ray ray, inout vec4 o_color) {
 
             node_it = ppos_up;
             depth--;
+            o_color += vec4(0.1);
             continue;
         }
 
@@ -198,7 +201,7 @@ void rayTraversal(Ray ray, inout vec4 o_color) {
             ray.length -= tmax + d;
         }
     }
-    o_color = vec4(0.1 * max_depth, 0.1 * max_depth, 0.1 * max_depth, 1);
+    //o_color = vec4(0.1 * max_depth, 0.1 * max_depth, 0.1 * max_depth, 1);
 }
 
 uniform Camera cam;
@@ -225,12 +228,6 @@ void main() {
 
     rayTraversal(r, ncol);
     imageStore(colorbuffer, pixelPos, ncol);
-
-    float t;
-    if(intersect(r, nodes[0].bounds, t))
-        imageStore(colorbuffer, pixelPos, vec4(1,0,0,1));
-    if(intersect(r, nodes[1].bounds, t))
-        imageStore(colorbuffer, pixelPos, vec4(0,1,0,1));
     //float t;
     //if(intersect(r, nodes[0].bounds, t))
     //    imageStore(colorbuffer, pixelPos, vec4(1));
