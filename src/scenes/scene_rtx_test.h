@@ -12,7 +12,6 @@ private:
 public:
     RotationSc(glm::vec3 _init_velocity){
         init_velocity = _init_velocity;
-        //printf("Init velocity %f %f %f\n", init_velocity.x, init_velocity.y, init_velocity.z);
     }
 
     void start() override {
@@ -25,7 +24,7 @@ public:
         sp_pb.type = PhysicsBody::pbType::RIGID;
         sp_pb.bouncyness = (rand()%10)/10.f*1.0f;
         sp_pb.set_collider<SphereCollider>();
-
+            
         auto& rtx_draw = get_scene().add_component<RTX_Object>(get_entity());
         rtx_draw.instance = new RTX_Sphere(sp_sp.size.x / 2);
 

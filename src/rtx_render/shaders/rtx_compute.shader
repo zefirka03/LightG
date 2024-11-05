@@ -156,17 +156,20 @@ bool intersect_sphere(Ray ray, Sphere sphere, inout float t){
         return false;
     }
 
-    float thc = sqrt(sphere.radius* sphere.radius - d2);
+    float thc = sqrt(sphere.radius * sphere.radius - d2);
     t0 = tca - thc;
     t1 = tca + thc;
 
-    if (t0 > t1) t0 = t1;
+    if (t0 > t1) {
+        float tmp = t0;
+        t0 = t1;
+        t1 = tmp;
+    }
 
     if (t0 < 0) {
         t0 = t1; // If t0 is negative, let's use t1 instead.
-        if (t0 < 0) {
+        if (t0 < 0) 
             return false;
-        }
     }
     if (t0 < ray.length) {
         t = t0;
@@ -178,7 +181,7 @@ bool intersect_sphere(Ray ray, Sphere sphere, inout float t){
 void rayTraversal(Ray ray, inout vec4 o_color) {
     o_color = vec4(0);
     int maxIterations = 128;
-    const float d = 0.1;
+    const float d = 0.01;
 
     int node_it = 0;
 
@@ -186,11 +189,10 @@ void rayTraversal(Ray ray, inout vec4 o_color) {
     if(!intersect(ray, nodes[0].bounds, t))
         return;
 
-    ray.origin += (t + d) * ray.direction;
-    ray.length -= t + d;
-
-    int depth = 1;
-    int max_depth = 0;
+    if(!contains(nodes[0].bounds, ray.origin)){
+        ray.origin += (t + d) * ray.direction;
+        ray.length -= t + d;
+    }
 
     for(
         int child_it = nodes[node_it].child_first; 
@@ -204,7 +206,7 @@ void rayTraversal(Ray ray, inout vec4 o_color) {
             sphere.position.y   = intBitsToFloat(child.data[1]);
             sphere.position.z   = intBitsToFloat(child.data[2]);
             sphere.radius       = intBitsToFloat(child.data[3]);
-            float t;
+
             if(intersect_sphere(ray, sphere, t)){
                 o_color = vec4(1,0,0,1);
                 return;
@@ -212,10 +214,9 @@ void rayTraversal(Ray ray, inout vec4 o_color) {
         }
     }
 
-    o_color = vec4(0.1);
+    //o_color = vec4(0.1);
 
     while(maxIterations > 0) {
-        max_depth = max(depth, max_depth);
         maxIterations--;
         Node node = nodes[node_it];
 
@@ -225,8 +226,6 @@ void rayTraversal(Ray ray, inout vec4 o_color) {
                 break;
 
             node_it = ppos_up;
-            depth--;
-            o_color += vec4(0.1);
             continue;
         }
 
@@ -238,9 +237,20 @@ void rayTraversal(Ray ray, inout vec4 o_color) {
                 child_it != -1; 
                 child_it = childs[child_it].child_next
             ) {
-                continue;
+                Child child = childs[child_it];
+                if(child.object_type == 0){
+                    Sphere sphere;
+                    sphere.position.x   = intBitsToFloat(child.data[0]);
+                    sphere.position.y   = intBitsToFloat(child.data[1]);
+                    sphere.position.z   = intBitsToFloat(child.data[2]);
+                    sphere.radius       = intBitsToFloat(child.data[3]);
+
+                    if(intersect_sphere(ray, sphere, t)){
+                        o_color = vec4(1,0,0,1);
+                        return;
+                    }
+                }
             }
-            depth++;
         }
         else{
             vec3 a = (node.bounds.a - ray.origin) / ray.direction;
