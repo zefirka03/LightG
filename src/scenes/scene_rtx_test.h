@@ -126,7 +126,7 @@ public:
             auto ray = Ray(
                 entity_transform.position,
                 forward_dir,
-                15000
+                55000
             );
             get_scene().get_system<PhysicsSystem>()->ray_intersection(ray, out);
 

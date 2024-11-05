@@ -149,7 +149,7 @@ private:
         m_compute_shader.set_vector3f(up_dir, std::string("cam.cameraUp").c_str());
         m_compute_shader.set_vector3f(right_dir, std::string("cam.cameraRight").c_str());
         m_compute_shader.set_vector3f(forward_dir, std::string("cam.cameraFront").c_str());
-        m_compute_shader.set_float(3.14 * 90.f / 180.f, std::string("cam.fov").c_str());
+        m_compute_shader.set_float(90.f, std::string("cam.fov").c_str());
         m_compute_shader.set_float(0.01f, std::string("cam.dist").c_str());
 
         // Do rtx compute

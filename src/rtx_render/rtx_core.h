@@ -3,7 +3,8 @@
 
 
 struct RTX_DrawablePack {
-    int32_t packed_data[16];
+    int32_t object_type;
+    int32_t packed_data[15];
 };
 
 struct RTX_ReferencePack {

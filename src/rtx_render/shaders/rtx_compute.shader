@@ -17,7 +17,9 @@ struct Child {
     int child_prev;
     int node_it;
     int _padding;
-    int data[16];
+
+    int object_type;
+    int data[15];
 };
 
 struct Node {
@@ -43,6 +45,11 @@ struct Camera {
 	vec3 cameraUp;
 	vec3 cameraRight;
 	float fov, dist;
+};
+
+struct Sphere {
+    vec3 position;
+    float radius;
 };
 
 layout(std430, binding = 1) buffer Childs {
@@ -138,6 +145,36 @@ int get_down_index(int node_it, vec3 point) {
     }
 }
 
+bool intersect_sphere(Ray ray, Sphere sphere, inout float t){
+    float t0, t1;
+
+    vec3 L = sphere.position - ray.origin;
+    float tca = dot(L, ray.direction);
+    // if (tca < 0) return false;
+    float d2 = dot(L, L) - tca * tca;
+    if (d2 > sphere.radius * sphere.radius) {
+        return false;
+    }
+
+    float thc = sqrt(sphere.radius* sphere.radius - d2);
+    t0 = tca - thc;
+    t1 = tca + thc;
+
+    if (t0 > t1) t0 = t1;
+
+    if (t0 < 0) {
+        t0 = t1; // If t0 is negative, let's use t1 instead.
+        if (t0 < 0) {
+            return false;
+        }
+    }
+    if (t0 < ray.length) {
+        t = t0;
+        return true;
+    }
+    return false;
+}
+
 void rayTraversal(Ray ray, inout vec4 o_color) {
     o_color = vec4(0);
     int maxIterations = 128;
@@ -154,6 +191,26 @@ void rayTraversal(Ray ray, inout vec4 o_color) {
 
     int depth = 1;
     int max_depth = 0;
+
+    for(
+        int child_it = nodes[node_it].child_first; 
+        child_it != -1; 
+        child_it = childs[child_it].child_next
+    ) {
+        Child child = childs[child_it];
+        if(child.object_type == 0){
+            Sphere sphere;
+            sphere.position.x   = intBitsToFloat(child.data[0]);
+            sphere.position.y   = intBitsToFloat(child.data[1]);
+            sphere.position.z   = intBitsToFloat(child.data[2]);
+            sphere.radius       = intBitsToFloat(child.data[3]);
+            float t;
+            if(intersect_sphere(ray, sphere, t)){
+                o_color = vec4(1,0,0,1);
+                return;
+            }
+        }
+    }
 
     o_color = vec4(0.1);
 
@@ -177,11 +234,10 @@ void rayTraversal(Ray ray, inout vec4 o_color) {
         if(node.is_devided){
             node_it = get_down_index(node_it, ray.origin) + get_pool_position(node_it);
             for(
-                int child = nodes[node_it].child_first; 
-                child != -1; 
-                child = childs[child].child_next
+                int child_it = nodes[node_it].child_first; 
+                child_it != -1; 
+                child_it = childs[child_it].child_next
             ) {
-                //check childs intersection...
                 continue;
             }
             depth++;

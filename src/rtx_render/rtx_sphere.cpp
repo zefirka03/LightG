@@ -14,6 +14,7 @@ void RTX_Sphere::update_bounds() {
 void RTX_Sphere::draw_debug(DebugSystem& debug_system) const {}
 
 void RTX_Sphere::pack_data() {
+	m_packed_data.object_type = 0;
 	memcpy(m_packed_data.packed_data, &m_transform_handler->position, sizeof(glm::vec3));
-	memcpy(m_packed_data.packed_data + sizeof(glm::vec3), &radius, sizeof(float));
+	memcpy(m_packed_data.packed_data + 3, &radius, sizeof(float));
 }
