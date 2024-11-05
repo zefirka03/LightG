@@ -4,16 +4,19 @@ layout(local_size_x = 8, local_size_y = 8) in;
 layout(rgba32f, binding = 0) uniform image2D colorbuffer;
 
 struct boundingBox {
-    vec3 a;
-	vec3 b;
-	vec3 center;
-	float diameter;
-};
+    vec3 a;          // 12 байт
+    float padding_1;  // 4 байта для выравнивания
+    vec3 b;          // 12 байт
+    float padding_2;  // 4 байта для выравнивания
+    vec3 center;     // 12 байт
+    float diameter;  // 4 байта
+}; // Всего 64 байта
 
 struct Child {
     int child_next;
     int child_prev;
     int node_it;
+    int _padding;
     int data[16];
 };
 
@@ -25,7 +28,8 @@ struct Node {
     int deep;
     int pool_position;
     bool is_devided;
-};
+    float _padding[2];
+}; // Всего 80 байт
 
 struct Ray {
     vec3 origin;
@@ -136,8 +140,8 @@ int get_down_index(int node_it, vec3 point) {
 
 void rayTraversal(Ray ray, inout vec4 o_color) {
     o_color = vec4(0);
-    int maxIterations = 32;
-    const float d = 0.01;
+    int maxIterations = 128;
+    const float d = 0.1;
 
     int node_it = 0;
 
@@ -148,39 +152,38 @@ void rayTraversal(Ray ray, inout vec4 o_color) {
     ray.origin += (t + d) * ray.direction;
     ray.length -= t + d;
 
-    o_color += vec4(15.0/255.0);
-
+    int depth = 1;
+    int max_depth = 0;
 
     while(maxIterations > 0) {
+        max_depth = max(depth, max_depth);
         maxIterations--;
+        Node node = nodes[node_it];
 
-        if(!contains(nodes[node_it].bounds, ray.origin)){
+        if(!contains(node.bounds, ray.origin)){
             int ppos_up = get_pool_position_up(node_it);
             if(node_it <= 0)
                 break;
 
             node_it = ppos_up;
+            depth--;
             continue;
         }
 
-        node_it = get_down_index(node_it, ray.origin) + get_pool_position(node_it);
-        Node node = nodes[node_it];
-
-        if(node.childs_size >0) {
-            // go deep
-            o_color += vec4(15.0/255.0);
+        // go deep
+        if(node.is_devided){
+            node_it = get_down_index(node_it, ray.origin) + get_pool_position(node_it);
             for(
-                int child = node.child_first; 
+                int child = nodes[node_it].child_first; 
                 child != -1; 
                 child = childs[child].child_next
             ) {
                 //check childs intersection...
                 continue;
             }
-            continue;
-        } 
-        if(!node.is_devided)  {
-            // displace ray origin
+            depth++;
+        }
+        else{
             vec3 a = (node.bounds.a - ray.origin) / ray.direction;
             vec3 b = (node.bounds.b - ray.origin) / ray.direction;
 
@@ -193,12 +196,9 @@ void rayTraversal(Ray ray, inout vec4 o_color) {
 
             ray.origin += (tmax + d) * ray.direction;
             ray.length -= tmax + d;
-
-            int ppos_up = get_pool_position_up(node_it);
-             node_it = ppos_up;
         }
     }
-    o_color.a = 1;
+    o_color = vec4(0.1 * max_depth, 0.1 * max_depth, 0.1 * max_depth, 1);
 }
 
 uniform Camera cam;
@@ -225,6 +225,12 @@ void main() {
 
     rayTraversal(r, ncol);
     imageStore(colorbuffer, pixelPos, ncol);
+
+    float t;
+    if(intersect(r, nodes[0].bounds, t))
+        imageStore(colorbuffer, pixelPos, vec4(1,0,0,1));
+    if(intersect(r, nodes[1].bounds, t))
+        imageStore(colorbuffer, pixelPos, vec4(0,1,0,1));
     //float t;
     //if(intersect(r, nodes[0].bounds, t))
     //    imageStore(colorbuffer, pixelPos, vec4(1));

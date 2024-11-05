@@ -10,6 +10,7 @@ struct RTX_ReferencePack {
     int child_next;
     int child_prev;
     int node_it;
+    int _padding;
 
     RTX_ReferencePack() {}
     RTX_ReferencePack(

@@ -118,7 +118,7 @@ public:
             dir -= forward_dir;
 
         if (Input::is_key_pressed(Key::LeftShift))
-            speed = 3500;
+            speed = 13500;
         else speed = 1000;
 
         if (Input::is_mouse_button_pressed(Mouse::Button0) && m_reload > 0.01) {
@@ -212,7 +212,7 @@ public:
             auto& sp_tr = add_component<Transform>(plane);
             auto& sp_pb = add_component<PhysicsBody>(plane);
             sp_pb.tag = 0;
-            sp_sp.size = glm::vec2(12000);
+            sp_sp.size = glm::vec2(200000);
             sp_tr.origin = glm::vec3(sp_sp.size / 2.f, 0);
             sp_tr.rotation.x = glm::half_pi<float>();
             sp_pb.set_collider<PlaneCollider>();

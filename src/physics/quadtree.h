@@ -5,7 +5,7 @@
 #include "ray.h"
 
 #define AIR_QUAD_DEVIDE_SIZE 4
-#define AIR_MAX_DEEP 3
+#define AIR_MAX_DEEP 4
 
 struct Quadable {
 protected:
@@ -249,70 +249,60 @@ private:
 
         auto& curr_node = m_nodes[node_it];
         auto& upper_node = m_nodes[_get_pool_position_up(node_it)];
-        const glm::vec3& a = curr_node.bounds.get_a();
-        const glm::vec3& b = curr_node.bounds.get_b();
         const glm::vec3& middle = upper_node.bounds.get_center();
         const glm::vec3 half = (upper_node.bounds.get_b() - upper_node.bounds.get_a()) / 2.f;
 
-        if (a.x > middle.x) {
-            if (a.y > middle.y) {
-                if (a.z > middle.z) {
-                    curr_node.bounds.adjust_bounds(boundingBox(
-                        middle,
-                        upper_node.bounds.get_b()
-                    ));
-                }
-                else if (b.z <= middle.z) {
-                    curr_node.bounds.adjust_bounds(boundingBox(
-                        middle - glm::vec3(0, 0, half.z),
-                        upper_node.bounds.get_b() - glm::vec3(0, 0, half.z)
-                    ));
-                }
-            }
-            else if (b.y <= middle.y) {
-                if (a.z > middle.z) {
-                    curr_node.bounds.adjust_bounds(boundingBox(
-                        middle - glm::vec3(0, half.y, 0),
-                        upper_node.bounds.get_b() - glm::vec3(0, half.y, 0)
-                    ));
-                }
-                else if (b.z <= middle.z) {
-                    curr_node.bounds.adjust_bounds(boundingBox(
-                        middle - glm::vec3(0, half.y, half.z),
-                        upper_node.bounds.get_b() - glm::vec3(0, half.y, half.z)
-                    ));
-                }
-            }
-        }
-        else if (b.x <= middle.x) {
-            if (a.y > middle.y) {
-                if (a.z > middle.z) {
-                    curr_node.bounds.adjust_bounds(boundingBox(
-                        middle - glm::vec3(half.x, 0, 0),
-                        upper_node.bounds.get_b() - glm::vec3(half.x, 0, 0)
-                    ));
-                }
-                else if (b.z <= middle.z) {
-                    curr_node.bounds.adjust_bounds(boundingBox(
-                        middle - glm::vec3(half.x, 0, half.z),
-                        upper_node.bounds.get_b() - glm::vec3(half.x, 0, half.z)
-                    ));
-                }
-            }
-            else if (b.y <= middle.y) {
-                if (a.z > middle.z) {
-                    curr_node.bounds.adjust_bounds(boundingBox(
-                        middle - glm::vec3(half.x, half.y, 0),
-                        upper_node.bounds.get_b() - glm::vec3(half.x, half.y, 0)
-                    ));
-                }
-                else if (b.z <= middle.z) {
-                    curr_node.bounds.adjust_bounds(boundingBox(
-                        middle - glm::vec3(half.x, half.y, half.z),
-                        upper_node.bounds.get_b() - glm::vec3(half.x, half.y, half.z)
-                    ));
-                }
-            }
+        switch((node_it - 1) % 8) {
+            case 0:
+                curr_node.bounds = boundingBox(
+                    middle,
+                    upper_node.bounds.get_b()
+                );
+                break;
+            case 1:
+                curr_node.bounds = boundingBox(
+                    middle - glm::vec3(0, 0, half.z),
+                    upper_node.bounds.get_b() - glm::vec3(0, 0, half.z)
+                );
+                break;
+            case 2:
+                curr_node.bounds = boundingBox(
+                    middle - glm::vec3(0, half.y, 0),
+                    upper_node.bounds.get_b() - glm::vec3(0, half.y, 0)
+                );
+                break;
+            case 3:
+                curr_node.bounds = boundingBox(
+                    middle - glm::vec3(0, half.y, half.z),
+                    upper_node.bounds.get_b() - glm::vec3(0, half.y, half.z)
+                );
+                break;
+            case 4:
+                curr_node.bounds = boundingBox(
+                    middle - glm::vec3(half.x, 0, 0),
+                    upper_node.bounds.get_b() - glm::vec3(half.x, 0, 0)
+                );
+                break;
+            case 5:
+                curr_node.bounds = boundingBox(
+                    middle - glm::vec3(half.x, 0, half.z),
+                    upper_node.bounds.get_b() - glm::vec3(half.x, 0, half.z)
+                );
+                break;
+            case 6:
+                curr_node.bounds = boundingBox(
+                    middle - glm::vec3(half.x, half.y, 0),
+                    upper_node.bounds.get_b() - glm::vec3(half.x, half.y, 0)
+                );
+                break;
+            case 7:
+                curr_node.bounds = boundingBox(
+                    middle - glm::vec3(half.x, half.y, half.z),
+                    upper_node.bounds.get_b() - glm::vec3(half.x, half.y, half.z)
+                );
+                break;
+            default:
+                break;
         }
     }
 

@@ -15,6 +15,26 @@
 #include "../render/render.h"
 #include "rtx_core.h"
 
+struct shaderBoundingBox {
+    glm::vec3 a;
+    float _padding_1;
+    glm::vec3 b;
+    float _padding_2;
+    glm::vec3 center;
+    float diameter;
+};
+
+struct shaderNode {
+    shaderBoundingBox bounds;
+    int childs_size;
+    int child_first;
+    int child_last;
+    int deep;
+    int pool_position;
+    int is_devided;
+    float _padding[2];
+};
+
 struct RTX_Canvas : public Component {
     glm::vec2 size;
     Camera3d* camera = nullptr;
@@ -47,6 +67,7 @@ private:
     GLuint m_childs_ssbo;
 
     std::vector<RTX_FullChildsPack> m_packed_rtx_objects;
+    std::vector<shaderNode> m_packed_nodes;
 
     void init() override {
         m_renderer.reserve({
@@ -106,6 +127,7 @@ private:
 
         // Send quadlist
         _repack_quadlist();
+        _repack_nodes();
         
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_childs_ssbo);
         glBufferData(GL_SHADER_STORAGE_BUFFER, m_packed_rtx_objects.size() * sizeof(RTX_FullChildsPack), m_packed_rtx_objects.data(), GL_STATIC_DRAW);
@@ -114,7 +136,7 @@ private:
 
         // Send nodes
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_quadnodes_ssbo);
-        glBufferData(GL_SHADER_STORAGE_BUFFER, m_quadtree.get_quadnodes_pool_size() * sizeof(QuadNode), m_quadtree.get_quadnodes_pool(), GL_STATIC_DRAW);
+        glBufferData(GL_SHADER_STORAGE_BUFFER, m_packed_nodes.size() * sizeof(shaderNode), m_packed_nodes.data(), GL_STATIC_DRAW);
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_quadnodes_ssbo); 
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
@@ -127,7 +149,7 @@ private:
         m_compute_shader.set_vector3f(up_dir, std::string("cam.cameraUp").c_str());
         m_compute_shader.set_vector3f(right_dir, std::string("cam.cameraRight").c_str());
         m_compute_shader.set_vector3f(forward_dir, std::string("cam.cameraFront").c_str());
-        m_compute_shader.set_float(90.f, std::string("cam.fov").c_str());
+        m_compute_shader.set_float(3.14 * 90.f / 180.f, std::string("cam.fov").c_str());
         m_compute_shader.set_float(0.01f, std::string("cam.dist").c_str());
 
         // Do rtx compute
@@ -153,6 +175,31 @@ private:
             m_packed_rtx_objects.emplace_back(
                 RTX_ReferencePack(quad.child_next, quad.child_prev, quad.node_it), 
                 drawable->m_packed_data
+            );
+        }
+    }
+
+    void _repack_nodes() {
+        const QuadNode* quadnode = m_quadtree.get_quadnodes_pool();
+        m_packed_nodes.clear();
+        for (int i = 0; i < m_quadtree.get_quadnodes_pool_size(); ++i) {
+            auto& node = quadnode[i];
+
+            shaderBoundingBox sh_bbox;
+            sh_bbox.a = node.bounds.get_a();
+            sh_bbox.b = node.bounds.get_b();
+            sh_bbox.center = node.bounds.get_center();
+            sh_bbox.diameter = node.bounds.get_diameter();
+
+            shaderNode sh_node;
+            sh_node.bounds = sh_bbox;
+            sh_node.childs_size = node.childs_size;
+            sh_node.child_first = node.child_first;
+            sh_node.child_last = node.child_last;
+            sh_node.is_devided = node.is_devided;
+
+            m_packed_nodes.emplace_back(
+                sh_node
             );
         }
     }
