@@ -180,8 +180,8 @@ bool intersect_sphere(Ray ray, Sphere sphere, inout float t){
 
 void rayTraversal(Ray ray, inout vec4 o_color) {
     o_color = vec4(0);
-    int maxIterations = 128;
-    const float d = 0.01;
+    int maxIterations = 64;
+    const float d = 0.005;
 
     int node_it = 0;
 
@@ -194,44 +194,18 @@ void rayTraversal(Ray ray, inout vec4 o_color) {
         ray.length -= t + d;
     }
 
-    for(
-        int child_it = nodes[node_it].child_first; 
-        child_it != -1; 
-        child_it = childs[child_it].child_next
-    ) {
-        Child child = childs[child_it];
-        if(child.object_type == 0){
-            Sphere sphere;
-            sphere.position.x   = intBitsToFloat(child.data[0]);
-            sphere.position.y   = intBitsToFloat(child.data[1]);
-            sphere.position.z   = intBitsToFloat(child.data[2]);
-            sphere.radius       = intBitsToFloat(child.data[3]);
-
-            if(intersect_sphere(ray, sphere, t)){
-                o_color = vec4(1,0,0,1);
-                return;
-            }
-        }
-    }
-
-    //o_color = vec4(0.1);
+    int deep = 0;
+    int deep_states[8];
+    for(int i=0; i<8; ++i) deep_states[i] = -1;
 
     while(maxIterations > 0) {
         maxIterations--;
+        if(ray.length <= 0)
+            break;
+
         Node node = nodes[node_it];
 
-        if(!contains(node.bounds, ray.origin)){
-            int ppos_up = get_pool_position_up(node_it);
-            if(node_it <= 0)
-                break;
-
-            node_it = ppos_up;
-            continue;
-        }
-
-        // go deep
-        if(node.is_devided){
-            node_it = get_down_index(node_it, ray.origin) + get_pool_position(node_it);
+        if(deep_states[deep] != node_it){
             for(
                 int child_it = nodes[node_it].child_first; 
                 child_it != -1; 
@@ -251,6 +225,22 @@ void rayTraversal(Ray ray, inout vec4 o_color) {
                     }
                 }
             }
+            deep_states[node_it] = node_it;
+        }
+
+        int ppos_up = get_pool_position_up(node_it);
+        if(deep > 0 && deep_states[deep - 1] != ppos_up){
+            if(node_it <= 0)
+                break;
+            --deep;
+            node_it = ppos_up;
+            continue;
+        }
+
+        // go deep
+        if(node.is_devided){
+            node_it = get_down_index(node_it, ray.origin) + get_pool_position(node_it);
+            ++deep;
         }
         else{
             vec3 a = (node.bounds.a - ray.origin) / ray.direction;
