@@ -59,3 +59,17 @@ public:
    void draw_debug(DebugSystem& debug_system) const override;
    void pack_data() override;
 };
+
+class RTX_Plane : public RTX_Drawable {
+public:
+   glm::vec3 position;
+   glm::vec3 origin;
+   glm::vec2 size;
+   float rotation;
+
+   RTX_Plane();
+   RTX_Plane(glm::vec3 _position, glm::vec3 _origin, glm::vec2 _size, float _rotation);
+   void update_bounds() override;
+   void draw_debug(DebugSystem& debug_system) const override;
+   void pack_data() override;
+};

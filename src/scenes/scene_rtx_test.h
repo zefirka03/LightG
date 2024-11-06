@@ -218,6 +218,9 @@ public:
 
             static_cast<PlaneCollider*>(sp_pb.get_collider())->size = glm::vec2(sp_sp.size);
             static_cast<PlaneCollider*>(sp_pb.get_collider())->origin = glm::vec2(sp_sp.size / 2.f);
+
+            auto& rtx_draw = add_component<RTX_Object>(plane);
+            rtx_draw.instance = new RTX_Plane(sp_tr.position, sp_tr.origin, sp_sp.size, 0);
         }
         {
             plane2 = create_entity();

@@ -52,6 +52,14 @@ struct Sphere {
     float radius;
 };
 
+struct Plane {
+    vec3 position;
+    vec3 origin;
+    vec2 size;
+
+    float rotation;
+};
+
 layout(std430, binding = 1) buffer Childs {
     Child childs[];
 };
@@ -178,10 +186,32 @@ bool intersect_sphere(Ray ray, Sphere sphere, inout float t){
     return false;
 }
 
-void rayTraversal(Ray ray, inout vec4 o_color) {
+bool intersect_plane(Ray ray, Plane plane, inout float t){
+    vec3 n = vec3(0, 1, 0);
+	t = dot(n, plane.position - ray.origin) / dot(n, ray.direction);
+	if(t > ray.length) return false;
+    if(t < 0) return false;
+
+	vec3 intersection_point = ray.origin + t * ray.direction;
+
+	vec3 diff = intersection_point - plane.position;
+	float x_proj = dot(vec3(cos(plane.rotation), 0, sin(plane.rotation)), diff);
+	float z_proj = dot(vec3(sin(plane.rotation), 0, cos(plane.rotation)), diff);
+
+	if (x_proj < plane.size.x - plane.origin.x && x_proj > -plane.origin.x && z_proj < plane.size.y - plane.origin.y && z_proj > -plane.origin.y) {
+		return true;
+	}
+
+	return false;
+}
+
+void rayTraversal(Ray ray, inout vec4 o_color, inout float o_t) {
+    bool intersected = false;
+    o_t = 1.0 / 0.0;
     o_color = vec4(0);
     int maxIterations = 256;
     float d = 0.01;
+    float current_t = 0;
 
     int node_it = 0;
 
@@ -192,6 +222,7 @@ void rayTraversal(Ray ray, inout vec4 o_color) {
     if(!contains(nodes[0].bounds, ray.origin)){
         ray.origin += (t + d) * ray.direction;
         ray.length -= t + d;
+        current_t += t + d;
     }
 
     int deep = 0;
@@ -222,8 +253,27 @@ void rayTraversal(Ray ray, inout vec4 o_color) {
                     sphere.radius       = intBitsToFloat(child.data[3]);
 
                     if(intersect_sphere(ray, sphere, t)){
-                        o_color = vec4(1, 0, 0, 1);
-                        return;
+                        intersected = true;
+                        o_t = min(o_t, current_t + t);
+                    }
+                } else if(child.object_type == 1) {
+                    Plane plane;
+                    plane.position.x    = intBitsToFloat(child.data[0]);
+                    plane.position.y    = intBitsToFloat(child.data[1]);
+                    plane.position.z    = intBitsToFloat(child.data[2]);
+
+                    plane.origin.x      = intBitsToFloat(child.data[3]);
+                    plane.origin.y      = intBitsToFloat(child.data[4]);
+                    plane.origin.z      = intBitsToFloat(child.data[5]);
+
+                    plane.size.x        = intBitsToFloat(child.data[6]);
+                    plane.size.y        = intBitsToFloat(child.data[7]);
+
+                    plane.rotation      = intBitsToFloat(child.data[8]);
+
+                    if(intersect_plane(ray, plane, t)){
+                        intersected = true;
+                        o_t = min(o_t, current_t + t);
                     }
                 }
             }
@@ -255,6 +305,7 @@ void rayTraversal(Ray ray, inout vec4 o_color) {
 
             ray.origin += (tmax + d) * ray.direction;
             ray.length -= (tmax + d);
+            current_t += tmax + d;
         }
     }
 }
@@ -280,9 +331,9 @@ void main() {
     r.length = 200000;
 
     vec4 ncol;
-
-    rayTraversal(r, ncol);
-    imageStore(colorbuffer, pixelPos, ncol);
+    float t;
+    rayTraversal(r, ncol, t);
+    imageStore(colorbuffer, pixelPos, vec4(t / 50000.0));
     //float t;
     //if(intersect(r, nodes[0].bounds, t))
     //    imageStore(colorbuffer, pixelPos, vec4(1));
