@@ -223,7 +223,10 @@ bool intersect_plane(Ray ray, Plane plane, inout float t, inout vec3 o_norm){
 
 bool intersect_sprite(Ray ray, Sprite sprite, inout float t, inout vec3 o_norm){
     vec3 n = vec3(sin(sprite.rotation), 0, cos(sprite.rotation));
-	t = dot(n, sprite.position - ray.origin) / dot(n, ray.direction);
+    float ndot = dot(n, sprite.position - ray.origin);
+	t = ndot / dot(n, ray.direction);
+
+	if(ndot > 0) n = -n;
 
     if(t < 0)
         return false;

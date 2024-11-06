@@ -138,7 +138,7 @@ public:
                     for (int i = 0; i < 10; ++i) {
                         auto a = get_scene().create_entity();
                         get_scene().add_component<ScriptComponent>(a).bind<RotationSc>((1000 + (rand()%10000)/10000.f * 15000) * (glm::normalize(ray.direction - 2.f * norm * glm::dot(norm, ray.direction)) + ray.direction * glm::ballRand(0.5f)) );
-                        get_scene().get_component<Transform>(a).position = out[0].second.points[0].collision_point;
+                        get_scene().get_component<Transform>(a).position = out[0].second.points[0].collision_point + norm * 250.f;
                     }
                 }
             }

@@ -38,7 +38,11 @@ void SpriteCollider::draw_debug(DebugSystem& debug_system) const {
 
 void SpriteCollider::ray_intersect(Ray const& ray, rayIntersection& out) const {
 	glm::vec3 n(sin(m_transform_handler->rotation.y), 0, cos(m_transform_handler->rotation.y));
-	float t = glm::dot(n, m_transform_handler->position - ray.origin) / glm::dot(n, ray.direction);
+	float ndot = glm::dot(n, m_transform_handler->position - ray.origin);
+	float t = ndot / glm::dot(n, ray.direction);
+
+	if(ndot > 0) n = -n;
+
 	glm::vec3 intersection_point = ray.origin + t * ray.direction;
 
 	if(t > ray.length || t < 0)
