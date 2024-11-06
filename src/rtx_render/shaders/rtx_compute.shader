@@ -409,26 +409,44 @@ vec3 RandomUnitVector(inout uint state) {
 	return vec3(x, y, z);
 }
 
+vec3 ray_diffuse(inout vec3 ray_dir, vec3 norm, inout uint seed) {
+	return normalize(norm * 1.001f + RandomUnitVector(seed));
+}
+
+vec3 ray_reflect(inout vec3 ray_dir, vec3 norm) {
+	return normalize(ray_dir - 2 * norm * dot(ray_dir, norm));
+}
+
 void color_compute(Ray ray, inout vec4 o_color){
+    int max_iterations = 8;
     int samples = 8;
 
-    o_color = vec4(1);
-     ivec2 pixelPos = ivec2(gl_GlobalInvocationID.xy);
-    uint seed = uint(uint(pixelPos.x) * uint(1973) + uint(pixelPos.y) * uint(9277)) | uint(1);
+    o_color = vec4(0);
+    ivec2 pixelPos = ivec2(gl_GlobalInvocationID.xy);
+
     for(int s = 0; s < samples; ++s){
-        bool intersected;
-        float t;
-        vec3 norm;
-        ray_traversal(ray, intersected, t, norm);
+        uint seed = uint(uint(pixelPos.x) * uint(1973) + uint(pixelPos.y) * uint(9277) + uint(s) * uint(26699)) | uint(1);
+        vec4 curr_color = vec4(1);
+        Ray curr_ray = ray;
 
-        if(!intersected) break;
+        for(int i = 0; i < max_iterations; ++i){
+            bool intersected;
+            float t;
+            vec3 norm;
+            ray_traversal(curr_ray, intersected, t, norm);
 
-        ray.origin += t * ray.direction + 0.01 * norm;
-        ray.direction = normalize(norm * 1.001 + RandomUnitVector(seed));
-        ray.length -= t;
+            if(!intersected) break;
 
-        o_color *= 0.8;
+            curr_ray.origin += t * curr_ray.direction + 0.01 * norm;
+            curr_ray.direction = ray_diffuse(curr_ray.direction, norm, seed);
+            curr_ray.length -= t;
+
+            curr_color *= 0.75;
+        }
+        o_color += curr_color;
     }
+    o_color /= samples;
+    o_color = sqrt(o_color);
 }
 
 uniform Camera cam;
@@ -449,7 +467,7 @@ void main() {
 		+ vec3((pixelPos.x - screen_size.x / 2) * pix) * cam.cameraRight
 		- vec3((pixelPos.y - screen_size.y / 2) * pix) * cam.cameraUp
     );
-    r.length = 200000;
+    r.length = 100000;
 
     vec4 o_col;
     color_compute(r, o_col);
