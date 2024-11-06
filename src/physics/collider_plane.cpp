@@ -40,13 +40,19 @@ void PlaneCollider::draw_debug(DebugSystem& debug_system) const {
 void PlaneCollider::ray_intersect(Ray const& ray, rayIntersection& out) const {
 	glm::vec3 n(0, 1, 0);
 	float t = glm::dot(n, m_transform_handler->position - ray.origin) / glm::dot(n, ray.direction);
+	if(t > ray.length) return;
 	glm::vec3 intersection_point = ray.origin + t * ray.direction;
 
 	glm::vec3 diff = intersection_point - m_transform_handler->position;
 	float x_proj = glm::dot(glm::vec3(cos(m_transform_handler->rotation.y), 0, sin(m_transform_handler->rotation.y)), diff);
 	float z_proj = glm::dot(glm::vec3(sin(m_transform_handler->rotation.y), 0, cos(m_transform_handler->rotation.y)), diff);
 
-	if (x_proj < size.x - origin.x && x_proj > -origin.x && z_proj < size.y - origin.y && z_proj > -origin.y) {
+	if (
+		x_proj < size.x - origin.x && 
+		x_proj > -origin.x &&
+		z_proj < size.y - origin.y && 
+		z_proj > -origin.y
+	) {
 		out.points.emplace_back(
 			true,
 			intersection_point,

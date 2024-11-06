@@ -1,4 +1,4 @@
-#include "Shader.h"
+#include "shader.h"
 
 Shader::Shader() {
 	m_inited = false;
@@ -74,14 +74,14 @@ void Shader::load_from_file(const char* path, uint8_t usings) {
 		glCompileShader(geometry_id);
 
 #ifdef AIR_DEBUG
-	std::cout << "Shader::Debugging\n";
+	printf("Shader::Debugging\n");
 	GLchar info[2048];
 	glGetShaderInfoLog(vertex_id, 2048, 0, info);
-	std::cout << info;
+	printf("%s\n", info);
 	glGetShaderInfoLog(geometry_id, 2048, 0, info);
-	std::cout << info;
+	printf("%s\n", info);
 	glGetShaderInfoLog(fragment_id, 2048, 0, info);
-	std::cout << info;
+	printf("%s\n", info);
 #endif
 
 	glAttachShader(m_prog_id, vertex_id);
@@ -140,11 +140,11 @@ void Shader::load_from_string(const char* string, uint8_t usings) {
 #ifdef AIR_DEBUG
 		GLchar info[2048];
 		glGetShaderInfoLog(vertex_id, 2048, 0, info);
-		std::cout << info;
+		printf("%s\n", info);
 		glGetShaderInfoLog(geometry_id, 2048, 0, info);
-		std::cout << info;
+		printf("%s\n", info);
 		glGetShaderInfoLog(fragment_id, 2048, 0, info);
-		std::cout << info;
+		printf("%s\n", info);
 #endif
 
 	glAttachShader(m_prog_id, vertex_id);
@@ -184,18 +184,18 @@ void Shader::set_matrix4f(glm::mat4 val, const char* path) {
 
 void Shader::set_float(GLfloat val, const char* path) {
 	this->use();
-	glUniform1f(glGetUniformLocation(_request_location(path), path), val);
+	glUniform1f(_request_location(path), val);
 	this->unuse();
 }
 
 void Shader::set_vector2f(glm::vec2 val, const char* path) {
 	this->use();
-	glUniform2f(glGetUniformLocation(_request_location(path), path), val.x, val.y);
+	glUniform2f(_request_location(path), val.x, val.y);
 	this->unuse();
 }
 
 void Shader::set_vector4f(glm::vec4 val, const char* path) {
 	this->use();
-	glUniform4f(glGetUniformLocation(_request_location(path), path), val.r, val.g, val.b, val.a);
+	glUniform4f(_request_location(path), val.r, val.g, val.b, val.a);
 	this->unuse();
 }

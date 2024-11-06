@@ -4,7 +4,7 @@
 #include "bounding_box.h"
 #include "ray.h"
 
-#define AIR_QUAD_DEVIDE_SIZE 4
+#define AIR_QUAD_DEVIDE_SIZE 16
 #define AIR_MAX_DEEP 3
 
 struct Quadable {
@@ -23,12 +23,12 @@ public:
 /// 
 struct QuadNode {
     boundingBox bounds = boundingBox();
-    bool is_devided = false;
     int childs_size = 0;
     int child_first = -1;
     int child_last = -1;
     int deep = 0;
     int pool_position = 0;
+    bool is_devided = false;
 
     QuadNode() {}
 
@@ -45,17 +45,18 @@ struct QuadNode {
     }
 };
 
+struct QuadableList {
+    int child_next = -1;
+    int child_prev = -1;
+    int node_it = -1;
+    Quadable* quad = nullptr;
+
+    QuadableList() {}
+    QuadableList(Quadable* _quad) : quad(_quad) {}
+};
+
 class Quadtree {
 private:
-    struct QuadableList {
-        Quadable* quad;
-        int child_next = -1;
-        int child_prev = -1;
-        int node_it = -1;
-
-        QuadableList(Quadable* _quad) : quad(_quad) {}
-    };
-
     QuadNode* m_nodes;
     std::vector<QuadableList> m_childs;
     int m_pool_size;
@@ -63,6 +64,10 @@ private:
 
     inline int _get_pool_position(int i) const {
         return 8 * i + 1;
+    }
+
+    inline int _get_pool_position_up(int i) const {
+        return (i - 1) / 8;
     }
 
     void _add_child(int node_it, int child_it) {
@@ -98,10 +103,9 @@ private:
         childs.node_it = -1;
     }
 
-    void _devide(int node_it) {
+    void _devide(int node_it, bool equad_sizes = false) {
         auto& node = m_nodes[node_it];
         if (node.deep < AIR_MAX_DEEP && node.childs_size >= AIR_QUAD_DEVIDE_SIZE) {
-            // printf("DEEP %d\n", node.deep);
             int ppos = _get_pool_position(node.pool_position);
             for (int i = 0; i < 8; ++i)
                 m_nodes[ppos + i] = QuadNode(node.deep + 1, ppos + i);
@@ -117,8 +121,11 @@ private:
                 }
             }
 
-            for (int i = 0; i < 8; ++i)
-                _devide(ppos + i);
+            for (int i = 0; i < 8; ++i) {
+                if (equad_sizes) 
+                    _fill_bounds(ppos + i);
+                _devide(ppos + i, equad_sizes);
+            }
         }
     }
 
@@ -238,6 +245,69 @@ private:
                 _draw_debug(ppos + i, debug, color);
         }
     }
+     
+    void _fill_bounds(int node_it) {
+        if (node_it <= 0 || node_it >= m_pool_size)
+            return;
+
+        auto& curr_node = m_nodes[node_it];
+        auto& upper_node = m_nodes[_get_pool_position_up(node_it)];
+        const glm::vec3& middle = upper_node.bounds.get_center();
+        const glm::vec3 half = (upper_node.bounds.get_b() - upper_node.bounds.get_a()) / 2.f;
+
+        switch((node_it - 1) % 8) {
+            case 0:
+                curr_node.bounds = boundingBox(
+                    middle,
+                    upper_node.bounds.get_b()
+                );
+                break;
+            case 1:
+                curr_node.bounds = boundingBox(
+                    middle - glm::vec3(0, 0, half.z),
+                    upper_node.bounds.get_b() - glm::vec3(0, 0, half.z)
+                );
+                break;
+            case 2:
+                curr_node.bounds = boundingBox(
+                    middle - glm::vec3(0, half.y, 0),
+                    upper_node.bounds.get_b() - glm::vec3(0, half.y, 0)
+                );
+                break;
+            case 3:
+                curr_node.bounds = boundingBox(
+                    middle - glm::vec3(0, half.y, half.z),
+                    upper_node.bounds.get_b() - glm::vec3(0, half.y, half.z)
+                );
+                break;
+            case 4:
+                curr_node.bounds = boundingBox(
+                    middle - glm::vec3(half.x, 0, 0),
+                    upper_node.bounds.get_b() - glm::vec3(half.x, 0, 0)
+                );
+                break;
+            case 5:
+                curr_node.bounds = boundingBox(
+                    middle - glm::vec3(half.x, 0, half.z),
+                    upper_node.bounds.get_b() - glm::vec3(half.x, 0, half.z)
+                );
+                break;
+            case 6:
+                curr_node.bounds = boundingBox(
+                    middle - glm::vec3(half.x, half.y, 0),
+                    upper_node.bounds.get_b() - glm::vec3(half.x, half.y, 0)
+                );
+                break;
+            case 7:
+                curr_node.bounds = boundingBox(
+                    middle - glm::vec3(half.x, half.y, half.z),
+                    upper_node.bounds.get_b() - glm::vec3(half.x, half.y, half.z)
+                );
+                break;
+            default:
+                break;
+        }
+    }
 
 public:
     Quadtree() {
@@ -259,8 +329,8 @@ public:
         _draw_debug(0, debug, color);
     }
 
-    void devide() {
-        _devide(0);
+    void devide(bool equal_sizes = false) {
+        _devide(0, equal_sizes);
     }
 
     std::vector<Quadable*> get(Quadable* quad) {
@@ -287,6 +357,23 @@ public:
         );
         
         _ray_traversal(0, new_ray, out);
+    }
+
+    QuadNode const* get_quadnodes_pool() const {
+        return m_nodes;
+    }
+
+    int get_quadnodes_pool_size() const {
+        return m_pool_size;
+    }
+
+    std::vector<QuadableList> const& get_quadlist() const {
+        return m_childs;
+    }
+
+    void fill_bounds() {
+        for (int i = 0; i < m_pool_size; ++i)
+            _fill_bounds(i);
     }
 
     void clear() {

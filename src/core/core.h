@@ -6,6 +6,7 @@
 #include "log.h"
 #include "scene.h"
 #include "shader.h"
+#include "compute_shader.h"
 #include "timer.h"
 #include "vao.h"
 #include "input.h"
