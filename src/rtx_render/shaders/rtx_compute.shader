@@ -161,7 +161,7 @@ int get_down_index(int node_it, vec3 point) {
     }
 }
 
-bool intersect_sphere(Ray ray, Sphere sphere, inout float t){
+bool intersect_sphere(Ray ray, Sphere sphere, inout float t, inout vec3 o_norm){
     float t0, t1;
 
     vec3 L = sphere.position - ray.origin;
@@ -188,13 +188,16 @@ bool intersect_sphere(Ray ray, Sphere sphere, inout float t){
             return false;
     }
     if (t0 < ray.length) {
+        vec3 inter = ray.origin + ray.direction * t0;
+
         t = t0;
+        o_norm = normalize(inter - sphere.position);
         return true;
     }
     return false;
 }
 
-bool intersect_plane(Ray ray, Plane plane, inout float t){
+bool intersect_plane(Ray ray, Plane plane, inout float t, inout vec3 o_norm){
     vec3 n = vec3(0, 1, 0);
 	t = dot(n, plane.position - ray.origin) / dot(n, ray.direction);
 	if(t > ray.length || t < 0) return false;
@@ -211,13 +214,14 @@ bool intersect_plane(Ray ray, Plane plane, inout float t){
         z_proj < plane.size.y - plane.origin.y && 
         z_proj > -plane.origin.y
     ) {
+        o_norm = n;
 		return true;
 	}
 
 	return false;
 }
 
-bool intersect_sprite(Ray ray, Sprite sprite, inout float t){
+bool intersect_sprite(Ray ray, Sprite sprite, inout float t, inout vec3 o_norm){
     vec3 n = vec3(sin(sprite.rotation), 0, cos(sprite.rotation));
 	t = dot(n, sprite.position - ray.origin) / dot(n, ray.direction);
 
@@ -225,21 +229,6 @@ bool intersect_sprite(Ray ray, Sprite sprite, inout float t){
         return false;
 
 	vec3 intersection_point = ray.origin + t * ray.direction;
-
-    //boundingBox m_bbox;
-    //m_bbox.a = sprite.position + vec3(
-	//		(-sprite.origin.x) * cos(sprite.rotation),
-	//		-sprite.origin.y,
-	//		(-sprite.origin.x) * sin(sprite.rotation)
-	//	);
-//
-    //    m_bbox.a -= vec3(0.01);
-    //m_bbox.b = sprite.position + vec3(
-	//		(sprite.size.x - sprite.origin.x) * cos(sprite.rotation),
-	//		sprite.size.y - sprite.origin.y,
-	//		(sprite.size.x - sprite.origin.x) * sin(sprite.rotation)
-	//	);
-    //    m_bbox.b += vec3(0.01);
 
     vec3 diff = intersection_point - sprite.position;
 	float x_proj = dot(vec3(cos(sprite.rotation), 0, sin(sprite.rotation)), diff);
@@ -251,15 +240,17 @@ bool intersect_sprite(Ray ray, Sprite sprite, inout float t){
         y_proj < sprite.size.y - sprite.origin.y && 
         y_proj > -sprite.origin.y
     ) {
+        o_norm = n;
 		return true;
 	}
     return false;
 }
 
-void rayTraversal(Ray ray, inout vec4 o_color, inout float o_t) {
+void ray_traversal(Ray ray, inout float o_t, inout vec3 o_norm) {
     bool intersected = false;
     o_t = 1.0 / 0.0;
-    o_color = vec4(0);
+    o_norm = vec3(0);
+
     int maxIterations = 256;
     float d = 0.02;
     float current_t = 0;
@@ -288,8 +279,7 @@ void rayTraversal(Ray ray, inout vec4 o_color, inout float o_t) {
         Node node = nodes[node_it];
 
         if(deep_states[deep] != node_it){
-            //if(deep < 3)
-            o_color+=vec4(5.0/255.0);
+            vec3 curr_norm;
             for(
                 int child_it = nodes[node_it].child_first; 
                 child_it != -1; 
@@ -303,9 +293,12 @@ void rayTraversal(Ray ray, inout vec4 o_color, inout float o_t) {
                     sphere.position.z   = intBitsToFloat(child.data[2]);
                     sphere.radius       = intBitsToFloat(child.data[3]);
 
-                    if(intersect_sphere(ray, sphere, t)){
+                    if(intersect_sphere(ray, sphere, t, curr_norm)){
                         intersected = true;
-                        o_t = min(o_t, current_t + t);
+                        if(o_t > current_t + t){
+                            o_t = current_t + t;
+                            o_norm = curr_norm;
+                        }
                     }
                 } else if(child.object_type == 1) {
                     Plane plane;
@@ -322,9 +315,12 @@ void rayTraversal(Ray ray, inout vec4 o_color, inout float o_t) {
 
                     plane.rotation      = intBitsToFloat(child.data[8]);
 
-                    if(intersect_plane(ray, plane, t)){
+                    if(intersect_plane(ray, plane, t, curr_norm)){
                         intersected = true;
-                        o_t = min(o_t, current_t + t);
+                        if(o_t > current_t + t){
+                            o_t = current_t + t;
+                            o_norm = curr_norm;
+                        }
                     }
                 } else if(child.object_type == 2) {
                     Sprite sprite;
@@ -341,9 +337,12 @@ void rayTraversal(Ray ray, inout vec4 o_color, inout float o_t) {
 
                     sprite.rotation      = intBitsToFloat(child.data[8]);
 
-                    if(intersect_sprite(ray, sprite, t)){
+                    if(intersect_sprite(ray, sprite, t, curr_norm)){
                         intersected = true;
-                        o_t = min(o_t, current_t + t);
+                        if(o_t > current_t + t){
+                            o_t = current_t + t;
+                            o_norm = curr_norm;
+                        }
                     }
                 }
             }
@@ -402,10 +401,10 @@ void main() {
     );
     r.length = 200000;
 
-    vec4 ncol;
+    vec3 norm;
     float t;
-    rayTraversal(r, ncol, t);
-    imageStore(colorbuffer, pixelPos, vec4(t / 50000.0));
+    ray_traversal(r, t, norm);
+    imageStore(colorbuffer, pixelPos, vec4(norm, 0));
     //float t;
     //if(intersect(r, nodes[0].bounds, t))
     //    imageStore(colorbuffer, pixelPos, vec4(1));
