@@ -268,7 +268,7 @@ public:
         });
 
         // Draw physics debug
-        physics->draw_debug(*debug);
+        //physics->draw_debug(*debug);
         rtx_rendering->draw_debug(*debug);
 
         // Avrg fps
@@ -279,5 +279,7 @@ public:
             printf("Avrg: %f \n", avg_fps);
             t = 0;
         }
+        if(frame_count > 50)
+            frame_count = 0;
     }
 };

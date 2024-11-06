@@ -180,8 +180,8 @@ bool intersect_sphere(Ray ray, Sphere sphere, inout float t){
 
 void rayTraversal(Ray ray, inout vec4 o_color) {
     o_color = vec4(0);
-    int maxIterations = 64;
-    const float d = 0.005;
+    int maxIterations = 256;
+    float d = 0.01;
 
     int node_it = 0;
 
@@ -196,16 +196,18 @@ void rayTraversal(Ray ray, inout vec4 o_color) {
 
     int deep = 0;
     int deep_states[8];
-    for(int i=0; i<8; ++i) deep_states[i] = -1;
+    for(int i = 0; i < 8; ++i) 
+        deep_states[i] = -1;
 
     while(maxIterations > 0) {
         maxIterations--;
         if(ray.length <= 0)
             break;
-
         Node node = nodes[node_it];
 
         if(deep_states[deep] != node_it){
+            //if(deep < 3)
+            o_color+=vec4(5.0/255.0);
             for(
                 int child_it = nodes[node_it].child_first; 
                 child_it != -1; 
@@ -220,20 +222,19 @@ void rayTraversal(Ray ray, inout vec4 o_color) {
                     sphere.radius       = intBitsToFloat(child.data[3]);
 
                     if(intersect_sphere(ray, sphere, t)){
-                        o_color = vec4(1,0,0,1);
+                        o_color = vec4(1, 0, 0, 1);
                         return;
                     }
                 }
             }
-            deep_states[node_it] = node_it;
+            deep_states[deep] = node_it;
         }
 
-        int ppos_up = get_pool_position_up(node_it);
-        if(deep > 0 && deep_states[deep - 1] != ppos_up){
-            if(node_it <= 0)
+        if(!contains(node.bounds, ray.origin)){
+            if(node_it == 0)
                 break;
+            node_it = get_pool_position_up(node_it);
             --deep;
-            node_it = ppos_up;
             continue;
         }
 
@@ -241,8 +242,7 @@ void rayTraversal(Ray ray, inout vec4 o_color) {
         if(node.is_devided){
             node_it = get_down_index(node_it, ray.origin) + get_pool_position(node_it);
             ++deep;
-        }
-        else{
+        } else{
             vec3 a = (node.bounds.a - ray.origin) / ray.direction;
             vec3 b = (node.bounds.b - ray.origin) / ray.direction;
 
@@ -254,10 +254,9 @@ void rayTraversal(Ray ray, inout vec4 o_color) {
             );
 
             ray.origin += (tmax + d) * ray.direction;
-            ray.length -= tmax + d;
+            ray.length -= (tmax + d);
         }
     }
-    //o_color = vec4(0.1 * max_depth, 0.1 * max_depth, 0.1 * max_depth, 1);
 }
 
 uniform Camera cam;

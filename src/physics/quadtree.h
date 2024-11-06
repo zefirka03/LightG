@@ -4,7 +4,7 @@
 #include "bounding_box.h"
 #include "ray.h"
 
-#define AIR_QUAD_DEVIDE_SIZE 4
+#define AIR_QUAD_DEVIDE_SIZE 16
 #define AIR_MAX_DEEP 3
 
 struct Quadable {
@@ -103,7 +103,7 @@ private:
         childs.node_it = -1;
     }
 
-    void _devide(int node_it) {
+    void _devide(int node_it, bool equad_sizes = false) {
         auto& node = m_nodes[node_it];
         if (node.deep < AIR_MAX_DEEP && node.childs_size >= AIR_QUAD_DEVIDE_SIZE) {
             int ppos = _get_pool_position(node.pool_position);
@@ -121,8 +121,11 @@ private:
                 }
             }
 
-            for (int i = 0; i < 8; ++i)
-                _devide(ppos + i);
+            for (int i = 0; i < 8; ++i) {
+                if (equad_sizes) 
+                    _fill_bounds(ppos + i);
+                _devide(ppos + i, equad_sizes);
+            }
         }
     }
 
@@ -242,7 +245,7 @@ private:
                 _draw_debug(ppos + i, debug, color);
         }
     }
-
+     
     void _fill_bounds(int node_it) {
         if (node_it <= 0 || node_it >= m_pool_size)
             return;
@@ -326,8 +329,8 @@ public:
         _draw_debug(0, debug, color);
     }
 
-    void devide() {
-        _devide(0);
+    void devide(bool equal_sizes = false) {
+        _devide(0, equal_sizes);
     }
 
     std::vector<Quadable*> get(Quadable* quad) {

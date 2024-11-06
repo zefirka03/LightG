@@ -109,8 +109,7 @@ private:
             rtx_object.instance->update_bounds();
             m_quadtree.add_child(rtx_object.instance);
         });
-        m_quadtree.devide();
-        m_quadtree.fill_bounds();
+        m_quadtree.devide(true);
 
         // Get main camera
         Camera3d* t_main_camera;
