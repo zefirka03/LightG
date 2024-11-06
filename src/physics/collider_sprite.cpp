@@ -41,7 +41,19 @@ void SpriteCollider::ray_intersect(Ray const& ray, rayIntersection& out) const {
 	float t = glm::dot(n, m_transform_handler->position - ray.origin) / glm::dot(n, ray.direction);
 	glm::vec3 intersection_point = ray.origin + t * ray.direction;
 
-	if(t <= ray.length && m_bbox.contains(intersection_point)){
+	if(t > ray.length || t < 0)
+        return;
+
+	glm::vec3 diff = intersection_point - m_transform_handler->position;
+	float x_proj = glm::dot(glm::vec3(cos(m_transform_handler->rotation.y), 0, sin(m_transform_handler->rotation.y)), diff);
+	float y_proj = glm::dot(glm::vec3(0, 1, 0), diff);
+
+	if(
+		x_proj < size.x - origin.x && 
+		x_proj > -origin.x &&
+		y_proj < size.y - origin.y && 
+		y_proj > -origin.y
+	){
 		out.points.emplace_back(
 			true,
 			intersection_point,

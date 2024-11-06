@@ -238,6 +238,9 @@ public:
 
             static_cast<SpriteCollider*>(sp_pb.get_collider())->size = glm::vec2(sp_sp.size);
             static_cast<SpriteCollider*>(sp_pb.get_collider())->origin = glm::vec2(sp_sp.size.x / 2.f, 0);
+
+            auto& rtx_draw = add_component<RTX_Object>(plane2);
+            rtx_draw.instance = new RTX_Sprite(sp_tr.position, sp_tr.origin, sp_sp.size, sp_tr.rotation.y);
         }
 
         {

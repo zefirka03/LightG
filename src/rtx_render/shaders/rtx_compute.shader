@@ -60,6 +60,14 @@ struct Plane {
     float rotation;
 };
 
+struct Sprite {
+    vec3 position;
+    vec3 origin;
+    vec2 size;
+
+    float rotation;
+};
+
 layout(std430, binding = 1) buffer Childs {
     Child childs[];
 };
@@ -189,8 +197,7 @@ bool intersect_sphere(Ray ray, Sphere sphere, inout float t){
 bool intersect_plane(Ray ray, Plane plane, inout float t){
     vec3 n = vec3(0, 1, 0);
 	t = dot(n, plane.position - ray.origin) / dot(n, ray.direction);
-	if(t > ray.length) return false;
-    if(t < 0) return false;
+	if(t > ray.length || t < 0) return false;
 
 	vec3 intersection_point = ray.origin + t * ray.direction;
 
@@ -198,11 +205,55 @@ bool intersect_plane(Ray ray, Plane plane, inout float t){
 	float x_proj = dot(vec3(cos(plane.rotation), 0, sin(plane.rotation)), diff);
 	float z_proj = dot(vec3(sin(plane.rotation), 0, cos(plane.rotation)), diff);
 
-	if (x_proj < plane.size.x - plane.origin.x && x_proj > -plane.origin.x && z_proj < plane.size.y - plane.origin.y && z_proj > -plane.origin.y) {
+	if (
+        x_proj < plane.size.x - plane.origin.x && 
+        x_proj > -plane.origin.x && 
+        z_proj < plane.size.y - plane.origin.y && 
+        z_proj > -plane.origin.y
+    ) {
 		return true;
 	}
 
 	return false;
+}
+
+bool intersect_sprite(Ray ray, Sprite sprite, inout float t){
+    vec3 n = vec3(sin(sprite.rotation), 0, cos(sprite.rotation));
+	t = dot(n, sprite.position - ray.origin) / dot(n, ray.direction);
+
+    if(t < 0)
+        return false;
+
+	vec3 intersection_point = ray.origin + t * ray.direction;
+
+    //boundingBox m_bbox;
+    //m_bbox.a = sprite.position + vec3(
+	//		(-sprite.origin.x) * cos(sprite.rotation),
+	//		-sprite.origin.y,
+	//		(-sprite.origin.x) * sin(sprite.rotation)
+	//	);
+//
+    //    m_bbox.a -= vec3(0.01);
+    //m_bbox.b = sprite.position + vec3(
+	//		(sprite.size.x - sprite.origin.x) * cos(sprite.rotation),
+	//		sprite.size.y - sprite.origin.y,
+	//		(sprite.size.x - sprite.origin.x) * sin(sprite.rotation)
+	//	);
+    //    m_bbox.b += vec3(0.01);
+
+    vec3 diff = intersection_point - sprite.position;
+	float x_proj = dot(vec3(cos(sprite.rotation), 0, sin(sprite.rotation)), diff);
+	float y_proj = dot(vec3(0, 1, 0), diff);
+
+	if (
+        x_proj < sprite.size.x - sprite.origin.x && 
+        x_proj > -sprite.origin.x && 
+        y_proj < sprite.size.y - sprite.origin.y && 
+        y_proj > -sprite.origin.y
+    ) {
+		return true;
+	}
+    return false;
 }
 
 void rayTraversal(Ray ray, inout vec4 o_color, inout float o_t) {
@@ -210,7 +261,7 @@ void rayTraversal(Ray ray, inout vec4 o_color, inout float o_t) {
     o_t = 1.0 / 0.0;
     o_color = vec4(0);
     int maxIterations = 256;
-    float d = 0.01;
+    float d = 0.02;
     float current_t = 0;
 
     int node_it = 0;
@@ -275,6 +326,25 @@ void rayTraversal(Ray ray, inout vec4 o_color, inout float o_t) {
                         intersected = true;
                         o_t = min(o_t, current_t + t);
                     }
+                } else if(child.object_type == 2) {
+                    Sprite sprite;
+                    sprite.position.x    = intBitsToFloat(child.data[0]);
+                    sprite.position.y    = intBitsToFloat(child.data[1]);
+                    sprite.position.z    = intBitsToFloat(child.data[2]);
+
+                    sprite.origin.x      = intBitsToFloat(child.data[3]);
+                    sprite.origin.y      = intBitsToFloat(child.data[4]);
+                    sprite.origin.z      = intBitsToFloat(child.data[5]);
+
+                    sprite.size.x        = intBitsToFloat(child.data[6]);
+                    sprite.size.y        = intBitsToFloat(child.data[7]);
+
+                    sprite.rotation      = intBitsToFloat(child.data[8]);
+
+                    if(intersect_sprite(ray, sprite, t)){
+                        intersected = true;
+                        o_t = min(o_t, current_t + t);
+                    }
                 }
             }
             deep_states[deep] = node_it;
@@ -285,6 +355,7 @@ void rayTraversal(Ray ray, inout vec4 o_color, inout float o_t) {
                 break;
             node_it = get_pool_position_up(node_it);
             --deep;
+            d *= 2;
             continue;
         }
 
@@ -292,6 +363,7 @@ void rayTraversal(Ray ray, inout vec4 o_color, inout float o_t) {
         if(node.is_devided){
             node_it = get_down_index(node_it, ray.origin) + get_pool_position(node_it);
             ++deep;
+            d /= 2;
         } else{
             vec3 a = (node.bounds.a - ray.origin) / ray.direction;
             vec3 b = (node.bounds.b - ray.origin) / ray.direction;

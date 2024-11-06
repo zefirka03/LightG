@@ -47,7 +47,12 @@ void PlaneCollider::ray_intersect(Ray const& ray, rayIntersection& out) const {
 	float x_proj = glm::dot(glm::vec3(cos(m_transform_handler->rotation.y), 0, sin(m_transform_handler->rotation.y)), diff);
 	float z_proj = glm::dot(glm::vec3(sin(m_transform_handler->rotation.y), 0, cos(m_transform_handler->rotation.y)), diff);
 
-	if (x_proj < size.x - origin.x && x_proj > -origin.x && z_proj < size.y - origin.y && z_proj > -origin.y) {
+	if (
+		x_proj < size.x - origin.x && 
+		x_proj > -origin.x &&
+		z_proj < size.y - origin.y && 
+		z_proj > -origin.y
+	) {
 		out.points.emplace_back(
 			true,
 			intersection_point,
