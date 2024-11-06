@@ -3,6 +3,9 @@
 layout(local_size_x = 8, local_size_y = 8) in;
 layout(rgba32f, binding = 0) uniform image2D colorbuffer;
 
+#define PI 3.1415926535
+#define TWO_PI 2 * PI
+
 struct boundingBox {
     vec3 a;          // 12 байт
     float padding_1;  // 4 байта для выравнивания
@@ -249,13 +252,13 @@ bool intersect_sprite(Ray ray, Sprite sprite, inout float t, inout vec3 o_norm){
     return false;
 }
 
-void ray_traversal(Ray ray, inout float o_t, inout vec3 o_norm) {
-    bool intersected = false;
+void ray_traversal(Ray ray, inout bool o_intersected, inout float o_t, inout vec3 o_norm) {
     o_t = 1.0 / 0.0;
     o_norm = vec3(0);
+    o_intersected = false;
 
     int maxIterations = 256;
-    float d = 0.02;
+    float d = 0.1;
     float current_t = 0;
 
     int node_it = 0;
@@ -297,7 +300,7 @@ void ray_traversal(Ray ray, inout float o_t, inout vec3 o_norm) {
                     sphere.radius       = intBitsToFloat(child.data[3]);
 
                     if(intersect_sphere(ray, sphere, t, curr_norm)){
-                        intersected = true;
+                        o_intersected = true;
                         if(o_t > current_t + t){
                             o_t = current_t + t;
                             o_norm = curr_norm;
@@ -319,7 +322,7 @@ void ray_traversal(Ray ray, inout float o_t, inout vec3 o_norm) {
                     plane.rotation      = intBitsToFloat(child.data[8]);
 
                     if(intersect_plane(ray, plane, t, curr_norm)){
-                        intersected = true;
+                        o_intersected = true;
                         if(o_t > current_t + t){
                             o_t = current_t + t;
                             o_norm = curr_norm;
@@ -341,7 +344,7 @@ void ray_traversal(Ray ray, inout float o_t, inout vec3 o_norm) {
                     sprite.rotation      = intBitsToFloat(child.data[8]);
 
                     if(intersect_sprite(ray, sprite, t, curr_norm)){
-                        intersected = true;
+                        o_intersected = true;
                         if(o_t > current_t + t){
                             o_t = current_t + t;
                             o_norm = curr_norm;
@@ -384,6 +387,50 @@ void ray_traversal(Ray ray, inout float o_t, inout vec3 o_norm) {
     }
 }
 
+uint wang_hash(inout uint seed) {
+	seed = uint(seed ^ uint(61)) ^ uint(seed >> uint(16));
+	seed *= uint(9);
+	seed = seed ^ (seed >> 4);
+	seed *= uint(0x27d4eb2d);
+	seed = seed ^ (seed >> 15);
+	return seed;
+}
+
+float RandomFloat01(inout uint state) {
+	return float(wang_hash(state)) / 4294967296.0;
+}
+
+vec3 RandomUnitVector(inout uint state) {
+	float z = RandomFloat01(state) * 2.0f - 1.0f;
+	float a = RandomFloat01(state) * TWO_PI;
+	float r = sqrt(1.0f - z * z);
+	float x = r * cos(a);
+	float y = r * sin(a);
+	return vec3(x, y, z);
+}
+
+void color_compute(Ray ray, inout vec4 o_color){
+    int samples = 8;
+
+    o_color = vec4(1);
+     ivec2 pixelPos = ivec2(gl_GlobalInvocationID.xy);
+    uint seed = uint(uint(pixelPos.x) * uint(1973) + uint(pixelPos.y) * uint(9277)) | uint(1);
+    for(int s = 0; s < samples; ++s){
+        bool intersected;
+        float t;
+        vec3 norm;
+        ray_traversal(ray, intersected, t, norm);
+
+        if(!intersected) break;
+
+        ray.origin += t * ray.direction + 0.01 * norm;
+        ray.direction = normalize(norm * 1.001 + RandomUnitVector(seed));
+        ray.length -= t;
+
+        o_color *= 0.8;
+    }
+}
+
 uniform Camera cam;
 
 void main() {
@@ -404,12 +451,8 @@ void main() {
     );
     r.length = 200000;
 
-    vec3 norm;
-    float t;
-    ray_traversal(r, t, norm);
-    imageStore(colorbuffer, pixelPos, vec4(norm, 0));
-    //float t;
-    //if(intersect(r, nodes[0].bounds, t))
-    //    imageStore(colorbuffer, pixelPos, vec4(1));
-    //else imageStore(colorbuffer, pixelPos, vec4(0));
+    vec4 o_col;
+    color_compute(r, o_col);
+
+    imageStore(colorbuffer, pixelPos, vec4(o_col));
 }

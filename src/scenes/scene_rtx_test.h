@@ -18,7 +18,7 @@ public:
         transform = &get_scene().add_component<Transform>(get_entity());
         auto& sp_sp = get_scene().add_component<Sprite>(get_entity());
         sp_sp.texture = get_scene().get_system<RenderingSystem>()->get_texture_manager().get_texture("china");
-        sp_sp.size = glm::vec2(100+(rand() % 100) / 100.f * 100);
+        sp_sp.size = glm::vec2(100+(rand() % 100) / 100.f * 1000);
         transform->origin = glm::vec3(sp_sp.size / 2.f, 0);
         auto& sp_pb = get_scene().add_component<PhysicsBody>(get_entity());
         sp_pb.type = PhysicsBody::pbType::RIGID;
@@ -178,7 +178,7 @@ public:
         physics = add_system<PhysicsSystem>();
         add_system<ScriptingSystem>();
         rendering = add_system<RenderingSystem>();
-        rtx_rendering=add_system<RenderRTXSystem>();
+        rtx_rendering = add_system<RenderRTXSystem>();
         debug = add_system<DebugSystem>();
 
         physics->set_tags(0, 0, false);
