@@ -20,17 +20,11 @@ file(GLOB_RECURSE SRC_FILES
     "src/*.h"
 )
 
-file(GLOB_RECURSE SHADERS
-    "src/render/*.shader"
-    "src/rtx_render/*.shader"
-    "src/debug/*.shader"
-)
-
 add_executable(game ${SRC_FILES})
 
 target_compile_definitions(glm PUBLIC GLM_ENABLE_EXPERIMENTAL)
 target_link_libraries(game PRIVATE ${DEPS_LIBRARIES})
 target_include_directories(game PRIVATE ${DEPS_INCLUDE_DIRECTORIES})
 
-file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/shaders")
-file(COPY ${SHADERS} DESTINATION "${CMAKE_BINARY_DIR}/shaders")
+file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/shaders")
+file(COPY ${SHADERS} DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/shaders")

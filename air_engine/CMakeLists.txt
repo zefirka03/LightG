@@ -43,6 +43,7 @@ file(GLOB_RECURSE SHADERS
     "src/rtx_render/*.shader"
     "src/debug/*.shader"
 )
+set(SHADERS ${SHADERS} PARENT_SCOPE)
 
 add_library(air STATIC ${SRC_FILES})
 
