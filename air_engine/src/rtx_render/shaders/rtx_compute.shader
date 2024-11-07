@@ -237,7 +237,7 @@ bool intersect_sprite(Ray ray, Sprite sprite, inout float t, inout vec3 o_norm){
 	vec3 intersection_point = ray.origin + t * ray.direction;
 
     vec3 diff = intersection_point - sprite.position;
-	float x_proj = dot(vec3(cos(sprite.rotation), 0, sin(sprite.rotation)), diff);
+	float x_proj = dot(cross(n, vec3(0, 1, 0)), diff);
 	float y_proj = dot(vec3(0, 1, 0), diff);
 
 	if (

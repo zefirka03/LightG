@@ -49,7 +49,7 @@ void SpriteCollider::ray_intersect(Ray const& ray, rayIntersection& out) const {
         return;
 
 	glm::vec3 diff = intersection_point - m_transform_handler->position;
-	float x_proj = glm::dot(glm::vec3(cos(m_transform_handler->rotation.y), 0, sin(m_transform_handler->rotation.y)), diff);
+	float x_proj = glm::dot(glm::cross(n, glm::vec3(0,1,0)), diff);
 	float y_proj = glm::dot(glm::vec3(0, 1, 0), diff);
 
 	if(

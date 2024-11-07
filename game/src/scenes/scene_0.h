@@ -17,8 +17,8 @@ public:
     void start() override {
         transform = &get_scene().add_component<Transform>(get_entity());
         auto& sp_sp = get_scene().add_component<Sprite>(get_entity());
-        sp_sp.texture = get_scene().get_system<RenderingSystem>()->get_texture_manager().get_texture("china");
-        sp_sp.size = glm::vec2(100+(rand() % 100) / 100.f * 1000);
+        sp_sp.texture = get_scene().get_system<RenderingSystem>()->get_texture_manager().get_texture("exp");
+        sp_sp.size = glm::vec2(100+(rand() % 100) / 100.f * 100);
         transform->origin = glm::vec3(sp_sp.size / 2.f, 0);
         auto& sp_pb = get_scene().add_component<PhysicsBody>(get_entity());
         sp_pb.type = PhysicsBody::pbType::RIGID;
@@ -157,17 +157,17 @@ public:
     }
 };
 
-class SceneRtxTest : public Scene {
+class Scene_0 : public Scene {
 public:
-    Entity a;
     Entity canvas_camera;
     Entity cam;
     Entity plane;
-    Entity plane2;
     Entity canvas;
     float t = 0;
     float avg_fps = 0;
     int frame_count = 0;
+
+    float v_key = 0;
 
     DebugSystem* debug;
     PhysicsSystem* physics;
@@ -175,25 +175,29 @@ public:
     RenderRTXSystem* rtx_rendering;
 
     void on_init() override {
+        // Systems init
         physics = add_system<PhysicsSystem>();
         add_system<ScriptingSystem>();
         rendering = add_system<RenderingSystem>();
         rtx_rendering = add_system<RenderRTXSystem>();
         debug = add_system<DebugSystem>();
 
+        // Setup physics
         physics->set_tags(0, 0, false);
-        //physics->set_tags(1, 1, false);
-        //physics->set_tags(0, 1, false);
+
+        rtx_rendering->set_enabled(false);
 
         const GLubyte* version = glGetString(GL_VERSION);
         printf("OGL version supported by this platform: %s\n", version);
     }
 
     void on_start() override {
+        // Load textures
         auto& tex_man = rendering->get_texture_manager();
-        tex_man.load_texture("img/exp.png", "china");
-        tex_man.load_texture("img/tex_checker_1024.png", "stone");
+        tex_man.load_texture("img/exp.png", "exp");
+        tex_man.load_texture("img/tex_checker_1024.png", "default_1024");
 
+        // Create camera
         cam = create_entity();
         auto& cam_tr = add_component<Transform>(cam);
         cam_tr.position = glm::vec3(5000, 5000, 5000);
@@ -205,44 +209,50 @@ public:
         add_component<ScriptComponent>(cam).bind<CameraController>();
 
         {
-            plane = create_entity();
-            auto& sp_sp = add_component<Sprite>(plane);
-            sp_sp.texture = rendering->get_texture_manager().get_texture("stone");
-            auto& sp_tr = add_component<Transform>(plane);
-            auto& sp_pb = add_component<PhysicsBody>(plane);
-            sp_pb.tag = 0;
-            sp_sp.size = glm::vec2(200000);
-            sp_tr.origin = glm::vec3(sp_sp.size / 2.f, 0);
-            sp_tr.rotation.x = glm::half_pi<float>();
-            sp_pb.set_collider<PlaneCollider>();
+            for (int x = 0; x < 10; ++x) {
+                for (int z = 0; z < 10; ++z) {
+                    plane = create_entity();
+                    auto& sp_sp = add_component<Sprite>(plane);
+                    sp_sp.texture = rendering->get_texture_manager().get_texture("default_1024");
+                    auto& sp_tr = add_component<Transform>(plane);
+                    auto& sp_pb = add_component<PhysicsBody>(plane);
+                    sp_pb.tag = 0;
+                    sp_sp.size = glm::vec2(10000);
+                    sp_tr.origin = glm::vec3(sp_sp.size / 2.f, 0);
+                    sp_tr.rotation.x = glm::half_pi<float>();
+                    sp_tr.position = glm::vec3(sp_sp.size.x * x, 0, sp_sp.size.y * z);
+                    sp_pb.set_collider<PlaneCollider>();
 
-            static_cast<PlaneCollider*>(sp_pb.get_collider())->size = glm::vec2(sp_sp.size);
-            static_cast<PlaneCollider*>(sp_pb.get_collider())->origin = glm::vec2(sp_sp.size / 2.f);
+                    static_cast<PlaneCollider*>(sp_pb.get_collider())->size = glm::vec2(sp_sp.size);
+                    static_cast<PlaneCollider*>(sp_pb.get_collider())->origin = glm::vec2(sp_sp.size / 2.f);
 
-            auto& rtx_draw = add_component<RTX_Object>(plane);
-            rtx_draw.instance = new RTX_Plane(sp_tr.position, sp_tr.origin, sp_sp.size, 0);
+                    auto& rtx_draw = add_component<RTX_Object>(plane);
+                    rtx_draw.instance = new RTX_Plane(sp_tr.position, sp_tr.origin, sp_sp.size, 0);
+                }
+            }
+            for (int x = 0; x < 10; ++x) {
+                for (int z = 0; z < 10; ++z) {
+                    plane = create_entity();
+                    auto& sp_sp = add_component<Sprite>(plane);
+                    sp_sp.texture = rendering->get_texture_manager().get_texture("default_1024");
+                    auto& sp_tr = add_component<Transform>(plane);
+                    auto& sp_pb = add_component<PhysicsBody>(plane);
+                    sp_sp.size = glm::vec2(1000, 2000);
+                    sp_tr.origin = glm::vec3(sp_sp.size.x / 2.f, 0, 0);
+                    sp_tr.position = glm::vec3(rand() % 100 * 1000, 0, rand() % 100 * 1000);
+                    sp_tr.rotation.y = (rand() % 1000) / 1000.f * glm::pi<float>();
+                    sp_pb.tag = 0;
+                    sp_pb.set_collider<SpriteCollider>();
+                    //add_component<ScriptComponent>(plane2).bind<CollisionChecker>();
+
+                    static_cast<SpriteCollider*>(sp_pb.get_collider())->size = glm::vec2(sp_sp.size);
+                    static_cast<SpriteCollider*>(sp_pb.get_collider())->origin = glm::vec2(sp_sp.size.x / 2.f, 0);
+
+                    auto& rtx_draw = add_component<RTX_Object>(plane);
+                    rtx_draw.instance = new RTX_Sprite(sp_tr.position, sp_tr.origin, sp_sp.size, sp_tr.rotation.y);
+                }
+            }
         }
-        {
-            plane2 = create_entity();
-            auto& sp_sp = add_component<Sprite>(plane2);
-            sp_sp.texture = rendering->get_texture_manager().get_texture("stone");
-            auto& sp_tr = add_component<Transform>(plane2);
-            auto& sp_pb = add_component<PhysicsBody>(plane2);
-            sp_sp.size = glm::vec2(12000, 6000);
-            sp_tr.origin = glm::vec3(sp_sp.size.x / 2.f, 0, 0);
-            sp_tr.position = glm::vec3(6000, 0, 0);
-            sp_tr.rotation.y = glm::half_pi<float>();
-            sp_pb.tag = 0;
-            sp_pb.set_collider<SpriteCollider>();
-            //add_component<ScriptComponent>(plane2).bind<CollisionChecker>();
-
-            static_cast<SpriteCollider*>(sp_pb.get_collider())->size = glm::vec2(sp_sp.size);
-            static_cast<SpriteCollider*>(sp_pb.get_collider())->origin = glm::vec2(sp_sp.size.x / 2.f, 0);
-
-            auto& rtx_draw = add_component<RTX_Object>(plane2);
-            rtx_draw.instance = new RTX_Sprite(sp_tr.position, sp_tr.origin, sp_sp.size, sp_tr.rotation.y);
-        }
-
         {
             canvas_camera = create_entity();
             add_component<Camera3d>(canvas_camera, new Ortho(width, height), false);
@@ -251,31 +261,22 @@ public:
             canvas = create_entity();
             auto& canvas_canvas = add_component<RTX_Canvas>(canvas);
             auto& canvas_transform = add_component<Transform>(canvas);
-            canvas_transform.position = glm::vec3(-640, 0, 1);
+            canvas_transform.position = glm::vec3(-width, 0, 1);
             canvas_canvas.camera = &get_component<Camera3d>(canvas_camera);
-            canvas_canvas.size = glm::vec2(640, 360);
+            canvas_canvas.size = glm::vec2(width, height);
         }
     }
 
     void on_update(float delta_time) override {
-
-        // Draw coordinates
-        debug->draw_line({
-            {glm::vec3(0,0,0), glm::vec4(1,0,0,1)},
-            {glm::vec3(100,0,0), glm::vec4(1,0,0,1)}
-        });
-        debug->draw_line({
-            {glm::vec3(0,0,0), glm::vec4(0,1,0,1)},
-            {glm::vec3(0,100,0), glm::vec4(0,1,0,1)}
-        });
-        debug->draw_line({
-            {glm::vec3(0,0,0), glm::vec4(0,0,1,1)},
-            {glm::vec3(0,0,100), glm::vec4(0,0,1,1)}
-        });
-
         // Draw physics debug
-        //physics->draw_debug(*debug);
-        rtx_rendering->draw_debug(*debug);
+        physics->draw_debug(*debug);
+        //rtx_rendering->draw_debug(*debug);
+
+        if (Input::is_key_pressed(Key::V) && v_key > 0.5) {
+            rtx_rendering->set_enabled(!rtx_rendering->is_enabled());
+            v_key = 0;
+        }
+        v_key += delta_time;
 
         // Avrg fps
         avg_fps = (avg_fps * frame_count + (1.f / delta_time)) / (frame_count+1);
