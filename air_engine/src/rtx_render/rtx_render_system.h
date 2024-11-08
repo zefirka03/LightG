@@ -58,6 +58,14 @@ public:
         m_quadtree.draw_debug(debug_system, glm::vec4(0.9,0.1,0.1,1));
     }
 
+    void set_enabled(bool enabled = true) {
+        m_enabled = enabled;
+    }
+
+    inline bool is_enabled() const {
+        return m_enabled;
+    }
+
 private:
     Renderer<vertex> m_renderer;
     ComputeShader m_compute_shader;
@@ -68,6 +76,8 @@ private:
 
     std::vector<RTX_FullChildsPack> m_packed_rtx_objects;
     std::vector<shaderNode> m_packed_nodes;
+
+    bool m_enabled = true;
 
     void init() override {
         m_renderer.reserve({
@@ -88,6 +98,8 @@ private:
     }
     
     void update(float delta_time) override {
+        if (!m_enabled) return;
+
         // Draw and get canvas
         RTX_Canvas* t_canvas = nullptr;
         auto view_canvas = m_registry->view<Transform, RTX_Canvas>();

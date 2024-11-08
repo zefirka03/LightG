@@ -237,7 +237,7 @@ bool intersect_sprite(Ray ray, Sprite sprite, inout float t, inout vec3 o_norm){
 	vec3 intersection_point = ray.origin + t * ray.direction;
 
     vec3 diff = intersection_point - sprite.position;
-	float x_proj = dot(vec3(cos(sprite.rotation), 0, sin(sprite.rotation)), diff);
+	float x_proj = dot(cross(n, vec3(0, 1, 0)), diff);
 	float y_proj = dot(vec3(0, 1, 0), diff);
 
 	if (
@@ -252,13 +252,14 @@ bool intersect_sprite(Ray ray, Sprite sprite, inout float t, inout vec3 o_norm){
     return false;
 }
 
-void ray_traversal(Ray ray, inout bool o_intersected, inout float o_t, inout vec3 o_norm) {
+void ray_traversal(Ray ray, inout bool o_intersected, inout float o_t, inout vec3 o_norm, inout int o_iterations) {
     o_t = 1.0 / 0.0;
     o_norm = vec3(0);
     o_intersected = false;
+    o_iterations = 0;
 
-    int maxIterations = 256;
-    float d = 0.1;
+    int maxIterations = 128;
+    float d = 1;
     float current_t = 0;
 
     int node_it = 0;
@@ -279,7 +280,8 @@ void ray_traversal(Ray ray, inout bool o_intersected, inout float o_t, inout vec
         deep_states[i] = -1;
 
     while(maxIterations > 0) {
-        maxIterations--;
+        ++o_iterations;
+        --maxIterations;
         if(ray.length <= 0)
             break;
         Node node = nodes[node_it];
@@ -385,6 +387,7 @@ void ray_traversal(Ray ray, inout bool o_intersected, inout float o_t, inout vec
             current_t += tmax + d;
         }
     }
+
 }
 
 uint wang_hash(inout uint seed) {
@@ -423,6 +426,7 @@ void color_compute(Ray ray, inout vec4 o_color){
 
     o_color = vec4(0);
     ivec2 pixelPos = ivec2(gl_GlobalInvocationID.xy);
+    int heat_map = 0;
 
     for(int s = 0; s < samples; ++s){
         uint seed = uint(uint(pixelPos.x) * uint(1973) + uint(pixelPos.y) * uint(9277) + uint(s) * uint(26699)) | uint(1);
@@ -433,18 +437,22 @@ void color_compute(Ray ray, inout vec4 o_color){
             bool intersected;
             float t;
             vec3 norm;
-            ray_traversal(curr_ray, intersected, t, norm);
+            int iterations;
+
+            ray_traversal(curr_ray, intersected, t, norm, iterations);
+            heat_map += iterations;
 
             if(!intersected) break;
 
             curr_ray.origin += t * curr_ray.direction + 0.01 * norm;
-            curr_ray.direction = ray_diffuse(curr_ray.direction, norm, seed);
+            curr_ray.direction = ray_reflect(curr_ray.direction, norm);
             curr_ray.length -= t;
 
             curr_color *= 0.75;
         }
         o_color += curr_color;
     }
+    //o_color = vec4(heat_map/float(samples)/255.f, 0, 0, 1);
     o_color /= samples;
     o_color = sqrt(o_color);
 }

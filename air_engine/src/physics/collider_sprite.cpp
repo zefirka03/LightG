@@ -19,8 +19,11 @@ void SpriteCollider::check_collision(Collider* other, collisionData& out) {
 		return CollisionCheckers::is_collide(this, static_cast<SpriteCollider*>(other), out);
 	else if (other->cached_dynamic_cast<PlaneCollider>())
 		return CollisionCheckers::is_collide(this, static_cast<PlaneCollider*>(other), out);
-	else if (other->cached_dynamic_cast<SphereCollider>())
-		return CollisionCheckers::is_collide(static_cast<SphereCollider*>(other), this, out);
+	else if (other->cached_dynamic_cast<SphereCollider>()) {
+		CollisionCheckers::is_collide(static_cast<SphereCollider*>(other), this, out);
+		out.normal *= -1;
+		return;
+	}
 	return;
 }
 
@@ -49,7 +52,7 @@ void SpriteCollider::ray_intersect(Ray const& ray, rayIntersection& out) const {
         return;
 
 	glm::vec3 diff = intersection_point - m_transform_handler->position;
-	float x_proj = glm::dot(glm::vec3(cos(m_transform_handler->rotation.y), 0, sin(m_transform_handler->rotation.y)), diff);
+	float x_proj = glm::dot(glm::cross(n, glm::vec3(0,1,0)), diff);
 	float y_proj = glm::dot(glm::vec3(0, 1, 0), diff);
 
 	if(
