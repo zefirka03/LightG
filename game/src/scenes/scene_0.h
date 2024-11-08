@@ -18,7 +18,7 @@ public:
         transform = &get_scene().add_component<Transform>(get_entity());
         auto& sp_sp = get_scene().add_component<Sprite>(get_entity());
         sp_sp.texture = get_scene().get_system<RenderingSystem>()->get_texture_manager().get_texture("exp");
-        sp_sp.size = glm::vec2(100+(rand() % 100) / 100.f * 1000);
+        sp_sp.size = glm::vec2(100+(rand() % 100) / 100.f * 100);
         transform->origin = glm::vec3(sp_sp.size / 2.f, 0);
         auto& sp_pb = get_scene().add_component<PhysicsBody>(get_entity());
         sp_pb.type = PhysicsBody::pbType::RIGID;
@@ -185,7 +185,7 @@ public:
 
         // Setup physics
         physics->set_tags(0, 0, false);
-        physics->set_tags(1, 1, false);
+        //physics->set_tags(1, 1, false);
 
         rtx_rendering->set_enabled(false);
 
@@ -211,7 +211,7 @@ public:
         add_component<ScriptComponent>(cam).bind<CameraController>();
 
         {
-            for (int x = 0; x < 100; ++x) {
+            for (int x = 0; x < 10; ++x) {
                 for (int z = 0; z < 10; ++z) {
                     Entity plane11 = create_entity();
                     auto& sp_sp = add_component<Sprite>(plane11);
@@ -219,6 +219,7 @@ public:
                     auto& sp_tr = add_component<Transform>(plane11);
                     auto& sp_pb = add_component<PhysicsBody>(plane11);
                     sp_pb.tag = 0;
+                    sp_pb.friction = 0.9f;
                     sp_sp.size = glm::vec2(10000);
                     sp_tr.origin = glm::vec3(sp_sp.size / 2.f, 0);
                     sp_tr.rotation.x = glm::half_pi<float>();

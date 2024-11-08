@@ -241,16 +241,18 @@ private:
                             glm::vec3 norm = collision_data.normal;
                             glm::vec3 vel_diff = a_pb.velocity - b_pb.velocity;
 
+                            
+                            float friction_ratio = (a_pb.friction + b_pb.friction) / 2.f;
                             if (a_pb.type == PhysicsBody::pbType::RIGID) {
                                 float m_ratio;
                                 if (b_pb.type == PhysicsBody::pbType::SOLID)
                                     m_ratio = (1.0 + a_pb.bouncyness) / 2.0;
                                 else m_ratio = b_pb.m / (a_pb.m + b_pb.m);
 
-                                a_tr.position += norm * (collision_data.distanse + 0.01f);
+                                a_tr.position -= norm * (collision_data.distanse + 0.01f);
                                 a_pb.velocity = a_pb.velocity - 2.0f * m_ratio * glm::dot(vel_diff, norm) / glm::dot(norm, norm) * norm;
                                 if (b_pb.type == PhysicsBody::pbType::SOLID) {
-                                    a_pb.force += -a_pb.friction * glm::dot(a_pb.m_last_force, -norm) * glm::normalize(a_pb.velocity - glm::dot(a_pb.velocity, norm) * norm);
+                                    a_pb.force += -friction_ratio * glm::dot(a_pb.m_last_force, norm) * glm::normalize(a_pb.velocity - glm::dot(a_pb.velocity, norm) * norm);
                                 }
                             }
                             if (b_pb.type == PhysicsBody::pbType::RIGID) {
@@ -262,7 +264,7 @@ private:
                                 b_tr.position += norm * (collision_data.distanse + 0.01f);
                                 b_pb.velocity = b_pb.velocity - 2.0f * m_ratio * glm::dot(-vel_diff, -norm) / glm::dot(norm, norm) * (-norm);
                                 if (a_pb.type == PhysicsBody::pbType::SOLID) 
-                                    b_pb.force += -b_pb.friction * glm::dot(b_pb.m_last_force, -norm) * glm::normalize(b_pb.velocity - glm::dot(b_pb.velocity, norm) * norm);
+                                    b_pb.force += -friction_ratio * glm::dot(b_pb.m_last_force, norm) * glm::normalize(b_pb.velocity - glm::dot(b_pb.velocity, norm) * norm);
                             }
                         }
                     }

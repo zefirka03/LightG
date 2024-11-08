@@ -81,6 +81,10 @@ constexpr int check_collider_type() {
 		return 3;
 }
 
+/* 
+gets collisionData 
+normal should be from a to b
+*/
 struct CollisionCheckers {
 	static void is_collide(SpriteCollider* a, SpriteCollider* b, collisionData& out);
 	// Always false

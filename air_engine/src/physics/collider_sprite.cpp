@@ -19,8 +19,11 @@ void SpriteCollider::check_collision(Collider* other, collisionData& out) {
 		return CollisionCheckers::is_collide(this, static_cast<SpriteCollider*>(other), out);
 	else if (other->cached_dynamic_cast<PlaneCollider>())
 		return CollisionCheckers::is_collide(this, static_cast<PlaneCollider*>(other), out);
-	else if (other->cached_dynamic_cast<SphereCollider>())
-		return CollisionCheckers::is_collide(static_cast<SphereCollider*>(other), this, out);
+	else if (other->cached_dynamic_cast<SphereCollider>()) {
+		CollisionCheckers::is_collide(static_cast<SphereCollider*>(other), this, out);
+		out.normal *= -1;
+		return;
+	}
 	return;
 }
 
