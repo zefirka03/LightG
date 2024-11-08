@@ -264,7 +264,7 @@ private:
                                 b_tr.position += norm * (collision_data.distanse + 0.01f);
                                 b_pb.velocity = b_pb.velocity - 2.0f * m_ratio * glm::dot(-vel_diff, -norm) / glm::dot(norm, norm) * (-norm);
                                 if (a_pb.type == PhysicsBody::pbType::SOLID) 
-                                    b_pb.force += -friction_ratio * glm::dot(b_pb.m_last_force, norm) * glm::normalize(b_pb.velocity - glm::dot(b_pb.velocity, norm) * norm);
+                                    b_pb.force += -friction_ratio * glm::dot(b_pb.m_last_force, -norm) * glm::normalize(b_pb.velocity - glm::dot(b_pb.velocity, norm) * norm);
                             }
                         }
                     }
