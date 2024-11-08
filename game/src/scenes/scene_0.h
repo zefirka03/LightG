@@ -194,6 +194,9 @@ public:
     }
 
     void on_start() override {
+        objFile obj("assets/grass.obj");
+        obj.print();
+
         // Load textures
         auto& tex_man = rendering->get_texture_manager();
         tex_man.load_texture("img/exp.png", "exp");
