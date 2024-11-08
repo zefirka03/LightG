@@ -240,7 +240,6 @@ private:
 
                             glm::vec3 norm = collision_data.normal;
                             glm::vec3 vel_diff = a_pb.velocity - b_pb.velocity;
-
                             
                             float friction_ratio = (a_pb.friction + b_pb.friction) / 2.f;
                             if (a_pb.type == PhysicsBody::pbType::RIGID) {

@@ -233,14 +233,14 @@ public:
                     rtx_draw.instance = new RTX_Plane(sp_tr.position, sp_tr.origin, sp_sp.size, 0);
                 }
             }
-            for (int x = 0; x < 1; ++x) {
-                for (int z = 0; z < 1; ++z) {
+            for (int x = 0; x < 10; ++x) {
+                for (int z = 0; z < 10; ++z) {
                     Entity plane11 = create_entity();
                     auto& sp_sp = add_component<Sprite>(plane11);
                     sp_sp.texture = rendering->get_texture_manager().get_texture("default_1024");
                     auto& sp_tr = add_component<Transform>(plane11);
                     auto& sp_pb = add_component<PhysicsBody>(plane11);
-                    sp_sp.size = glm::vec2(1000, 2000);
+                    sp_sp.size = glm::vec2(3000, 3000);
                     sp_tr.origin = glm::vec3(sp_sp.size.x / 2.f, 0, 0);
                     sp_tr.position = glm::vec3(rand() % 100 * 1000, 0, rand() % 100 * 1000);
                     sp_tr.rotation.y = (rand() % 1000) / 1000.f * glm::pi<float>();
