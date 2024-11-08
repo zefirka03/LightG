@@ -258,7 +258,7 @@ void ray_traversal(Ray ray, inout bool o_intersected, inout float o_t, inout vec
     o_intersected = false;
 
     int maxIterations = 256;
-    float d = 0.1;
+    float d = 1;
     float current_t = 0;
 
     int node_it = 0;
@@ -438,7 +438,7 @@ void color_compute(Ray ray, inout vec4 o_color){
             if(!intersected) break;
 
             curr_ray.origin += t * curr_ray.direction + 0.01 * norm;
-            curr_ray.direction = ray_diffuse(curr_ray.direction, norm, seed);
+            curr_ray.direction = ray_reflect(curr_ray.direction, norm);
             curr_ray.length -= t;
 
             curr_color *= 0.75;

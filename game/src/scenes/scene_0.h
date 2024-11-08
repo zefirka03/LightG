@@ -18,7 +18,7 @@ public:
         transform = &get_scene().add_component<Transform>(get_entity());
         auto& sp_sp = get_scene().add_component<Sprite>(get_entity());
         sp_sp.texture = get_scene().get_system<RenderingSystem>()->get_texture_manager().get_texture("exp");
-        sp_sp.size = glm::vec2(100+(rand() % 100) / 100.f * 100);
+        sp_sp.size = glm::vec2(100+(rand() % 100) / 100.f * 1000);
         transform->origin = glm::vec3(sp_sp.size / 2.f, 0);
         auto& sp_pb = get_scene().add_component<PhysicsBody>(get_entity());
         sp_pb.type = PhysicsBody::pbType::RIGID;
@@ -28,7 +28,7 @@ public:
         auto& rtx_draw = get_scene().add_component<RTX_Object>(get_entity());
         rtx_draw.instance = new RTX_Sphere(sp_sp.size.x / 2);
 
-        sp_pb.friction = 0.99f;
+        sp_pb.friction = 0.9f;
         sp_pb.velocity = init_velocity;
         static_cast<SphereCollider*>(sp_pb.get_collider())->radius = sp_sp.size.x/2;
         sp_pb.tag = 1;
@@ -37,6 +37,7 @@ public:
     void update(float delta_time) override {
         t += delta_time * speed;
         get_scene().get_component<PhysicsBody>(get_entity()).apply_force(glm::vec3(0, -15.8, 0) * 200.f);
+        transform = &get_scene().get_component<Transform>(get_entity());
         
         transform->rotation = glm::vec3(0, t, 0);
         glm::vec3 forward_dir = glm::eulerAngleXYZ(transform->rotation.x, transform->rotation.y, transform->rotation.z) * glm::vec4(0, 0, -1, 1);
@@ -107,7 +108,7 @@ public:
 
         // Apply velocity
         glm::vec3 dir(0);
-        ;       if (Input::is_key_pressed(Key::D))
+        if (Input::is_key_pressed(Key::D))
             dir += right_dir;
         if (Input::is_key_pressed(Key::A))
             dir -= right_dir;
@@ -184,6 +185,7 @@ public:
 
         // Setup physics
         physics->set_tags(0, 0, false);
+        physics->set_tags(1, 1, false);
 
         rtx_rendering->set_enabled(false);
 
@@ -209,13 +211,13 @@ public:
         add_component<ScriptComponent>(cam).bind<CameraController>();
 
         {
-            for (int x = 0; x < 10; ++x) {
+            for (int x = 0; x < 100; ++x) {
                 for (int z = 0; z < 10; ++z) {
-                    plane = create_entity();
-                    auto& sp_sp = add_component<Sprite>(plane);
+                    Entity plane11 = create_entity();
+                    auto& sp_sp = add_component<Sprite>(plane11);
                     sp_sp.texture = rendering->get_texture_manager().get_texture("default_1024");
-                    auto& sp_tr = add_component<Transform>(plane);
-                    auto& sp_pb = add_component<PhysicsBody>(plane);
+                    auto& sp_tr = add_component<Transform>(plane11);
+                    auto& sp_pb = add_component<PhysicsBody>(plane11);
                     sp_pb.tag = 0;
                     sp_sp.size = glm::vec2(10000);
                     sp_tr.origin = glm::vec3(sp_sp.size / 2.f, 0);
@@ -226,17 +228,17 @@ public:
                     static_cast<PlaneCollider*>(sp_pb.get_collider())->size = glm::vec2(sp_sp.size);
                     static_cast<PlaneCollider*>(sp_pb.get_collider())->origin = glm::vec2(sp_sp.size / 2.f);
 
-                    auto& rtx_draw = add_component<RTX_Object>(plane);
+                    auto& rtx_draw = add_component<RTX_Object>(plane11);
                     rtx_draw.instance = new RTX_Plane(sp_tr.position, sp_tr.origin, sp_sp.size, 0);
                 }
             }
-            for (int x = 0; x < 10; ++x) {
-                for (int z = 0; z < 10; ++z) {
-                    plane = create_entity();
-                    auto& sp_sp = add_component<Sprite>(plane);
+            for (int x = 0; x < 1; ++x) {
+                for (int z = 0; z < 1; ++z) {
+                    Entity plane11 = create_entity();
+                    auto& sp_sp = add_component<Sprite>(plane11);
                     sp_sp.texture = rendering->get_texture_manager().get_texture("default_1024");
-                    auto& sp_tr = add_component<Transform>(plane);
-                    auto& sp_pb = add_component<PhysicsBody>(plane);
+                    auto& sp_tr = add_component<Transform>(plane11);
+                    auto& sp_pb = add_component<PhysicsBody>(plane11);
                     sp_sp.size = glm::vec2(1000, 2000);
                     sp_tr.origin = glm::vec3(sp_sp.size.x / 2.f, 0, 0);
                     sp_tr.position = glm::vec3(rand() % 100 * 1000, 0, rand() % 100 * 1000);
@@ -248,7 +250,7 @@ public:
                     static_cast<SpriteCollider*>(sp_pb.get_collider())->size = glm::vec2(sp_sp.size);
                     static_cast<SpriteCollider*>(sp_pb.get_collider())->origin = glm::vec2(sp_sp.size.x / 2.f, 0);
 
-                    auto& rtx_draw = add_component<RTX_Object>(plane);
+                    auto& rtx_draw = add_component<RTX_Object>(plane11);
                     rtx_draw.instance = new RTX_Sprite(sp_tr.position, sp_tr.origin, sp_sp.size, sp_tr.rotation.y);
                 }
             }

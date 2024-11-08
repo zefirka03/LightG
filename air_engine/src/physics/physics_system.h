@@ -247,10 +247,11 @@ private:
                                     m_ratio = (1.0 + a_pb.bouncyness) / 2.0;
                                 else m_ratio = b_pb.m / (a_pb.m + b_pb.m);
 
-                                a_tr.position -= norm * (collision_data.distanse + 0.01f);
+                                a_tr.position += norm * (collision_data.distanse + 0.01f);
                                 a_pb.velocity = a_pb.velocity - 2.0f * m_ratio * glm::dot(vel_diff, norm) / glm::dot(norm, norm) * norm;
-                                if (b_pb.type == PhysicsBody::pbType::SOLID)
-                                    a_pb.force += -a_pb.friction * glm::dot(a_pb.m_last_force, norm) * glm::normalize(a_pb.velocity - glm::dot(a_pb.velocity, norm) * norm);
+                                if (b_pb.type == PhysicsBody::pbType::SOLID) {
+                                    a_pb.force += -a_pb.friction * glm::dot(a_pb.m_last_force, -norm) * glm::normalize(a_pb.velocity - glm::dot(a_pb.velocity, norm) * norm);
+                                }
                             }
                             if (b_pb.type == PhysicsBody::pbType::RIGID) {
                                 float m_ratio;
