@@ -44,7 +44,7 @@ void objFile::load_from_file(const char* path){
         } else if (prefix == "vn") {
             glm::vec3 vn;
             stream >> vn.x >> vn.y >> vn.z;
-            curr_data->vt.emplace_back(vn);
+            curr_data->vn.emplace_back(vn);
         } else if (prefix == "f") {
             objData::Face face;
 
@@ -84,7 +84,7 @@ void objFile::print() {
             printf("\bvt: %f %f\n", vt.x, vt.y);
 
         for(auto& vn : object.second.vn)
-            printf("\bvt: %f %f %f\n", vn.x, vn.y, vn.z);
+            printf("\bvn: %f %f %f\n", vn.x, vn.y, vn.z);
 
         for(auto& f : object.second.f){
             printf("-----\n");
