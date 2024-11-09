@@ -8,6 +8,8 @@
 #include <string_view>
 
 struct objData {
+    std::string name;
+
     struct Face {
         struct point{
             size_t v_i;

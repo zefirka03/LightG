@@ -33,6 +33,7 @@ void objFile::load_from_file(const char* path){
 
             m_objects[name] = objData();
             curr_data = &m_objects.at(name);
+            curr_data->name = name;
         } else if (prefix == "v") {
             glm::vec3 v;
             stream >> v.x >> v.y >> v.z;
@@ -76,7 +77,7 @@ void objFile::load_from_file(const char* path){
 
 void objFile::print() {
     for(auto& object : m_objects){
-        printf("Object: %s\n", object.first);
+        printf("Object: %s\n", object.second.name.c_str());
         for(auto& v : object.second.v)
             printf("\bv: %f %f %f\n", v.x, v.y, v.z);
 
