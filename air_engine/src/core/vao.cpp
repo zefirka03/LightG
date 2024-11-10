@@ -69,3 +69,9 @@ void VAO::draw(int count, int type, int first) {
 	glDrawArrays(type, first, count);
 	unbind();
 }
+
+void VAO::draw_instance(int count, int instance_count, int type, int first) {
+    bind();
+    glDrawArraysInstanced(type, first, count, instance_count);
+    unbind();
+}

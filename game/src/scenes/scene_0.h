@@ -1,5 +1,6 @@
 #pragma once
 #include "air_engine.h"
+#include "../grass_system/grass_system.h"
 
 class RotationSc : public Script {
 private:
@@ -182,6 +183,7 @@ public:
         rendering = add_system<RenderingSystem>();
         rtx_rendering = add_system<RenderRTXSystem>();
         debug = add_system<DebugSystem>();
+        add_system<GrassSystem>();
 
         // Setup physics
         physics->set_tags(0, 0, false);
@@ -194,9 +196,6 @@ public:
     }
 
     void on_start() override {
-        objFile obj("assets/grass.obj");
-        obj.print();
-
         // Load textures
         auto& tex_man = rendering->get_texture_manager();
         tex_man.load_texture("img/exp.png", "exp");
@@ -277,6 +276,20 @@ public:
         // Draw physics debug
         physics->draw_debug(*debug);
         //rtx_rendering->draw_debug(*debug);
+
+        // Draw coordinates
+        debug->draw_line({
+            {glm::vec3(0,0,0), glm::vec4(1,0,0,1)},
+            {glm::vec3(10000,0,0), glm::vec4(1,0,0,1)}
+            });
+        debug->draw_line({
+            {glm::vec3(0,0,0), glm::vec4(0,1,0,1)},
+            {glm::vec3(0,10000,0), glm::vec4(0,1,0,1)}
+            });
+        debug->draw_line({
+            {glm::vec3(0,0,0), glm::vec4(0,0,1,1)},
+            {glm::vec3(0,0,10000), glm::vec4(0,0,1,1)}
+            });
 
         if (Input::is_key_pressed(Key::V) && v_key > 0.5) {
             rtx_rendering->set_enabled(!rtx_rendering->is_enabled());

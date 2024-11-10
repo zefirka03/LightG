@@ -51,6 +51,11 @@ public:
         m_vertices_count = 0;
     }
     
+    void draw(std::vector<vertex_t> const& vertices) {
+        for (int i = 0; i < vertices.size(); ++i)
+            m_vertices[m_vertices_count++] = vertices[i];
+    }
+
     template<std::size_t size>
     void draw(std::array<vertex_t, size> const& vertices) {
         for (int i = 0; i < vertices.size(); ++i)
@@ -67,7 +72,15 @@ public:
 
         m_vao.redata(0, 0, m_vertices_count * sizeof(vertex_t), m_vertices.data());
         m_vao.draw(m_vertices_count, object_type);
-        m_vertices_count = 0;
+
+        m_shader.unuse();
+    }
+
+    void display_instances(int instance_count, int object_type = GL_TRIANGLES) {
+        m_shader.use();
+
+        m_vao.redata(0, 0, m_vertices_count * sizeof(vertex_t), m_vertices.data());
+        m_vao.draw_instance(m_vertices_count, instance_count, object_type);
 
         m_shader.unuse();
     }

@@ -262,15 +262,15 @@ public:
         // Draw coordinates
         debug->draw_line({
             {glm::vec3(0,0,0), glm::vec4(1,0,0,1)},
-            {glm::vec3(100,0,0), glm::vec4(1,0,0,1)}
+            {glm::vec3(1000,0,0), glm::vec4(1,0,0,1)}
         });
         debug->draw_line({
             {glm::vec3(0,0,0), glm::vec4(0,1,0,1)},
-            {glm::vec3(0,100,0), glm::vec4(0,1,0,1)}
+            {glm::vec3(0,1000,0), glm::vec4(0,1,0,1)}
         });
         debug->draw_line({
             {glm::vec3(0,0,0), glm::vec4(0,0,1,1)},
-            {glm::vec3(0,0,100), glm::vec4(0,0,1,1)}
+            {glm::vec3(0,0,1000), glm::vec4(0,0,1,1)}
         });
 
         // Draw physics debug

@@ -25,6 +25,8 @@ struct objData {
     std::vector<glm::vec3> vn;
     // faces {v_index, vt_index, vn_index}
     std::vector<Face> f;
+
+    std::vector<glm::vec3> get_v() const;
 };
 
 class objFile {
@@ -35,6 +37,7 @@ public:
 
     void load_from_file(const char* path);
     void print();
+    objData& operator[](std::string _name);
 private:
-    std::unordered_map<std::string_view, objData> m_objects;
+    std::unordered_map<std::string, objData> m_objects;
 };

@@ -1,5 +1,7 @@
 #include "shader.h"
 
+#define AIR_DEBUG 1
+
 Shader::Shader() {
 	m_inited = false;
 }

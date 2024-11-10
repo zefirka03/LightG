@@ -90,8 +90,12 @@ void objFile::print() {
         for(auto& f : object.second.f){
             printf("-----\n");
             for(int p = 0; p < 3; ++p)
-                printf("f: %d %d %d\n", f.point[p].v_i, f.point[p].vt_i, f.point[p].vn_i);
+                printf("f: %ld %ld %ld\n", f.point[p].v_i, f.point[p].vt_i, f.point[p].vn_i);
             printf("-----\n");
         }
     }
+}
+
+objData& objFile::operator[](std::string _name){
+    return m_objects[_name];
 }
