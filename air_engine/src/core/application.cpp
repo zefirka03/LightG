@@ -2,7 +2,7 @@
 
 Application* Application::m_instance = nullptr;
 
-Application::Application(int width, int height, const char* title){
+Application::Application(int width, int height, const char* title, bool fullscreen){
     m_scene = nullptr;
 
     AIR_ASSERT(!m_instance, "Application instance already exist");
@@ -14,7 +14,10 @@ Application::Application(int width, int height, const char* title){
     glfwWindowHint(GLFW_SAMPLES, 8);
     glEnable(GL_MULTISAMPLE);
 
-    m_window = glfwCreateWindow(width, height, title, NULL, NULL);
+    if(!fullscreen)
+        m_window = glfwCreateWindow(width, height, title, NULL, NULL);
+    else
+        m_window = glfwCreateWindow(width, height, title, glfwGetPrimaryMonitor(), NULL);
     glfwMakeContextCurrent(m_window);
 
     success = glewInit() == GLEW_OK;
@@ -24,7 +27,7 @@ Application::Application(int width, int height, const char* title){
     m_properties.height = height;
     m_properties.title = title;
 
-    glfwSwapInterval(0);
+    glfwSwapInterval(1);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_ALPHA_TEST);
 

@@ -253,7 +253,7 @@ public:
 
     void on_update(float delta_time) override {
         // Draw physics debug
-        physics->draw_debug(*debug);
+        //physics->draw_debug(*debug);
         //rtx_rendering->draw_debug(*debug);
 
         // Draw coordinates

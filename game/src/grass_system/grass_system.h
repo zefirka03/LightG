@@ -34,8 +34,8 @@ private:
         m_grass_obj.load_from_file("assets/grass.obj");
         m_renderer.draw(m_grass_obj["Plane"].get_v());
 
-        for (int x = 0; x < 300; ++x) {
-            for (int z = 0; z < 300; ++z) {
+        for (int x = 0; x < 400; ++x) {
+            for (int z = 0; z < 400; ++z) {
                 m_positions_data.emplace_back(((rand() % 10000) / 10000.f) * 25000.f, 0, ((rand() % 10000) / 10000.f) * 25000.f);
             }
         }
