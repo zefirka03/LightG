@@ -22,6 +22,7 @@ private:
     objFile m_grass_obj;
     GLuint m_positions_ssbo;
     std::vector<grassData> m_positions_data;
+    float m_time = 0;
 
     void init() override {
         m_renderer.reserve({
@@ -33,9 +34,9 @@ private:
         m_grass_obj.load_from_file("assets/grass.obj");
         m_renderer.draw(m_grass_obj["Plane"].get_v());
 
-        for (int x = 0; x < 50; ++x) {
-            for (int z = 0; z < 50; ++z) {
-                m_positions_data.emplace_back(float(x) * 100, 0, float(z) * 100);
+        for (int x = 0; x < 700; ++x) {
+            for (int z = 0; z < 700; ++z) {
+                m_positions_data.emplace_back((rand() % 500000 / 500000.f) * 500000.f, 0, (rand() % 500000 / 500000.f) * 500000.f);
             }
         }
 
@@ -51,6 +52,7 @@ private:
         });
 
         m_renderer.get_shader().set_matrix4f(t_main_camera->get_projection() * t_main_camera->get_view(), "camera");
+        m_renderer.get_shader().set_float(m_time, "time");
 
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_positions_ssbo);
         glBufferData(GL_SHADER_STORAGE_BUFFER, m_positions_data.size() * sizeof(grassData), m_positions_data.data(), GL_STATIC_DRAW);
@@ -58,5 +60,7 @@ private:
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
         m_renderer.display_instances(m_positions_data.size());
+
+        m_time += delta_time;
     }
 };

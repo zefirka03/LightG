@@ -11,6 +11,10 @@ Application::Application(int width, int height, const char* title){
     int success = glfwInit();
     AIR_ASSERT(glfwInit(), "GLFW not inited");
 
+
+    glfwWindowHint(GLFW_SAMPLES, 8);
+    glEnable(GL_MULTISAMPLE);
+
     m_window = glfwCreateWindow(width, height, title, NULL, NULL);
     glfwMakeContextCurrent(m_window);
 

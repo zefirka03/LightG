@@ -19,7 +19,7 @@ public:
         transform = &get_scene().add_component<Transform>(get_entity());
         auto& sp_sp = get_scene().add_component<Sprite>(get_entity());
         sp_sp.texture = get_scene().get_system<RenderingSystem>()->get_texture_manager().get_texture("exp");
-        sp_sp.size = glm::vec2(100+(rand() % 100) / 100.f * 100);
+        sp_sp.size = glm::vec2(100+(rand() % 100) / 100.f * 1000);
         transform->origin = glm::vec3(sp_sp.size / 2.f, 0);
         auto& sp_pb = get_scene().add_component<PhysicsBody>(get_entity());
         sp_pb.type = PhysicsBody::pbType::RIGID;
@@ -274,7 +274,7 @@ public:
 
     void on_update(float delta_time) override {
         // Draw physics debug
-        physics->draw_debug(*debug);
+        //physics->draw_debug(*debug);
         //rtx_rendering->draw_debug(*debug);
 
         // Draw coordinates
