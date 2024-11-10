@@ -200,6 +200,7 @@ public:
         auto& tex_man = rendering->get_texture_manager();
         tex_man.load_texture("img/exp.png", "exp");
         tex_man.load_texture("img/tex_checker_1024.png", "default_1024");
+        tex_man.load_texture("img/grass_color.png", "grass_color");
 
         // Create camera
         cam = create_entity();
@@ -213,48 +214,26 @@ public:
         add_component<ScriptComponent>(cam).bind<CameraController>();
 
         {
-            for (int x = 0; x < 10; ++x) {
-                for (int z = 0; z < 10; ++z) {
+            for (int x = 0; x < 5; ++x) {
+                for (int z = 0; z < 5; ++z) {
                     Entity plane11 = create_entity();
                     auto& sp_sp = add_component<Sprite>(plane11);
-                    sp_sp.texture = rendering->get_texture_manager().get_texture("default_1024");
+                    sp_sp.texture = rendering->get_texture_manager().get_texture("grass_color");
                     auto& sp_tr = add_component<Transform>(plane11);
                     auto& sp_pb = add_component<PhysicsBody>(plane11);
                     sp_pb.tag = 0;
                     sp_pb.friction = 0.9f;
-                    sp_sp.size = glm::vec2(10000);
-                    sp_tr.origin = glm::vec3(sp_sp.size / 2.f, 0);
+                    sp_sp.size = glm::vec2(5000);
+                    sp_tr.origin = glm::vec3(0);
                     sp_tr.rotation.x = glm::half_pi<float>();
                     sp_tr.position = glm::vec3(sp_sp.size.x * x, 0, sp_sp.size.y * z);
                     sp_pb.set_collider<PlaneCollider>();
 
                     static_cast<PlaneCollider*>(sp_pb.get_collider())->size = glm::vec2(sp_sp.size);
-                    static_cast<PlaneCollider*>(sp_pb.get_collider())->origin = glm::vec2(sp_sp.size / 2.f);
+                    static_cast<PlaneCollider*>(sp_pb.get_collider())->origin = glm::vec2(0);
 
                     auto& rtx_draw = add_component<RTX_Object>(plane11);
                     rtx_draw.instance = new RTX_Plane(sp_tr.position, sp_tr.origin, sp_sp.size, 0);
-                }
-            }
-            for (int x = 0; x < 10; ++x) {
-                for (int z = 0; z < 10; ++z) {
-                    Entity plane11 = create_entity();
-                    auto& sp_sp = add_component<Sprite>(plane11);
-                    sp_sp.texture = rendering->get_texture_manager().get_texture("default_1024");
-                    auto& sp_tr = add_component<Transform>(plane11);
-                    auto& sp_pb = add_component<PhysicsBody>(plane11);
-                    sp_sp.size = glm::vec2(3000, 3000);
-                    sp_tr.origin = glm::vec3(sp_sp.size.x / 2.f, 0, 0);
-                    sp_tr.position = glm::vec3(rand() % 100 * 1000, 0, rand() % 100 * 1000);
-                    sp_tr.rotation.y = (rand() % 1000) / 1000.f * glm::pi<float>();
-                    sp_pb.tag = 0;
-                    sp_pb.set_collider<SpriteCollider>();
-                    //add_component<ScriptComponent>(plane2).bind<CollisionChecker>();
-
-                    static_cast<SpriteCollider*>(sp_pb.get_collider())->size = glm::vec2(sp_sp.size);
-                    static_cast<SpriteCollider*>(sp_pb.get_collider())->origin = glm::vec2(sp_sp.size.x / 2.f, 0);
-
-                    auto& rtx_draw = add_component<RTX_Object>(plane11);
-                    rtx_draw.instance = new RTX_Sprite(sp_tr.position, sp_tr.origin, sp_sp.size, sp_tr.rotation.y);
                 }
             }
         }
@@ -274,7 +253,7 @@ public:
 
     void on_update(float delta_time) override {
         // Draw physics debug
-        //physics->draw_debug(*debug);
+        physics->draw_debug(*debug);
         //rtx_rendering->draw_debug(*debug);
 
         // Draw coordinates

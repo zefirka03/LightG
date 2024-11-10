@@ -11,7 +11,6 @@ Application::Application(int width, int height, const char* title){
     int success = glfwInit();
     AIR_ASSERT(glfwInit(), "GLFW not inited");
 
-
     glfwWindowHint(GLFW_SAMPLES, 8);
     glEnable(GL_MULTISAMPLE);
 
@@ -41,6 +40,7 @@ void Application::run(Scene* scene){
     Timer timer_delta_time;
 
     go_to_scene(scene);
+    glClearColor(0.95, 0.95, 0.95, 1);
     while(!glfwWindowShouldClose(m_window)){
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glfwPollEvents();
