@@ -6,9 +6,6 @@
 #include "render/render_instances.h"
 #include "render/texture_manager.h"
 
-#include <unordered_map>
-#include <algorithm>
-
 struct grassData {
     glm::vec3 position;
     float _padding;

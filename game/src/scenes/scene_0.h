@@ -209,7 +209,7 @@ public:
 
         int width = Application::get_instance().get_properties().width;
         int height = Application::get_instance().get_properties().height;
-        add_component<Camera3d>(cam, new Perspective(width, height, 3.14f * 90.f / 180.f, 0.1, 100000), true);
+        add_component<Camera3d>(cam, new Perspective(width, height, 3.14f * 60.f / 180.f, 0.1, 100000), true);
 
         add_component<ScriptComponent>(cam).bind<CameraController>();
 
