@@ -35,7 +35,7 @@ private:
 
         m_instances.reserve(100000);
 
-        char default_texture[] = { 255,255,255,255 };
+        unsigned char default_texture[] = { 255,255,255,255 };
         m_texture_manager.load_texture_by_data(default_texture, { .size_x = 1, .size_y = 1 }, "_default");
     }
     

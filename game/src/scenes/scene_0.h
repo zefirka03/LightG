@@ -1,6 +1,7 @@
 #pragma once
 #include "air_engine.h"
 #include "../grass_system/grass_system.h"
+#include "../environment_system/environment_system.h"
 #include "../imgui_system/imgui_system.h"
 
 class RotationSc : public Script {
@@ -189,6 +190,7 @@ public:
         rtx_rendering = add_system<RenderRTXSystem>();
         debug = add_system<DebugSystem>();
         add_system<GrassSystem>();
+        add_system<EnvironmentSystem>();
         imgui_system = add_system<ImguiSystem>();
 
         // Setup physics
