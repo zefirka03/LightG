@@ -38,6 +38,11 @@ private:
         }
 
         glGenBuffers(1, &m_positions_ssbo);
+
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_positions_ssbo);
+        glBufferData(GL_SHADER_STORAGE_BUFFER, m_positions_data.size() * sizeof(grassData), m_positions_data.data(), GL_STATIC_DRAW);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_positions_ssbo);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
     }
     
     void update(float delta_time) override {
@@ -52,11 +57,8 @@ private:
         m_renderer.get_shader().set_float(m_time, "time");
 
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_positions_ssbo);
-        glBufferData(GL_SHADER_STORAGE_BUFFER, m_positions_data.size() * sizeof(grassData), m_positions_data.data(), GL_STATIC_DRAW);
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_positions_ssbo); 
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-
         m_renderer.display_instances(m_positions_data.size());
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
         m_time += delta_time;
     }

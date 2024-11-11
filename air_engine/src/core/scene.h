@@ -2,13 +2,17 @@
 #include "ecs.h"
 #include <typeindex>
 #include <unordered_map>
+#include <vector>
 
 struct _DestroyedEntityComponent : public Component {};
 
 class Scene{
 private:
 friend class Application;
-    std::unordered_map<std::type_index, System*> m_systems;
+    // to fast indexing
+    std::unordered_map<std::type_index, System*> m_systems_index;
+    // to keep right order
+    std::vector<System*> m_systems;
     entt::registry m_registry;
     
     void _update(float delta_time) {
@@ -17,7 +21,7 @@ friend class Application;
 
         // Call systems update
         for(auto& t_system : m_systems)
-            t_system.second->update(delta_time);
+            t_system->update(delta_time);
 
         // Delete destroyed entities
         m_registry.view<_DestroyedEntityComponent>().each([&](auto const entity, _DestroyedEntityComponent& dec) {
@@ -29,21 +33,21 @@ friend class Application;
         on_init();
 
         for (auto& t_system : m_systems)
-            t_system.second->init();
+            t_system->init();
     }
 
     void _start() {
         on_start();
 
         for (auto& t_system : m_systems)
-            t_system.second->start();
+            t_system->start();
     }
 
 public:
     Scene() = default;
     virtual ~Scene() {
         for(auto& t_system : m_systems)
-            delete t_system.second;
+            delete t_system;
     }
 
     Entity create_entity(){
@@ -61,15 +65,16 @@ public:
 
         System_t* t_system = new System_t(std::forward(args)...);
         t_system->m_registry = &m_registry;
-        m_systems.emplace(typeid(System_t), t_system);
+        m_systems_index.emplace(typeid(System_t), t_system);
+        m_systems.emplace_back(t_system);
         return t_system;
     }
 
     template<class System_t>
     System_t* get_system() {
-        auto iter = m_systems.find(typeid(System_t));
+        auto iter = m_systems_index.find(typeid(System_t));
 
-        if (iter != m_systems.end())
+        if (iter != m_systems_index.end())
             return dynamic_cast<System_t*>(iter->second);
         return nullptr;
     }

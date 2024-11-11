@@ -20,6 +20,14 @@ file(GLOB_RECURSE SRC_FILES
     "src/*.h"
 )
 
+if(AIR_IMGUI)
+    file(GLOB_RECURSE IMGUI_SRC_FILES
+        "imgui/*.cpp"
+    )
+    list(APPEND SRC_FILES ${IMGUI_SRC_FILES})
+    list(APPEND DEPS_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/imgui")
+endif()
+
 add_executable(game ${SRC_FILES})
 
 target_compile_definitions(glm PUBLIC GLM_ENABLE_EXPERIMENTAL)

@@ -27,7 +27,7 @@ Application::Application(int width, int height, const char* title, bool fullscre
     m_properties.height = height;
     m_properties.title = title;
 
-    glfwSwapInterval(1);
+    glfwSwapInterval(0);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_ALPHA_TEST);
 
