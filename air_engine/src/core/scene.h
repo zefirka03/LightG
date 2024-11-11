@@ -64,6 +64,7 @@ public:
         static_assert(std::is_base_of<System, System_t>::value, "System_t class must be derived by System");
 
         System_t* t_system = new System_t(std::forward(args)...);
+        static_cast<System*>(t_system)->m_scene = this;
         t_system->m_registry = &m_registry;
         m_systems_index.emplace(typeid(System_t), t_system);
         m_systems.emplace_back(t_system);

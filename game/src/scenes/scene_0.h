@@ -176,6 +176,7 @@ public:
     PhysicsSystem* physics;
     RenderingSystem* rendering;
     RenderRTXSystem* rtx_rendering;
+    ImguiSystem* imgui_system;
 
     void on_init() override {
         // Systems init
@@ -185,7 +186,7 @@ public:
         rtx_rendering = add_system<RenderRTXSystem>();
         debug = add_system<DebugSystem>();
         add_system<GrassSystem>();
-        add_system<ImguiSystem>();
+        imgui_system = add_system<ImguiSystem>();
 
         // Setup physics
         physics->set_tags(0, 0, false);
@@ -254,9 +255,11 @@ public:
     }
 
     void on_update(float delta_time) override {
-        // Draw physics debug
-        //physics->draw_debug(*debug);
-        //rtx_rendering->draw_debug(*debug);
+        // Draw debug
+        if(imgui_system->physics_draw_debug)
+            physics->draw_debug(*debug);
+        if (imgui_system->rtx_draw_debug)
+            rtx_rendering->draw_debug(*debug);
 
         // Draw coordinates
         debug->draw_line({

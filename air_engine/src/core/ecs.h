@@ -27,6 +27,7 @@ class System{
 protected:
 friend class Scene;
     entt::registry* m_registry;
+    Scene* m_scene;
 
     virtual void init() {}
     virtual void start() {}
