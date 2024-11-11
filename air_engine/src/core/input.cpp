@@ -14,6 +14,10 @@ void Input::set_cursor_mode(CursorMode mode) {
 	glfwSetInputMode(Application::get_instance().get_native_window(), GLFW_CURSOR, mode);
 }
 
+CursorMode Input::get_cursor_mode() {
+	return glfwGetInputMode(Application::get_instance().get_native_window(), GLFW_CURSOR);
+}
+
 glm::vec2 Input::get_mouse_position(){
 	double xpos, ypos;
 	glfwGetCursorPos(Application::get_instance().get_native_window(), &xpos, &ypos);

@@ -7,7 +7,7 @@
 class ImguiSystem : public System {
 public:
     bool physics_draw_debug = false;
-    bool rtx_draw_debug = false;
+    bool rtx_rendering = false;
 private:
     void init() override {
         IMGUI_CHECKVERSION();
@@ -34,11 +34,11 @@ private:
             static int counter = 0;
 
             ImGui::Begin("Stats");
+            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", delta_time, 1.f / delta_time);
 
             ImGui::Checkbox("Physics Debug", &physics_draw_debug);
-            ImGui::Checkbox("RTX Debug", &rtx_draw_debug);
+            ImGui::Checkbox("RT rendering", &rtx_rendering);
 
-            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", delta_time, 1.f / delta_time);
             ImGui::End();
         }
 

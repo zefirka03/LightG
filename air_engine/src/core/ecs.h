@@ -28,6 +28,8 @@ protected:
 friend class Scene;
     entt::registry* m_registry;
     Scene* m_scene;
+    
+    Scene* get_scene() { return m_scene; }
 
     virtual void init() {}
     virtual void start() {}

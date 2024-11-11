@@ -93,6 +93,15 @@ public:
     }
 
     void update(float delta_time) override {
+        // Hide/Show mouse cursor
+        if (Input::is_key_pressed(Key::Escape))
+            Input::set_cursor_mode(Cursor::normal);
+        if (Input::is_mouse_button_pressed(Mouse::Button0))
+            Input::set_cursor_mode(Cursor::disabled);
+
+        if (Input::get_cursor_mode() == Cursor::normal)
+            return;
+
         auto& entity_transform = get_scene().get_component<Transform>(get_entity());
         auto& entity_camera = get_scene().get_component<Camera3d>(get_entity());
 
@@ -151,12 +160,6 @@ public:
 
         entity_transform.position += dir * speed * delta_time;
         m_reload += delta_time;
-        
-        // Hide/Show mouse cursor
-        if (Input::is_key_pressed(Key::Escape))
-            Input::set_cursor_mode(Cursor::normal);
-        if (Input::is_mouse_button_pressed(Mouse::Button0))
-            Input::set_cursor_mode(Cursor::disabled);
     }
 };
 
@@ -258,8 +261,7 @@ public:
         // Draw debug
         if(imgui_system->physics_draw_debug)
             physics->draw_debug(*debug);
-        if (imgui_system->rtx_draw_debug)
-            rtx_rendering->draw_debug(*debug);
+        rtx_rendering->set_enabled(imgui_system->rtx_rendering);
 
         // Draw coordinates
         debug->draw_line({
@@ -274,12 +276,6 @@ public:
             {glm::vec3(0,0,0), glm::vec4(0,0,1,1)},
             {glm::vec3(0,0,10000), glm::vec4(0,0,1,1)}
             });
-
-        if (Input::is_key_pressed(Key::V) && v_key > 0.5) {
-            rtx_rendering->set_enabled(!rtx_rendering->is_enabled());
-            v_key = 0;
-        }
-        v_key += delta_time;
 
         // Avrg fps
         avg_fps = (avg_fps * frame_count + (1.f / delta_time)) / (frame_count+1);
