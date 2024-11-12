@@ -189,7 +189,7 @@ public:
         rendering = add_system<RenderingSystem>();
         rtx_rendering = add_system<RenderRTXSystem>();
         debug = add_system<DebugSystem>();
-        add_system<GrassSystem>();
+        //add_system<GrassSystem>();
         add_system<EnvironmentSystem>();
         imgui_system = add_system<ImguiSystem>();
 

@@ -12,6 +12,8 @@ public:
 private:
     TextureManager* TM;
 
+    bool m_env_open = false;
+
     void init() override {
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
@@ -44,12 +46,11 @@ private:
             ImGui::Checkbox("Physics Debug", &physics_draw_debug);
             ImGui::Checkbox("RT rendering", &rtx_rendering);
 
-            ImGui::NewLine();
-            ImGui::Text("Environment map");
             _load_heatmap();
-            ImGui::Image(TM->get_texture("heatmap")->id, ImVec2(256, 256));
+            ImGui::Image(TM->get_texture("heatmap")->id, ImVec2(512, 512));
                 
             ImGui::End();
+
         }
 
         ImGui::Render();
@@ -82,7 +83,7 @@ private:
             uc_map[2*i+0] = (env.map[i].x - map_min[0]) / (map_max[0]-map_min[0]) * 255;
             uc_map[2*i+1] = (env.map[i].z - map_min[1]) / (map_max[1]-map_min[1]) * 255;
         }
-        TM->load_texture_by_data(uc_map, { 256, 256, AIR_TEXTURE_RG, AIR_TEXTURE_RG }, "heatmap");
+        TM->load_texture_by_data(uc_map, { env.size, env.size, AIR_TEXTURE_RG, AIR_TEXTURE_RG }, "heatmap");
         delete[] uc_map;
     }
 };
