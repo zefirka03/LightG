@@ -20,6 +20,11 @@ file(GLOB_RECURSE SRC_FILES
     "src/*.h"
 )
 
+file(GLOB_RECURSE GAME_SHADERS
+    "src/grass_system/*.shader"
+    "src/environment_system/*.shader"
+)
+
 if(AIR_IMGUI)
     file(GLOB_RECURSE IMGUI_SRC_FILES
         "imgui/*.cpp"
@@ -35,4 +40,4 @@ target_link_libraries(game PRIVATE ${DEPS_LIBRARIES})
 target_include_directories(game PRIVATE ${DEPS_INCLUDE_DIRECTORIES})
 
 file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/shaders")
-file(COPY ${SHADERS} DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/shaders")
+file(COPY ${GAME_SHADERS} DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/shaders")

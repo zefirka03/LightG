@@ -57,6 +57,7 @@ private:
         m_renderer.get_shader().set_float(m_time, "time");
 
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_positions_ssbo);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_positions_ssbo);
         m_renderer.display_instances(m_positions_data.size());
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 

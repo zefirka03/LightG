@@ -27,7 +27,6 @@ private:
         ImGui_ImplOpenGL3_Init("#version 130");
 
         TM = &m_scene->get_system<RenderingSystem>()->get_texture_manager();
-        TM->load_texture_by_data(m_scene->get_system<EnvironmentSystem>()->map, { 256, 256, AIR_TEXTURE_RG, AIR_TEXTURE_RG }, "heatmap");
     }
     
     void update(float delta_time) override {
@@ -45,7 +44,9 @@ private:
             ImGui::Checkbox("Physics Debug", &physics_draw_debug);
             ImGui::Checkbox("RT rendering", &rtx_rendering);
 
-
+            ImGui::NewLine();
+            ImGui::Text("Environment map");
+            _load_heatmap();
             ImGui::Image(TM->get_texture("heatmap")->id, ImVec2(256, 256));
                 
             ImGui::End();
@@ -63,5 +64,25 @@ private:
             glfwMakeContextCurrent(backup_current_context);
         }
 
+    }
+
+    void _load_heatmap(){
+        auto& env = *m_scene->get_system<EnvironmentSystem>();
+        unsigned char* uc_map = new unsigned char[env.size*env.size*2];
+        float map_max[2] = {FLT_MIN, FLT_MIN};
+        float map_min[2] = {FLT_MAX, FLT_MAX};
+        for(int i=0; i<env.size*env.size; ++i){
+            map_max[0] = std::max(map_max[0], env.map[i].x);
+            map_max[1] = std::max(map_max[1], env.map[i].z);
+
+            map_min[0] = std::min(map_min[0], env.map[i].x);
+            map_min[1] = std::min(map_min[1], env.map[i].z);
+        }
+        for(int i=0; i<env.size*env.size; ++i){
+            uc_map[2*i+0] = (env.map[i].x - map_min[0]) / (map_max[0]-map_min[0]) * 255;
+            uc_map[2*i+1] = (env.map[i].z - map_min[1]) / (map_max[1]-map_min[1]) * 255;
+        }
+        TM->load_texture_by_data(uc_map, { 256, 256, AIR_TEXTURE_RG, AIR_TEXTURE_RG }, "heatmap");
+        delete[] uc_map;
     }
 };
