@@ -133,7 +133,7 @@ public:
             speed = 13500;
         else speed = 1000;
 
-        if (Input::is_mouse_button_pressed(Mouse::Button0) && m_reload > 0.01) {
+        if (Input::is_mouse_button_pressed(Mouse::Button0) && m_reload > 0.5) {
             std::vector<std::pair<PhysicsBody*, rayIntersection>> out;
             auto ray = Ray(
                 entity_transform.position,
@@ -155,10 +155,30 @@ public:
                         get_scene().get_component<Transform>(a).position = out[0].second.points[0].collision_point + norm * 250.f;
 
                     }*/
-                    int map_pos = int(out[0].second.points[0].collision_point.x / (25000 / 64.f)) * 64+ int(out[0].second.points[0].collision_point.z / (25000 / 64.f));
                     auto env = get_scene().get_system<EnvironmentSystem>();
-                    env->map[map_pos].p_x = 1000;
-                    env->map[map_pos].p_z = 1000;
+                    int x = int(out[0].second.points[0].collision_point.x / (25000.f / env->size));
+                    int y = int(out[0].second.points[0].collision_point.z / (25000.f / env->size));
+                    
+                    auto mp = env->get_map(x+1, y);
+                    if (mp) {
+                        mp->v_x = 150;
+                        mp->v_z = 0;
+                    }
+                    mp = env->get_map(x - 1, y);
+                    if (mp) {
+                        mp->v_x = -150;
+                        mp->v_z = 0;
+                    }
+                    mp = env->get_map(x, y+1);
+                    if (mp) {
+                        mp->v_x = 0;
+                        mp->v_z = 150;
+                    }
+                    mp = env->get_map(x, y-1);
+                    if (mp) {
+                        mp->v_x = 0;
+                        mp->v_z = -150;
+                    }
                 }
             }
             m_reload = 0;

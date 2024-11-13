@@ -10,9 +10,15 @@ struct envField {
 
 class EnvironmentSystem : public System {
 public:
-    int size = 64;
+    int size = 128;
     envField* map = nullptr;
     GLuint m_out_map_buffer;
+
+    envField* get_map(int x, int y) {
+        if (x < 0 || y < 0 || x >= size || y >= size) {
+            return nullptr;
+        } return &map[x * size + y];
+    }
 private:
     GLuint m_map_buffer;
     ComputeShader m_compute_shader;

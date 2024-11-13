@@ -4,6 +4,8 @@
 struct envField {
     vec2 v;
     vec2 p;
+    //float rho;
+    //float _padding[3];
 };
 
 struct grass{
@@ -21,9 +23,11 @@ layout (std430, binding = 1) buffer fieldBuffer {
   envField field[];
 };
 
+const int size = 128;
+
 //const vec2 windDirection = normalize(vec2(0.2, 0.5));
 vec3 grassPosition = grassPositions[gl_InstanceID].position;
-envField curr_filed = field[int(grassPosition.x / (25000.f / 64.f)) * 64 + int(grassPosition.z / (25000.f / 64.f))];
+envField curr_filed = field[int(grassPosition.x / (25000.f / float(size))) * size + int(grassPosition.z / (25000.f / float(size)))];
 const float windSpeed = 0.1;
 const float windDisplacement = 0.02;
 uniform float time;
