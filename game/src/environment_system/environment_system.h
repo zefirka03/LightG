@@ -2,18 +2,22 @@
 #include "core/core.h"
 
 struct envField {
-    float x = 0;
-    float z = 0;
+    float v_x = 0;
+    float v_z = 0;
+    float p_x = 0;
+    float p_z = 0;
 };
 
 class EnvironmentSystem : public System {
 public:
-    int size = 256;
+    int size = 64;
     envField* map = nullptr;
+    GLuint m_out_map_buffer;
 private:
     GLuint m_map_buffer;
-    GLuint m_out_map_buffer;
     ComputeShader m_compute_shader;
+    bool m_map_reading = false;
+    GLsync fence;
 
     float m_time = 0;
 
@@ -28,27 +32,32 @@ private:
 
         glGenBuffers(1, &m_out_map_buffer);
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_out_map_buffer);
-        glBufferStorage(GL_SHADER_STORAGE_BUFFER, size * size * sizeof(envField), map, GL_DYNAMIC_STORAGE_BIT);
+        glBufferStorage(GL_SHADER_STORAGE_BUFFER, size * size * sizeof(envField), map, GL_MAP_READ_BIT | GL_MAP_PERSISTENT_BIT);
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_out_map_buffer);
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_out_map_buffer);
 
         m_compute_shader.load_from_file("shaders/environment_solver.shader");
     }
     
     void update(float delta_time) override {
-        m_compute_shader.set_float(m_time, "time");
+        m_compute_shader.set_float(delta_time, "d_t");
         m_compute_shader.use();
 
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_map_buffer);
         glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, size * size * sizeof(envField), map);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_map_buffer);
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_out_map_buffer);
         glDispatchCompute((size + 15) / 16, (size + 15) / 16, 1);
-        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-
+        
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_out_map_buffer);
-        glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, size* size *sizeof(envField), map);
+        glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, size * size * sizeof(envField), map);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
         m_time += delta_time;
     }
+        
 };

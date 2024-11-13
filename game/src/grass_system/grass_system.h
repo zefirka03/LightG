@@ -5,6 +5,7 @@
 #include "render/camera_3d.h"
 #include "render/render_instances.h"
 #include "render/texture_manager.h"
+#include "../environment_system/environment_system.h"
 
 struct grassData {
     glm::vec3 position;
@@ -56,10 +57,11 @@ private:
         m_renderer.get_shader().set_matrix4f(t_main_camera->get_projection() * t_main_camera->get_view(), "camera");
         m_renderer.get_shader().set_float(m_time, "time");
 
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_positions_ssbo);
+        auto env = m_scene->get_system<EnvironmentSystem>();
+
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_positions_ssbo);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, env->m_out_map_buffer);
         m_renderer.display_instances(m_positions_data.size());
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
         m_time += delta_time;
     }

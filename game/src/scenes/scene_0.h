@@ -148,11 +148,17 @@ public:
             if(!out.empty()){
                 if(out[0].first->tag == 0){
                     glm::vec3 norm = out[0].second.points[0].normal;
+                    /*
                     for (int i = 0; i < 10; ++i) {
                         auto a = get_scene().create_entity();
                         get_scene().add_component<ScriptComponent>(a).bind<RotationSc>((1000 + (rand()%10000)/10000.f * 15000) * (glm::normalize(ray.direction - 2.f * norm * glm::dot(norm, ray.direction)) + ray.direction * glm::ballRand(0.5f)) );
                         get_scene().get_component<Transform>(a).position = out[0].second.points[0].collision_point + norm * 250.f;
-                    }
+
+                    }*/
+                    int map_pos = int(out[0].second.points[0].collision_point.x / (25000 / 64.f)) * 64+ int(out[0].second.points[0].collision_point.z / (25000 / 64.f));
+                    auto env = get_scene().get_system<EnvironmentSystem>();
+                    env->map[map_pos].p_x = 1000;
+                    env->map[map_pos].p_z = 1000;
                 }
             }
             m_reload = 0;
@@ -189,13 +195,13 @@ public:
         rendering = add_system<RenderingSystem>();
         rtx_rendering = add_system<RenderRTXSystem>();
         debug = add_system<DebugSystem>();
-        //add_system<GrassSystem>();
         add_system<EnvironmentSystem>();
+        add_system<GrassSystem>();
         imgui_system = add_system<ImguiSystem>();
 
         // Setup physics
         physics->set_tags(0, 0, false);
-        //physics->set_tags(1, 1, false);
+        physics->set_tags(1, 1, false);
 
         rtx_rendering->set_enabled(false);
 

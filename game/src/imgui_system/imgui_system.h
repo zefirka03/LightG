@@ -73,15 +73,15 @@ private:
         float map_max[2] = {FLT_MIN, FLT_MIN};
         float map_min[2] = {FLT_MAX, FLT_MAX};
         for(int i=0; i<env.size*env.size; ++i){
-            map_max[0] = std::max(map_max[0], env.map[i].x);
-            map_max[1] = std::max(map_max[1], env.map[i].z);
+            map_max[0] = std::max(map_max[0], env.map[i].v_x);
+            map_max[1] = std::max(map_max[1], env.map[i].v_z);
 
-            map_min[0] = std::min(map_min[0], env.map[i].x);
-            map_min[1] = std::min(map_min[1], env.map[i].z);
+            map_min[0] = std::min(map_min[0], env.map[i].v_x);
+            map_min[1] = std::min(map_min[1], env.map[i].v_z);
         }
         for(int i=0; i<env.size*env.size; ++i){
-            uc_map[2*i+0] = (env.map[i].x - map_min[0]) / (map_max[0]-map_min[0]) * 255;
-            uc_map[2*i+1] = (env.map[i].z - map_min[1]) / (map_max[1]-map_min[1]) * 255;
+            uc_map[2*i+0] = (env.map[i].v_x - map_min[0]) / (map_max[0]-map_min[0]) * 255;
+            uc_map[2*i+1] = (env.map[i].v_z - map_min[1]) / (map_max[1]-map_min[1]) * 255;
         }
         TM->load_texture_by_data(uc_map, { env.size, env.size, AIR_TEXTURE_RG, AIR_TEXTURE_RG }, "heatmap");
         delete[] uc_map;
