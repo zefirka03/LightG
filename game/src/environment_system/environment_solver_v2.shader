@@ -61,22 +61,43 @@ int IX(int i, int j){
     return i * size + j;
 }
 
-
-void diffuse(int i, int j, float dt, int iter){
-    vec2 disp = vec(i, j) - dt * u(i, j).v / (25000.f / float(size));
+void diffuse(int i, int j, float dt){
+    vec2 disp = vec2(i, j) - dt * u(i, j).v / (25000.f / float(size));
 
     ivec4 poses;
-    poses.x = floor(disp.x - 0.5); 
-    poses.y = floor(disp.y - 0.5);
+    poses.x = int(floor(disp.x - 0.5)); 
+    poses.y = int(floor(disp.y - 0.5));
     poses.zw = poses.xy + 1;
 
     vec2 t = disp - poses.xy;
-    out_map[IX(i, j)].v = mix(mix(u(poses.xy).v, u(poses.xz).v, t.x), mix(u(poses.yz).v, u(poses.wz).v, t.x), t.y);
+
+    float tex11 = u(poses.xy).density;
+    float tex21 = u(poses.zy).density;
+    float tex12 = u(poses.xw).density;
+    float tex22 = u(poses.zw).density;
+ 
+    out_map[IX(i, j)].density = mix(mix(tex11, tex21, t.x), mix(tex12, tex22, t.x), t.y);
+}
+
+vec2 jacobi(int i, int j, float alpha, float rBeta, vec2 curr_out) {
+    ivec2 coords = ivec2(i, j);
+    // left, right, bottom, and top x samples
+    vec2 vL = u(coords - ivec2(1, 0)).v;
+    vec2 vR = u(coords + ivec2(1, 0)).v;
+    vec2 vB = u(coords - ivec2(0, 1)).v;
+    vec2 vT = u(coords + ivec2(0, 1)).v;
+    // b sample, from center
+    vec2 bC = curr_out;
+    // evaluate Jacobi iteration
+    return (vL + vR + vB + vT + alpha * bC) * rBeta;
 }
 
 void main() {
     ivec2 pixelPos = ivec2(gl_GlobalInvocationID.xy);
 
-    diffuse(pixelPos.x, pixelPos.y, d_t, 4);
-
+    vec2 curr_out = 0;
+    for(int i=0; i<1; ++i){
+        curr_out = jacobi(pixelPos.x, pixelPos.y, d_h*d_h/d_t, 1 /(4+d_h*d_h/d_t), curr_out);
+    }
+    out_map[IX(pixelPos.x, pixelPos.y)].v = curr_out;
 }

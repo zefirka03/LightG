@@ -217,7 +217,7 @@ public:
         rtx_rendering = add_system<RenderRTXSystem>();
         debug = add_system<DebugSystem>();
         add_system<EnvironmentSystem>();
-        //add_system<GrassSystem>();
+        add_system<GrassSystem>();
         imgui_system = add_system<ImguiSystem>();
 
         // Setup physics
