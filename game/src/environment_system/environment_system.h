@@ -4,8 +4,8 @@
 struct envField {
     float v_x = 0;
     float v_z = 0;
-    float p_x = 0;
-    float p_z = 0;
+    float s = 0;
+    float density = 0;
 };
 
 class EnvironmentSystem : public System {
@@ -44,7 +44,7 @@ private:
 
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_out_map_buffer);
 
-        m_compute_shader.load_from_file("shaders/environment_solver.shader");
+        m_compute_shader.load_from_file("shaders/environment_solver_v2.shader");
     }
     
     void update(float delta_time) override {

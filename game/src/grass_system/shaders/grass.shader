@@ -3,9 +3,8 @@
 
 struct envField {
     vec2 v;
-    vec2 p;
-    //float rho;
-    //float _padding[3];
+    float s;
+    float density;
 };
 
 struct grass{
