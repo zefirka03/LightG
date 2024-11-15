@@ -159,7 +159,7 @@ public:
                     int x = int(out[0].second.points[0].collision_point.x / (25000.f / env->size));
                     int y = int(out[0].second.points[0].collision_point.z / (25000.f / env->size));
                     
-                    float power = 3000;
+                    float power = 30000;
                     auto mp = env->get_map(x+1, y);
                     if (mp) {
                         mp->v_x = power;
@@ -222,7 +222,7 @@ public:
 
         // Setup physics
         physics->set_tags(0, 0, false);
-        physics->set_tags(1, 1, false);
+        //physics->set_tags(1, 1, false);
 
         rtx_rendering->set_enabled(false);
 
