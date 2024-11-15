@@ -20,6 +20,7 @@ public:
 private:
     GLuint m_map_buffer;
     ComputeShader m_compute_shader;
+    ComputeShader m_cs_jacobi;
     bool m_map_reading = false;
     GLsync fence;
 
@@ -43,11 +44,12 @@ private:
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_out_map_buffer);
 
         m_compute_shader.load_from_file("shaders/environment_solver_v2.shader");
+        m_cs_jacobi.load_from_file("shaders/jacobi.shader");
     }
     
     void update(float delta_time) override {
-        m_compute_shader.set_float(delta_time, "d_t");
-        m_compute_shader.use();
+        m_cs_jacobi.set_float(delta_time, "d_t");
+        m_cs_jacobi.use();
 
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_map_buffer);
         glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, size * size * sizeof(envField), map);
@@ -55,7 +57,8 @@ private:
 
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_map_buffer);
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_out_map_buffer);
-        glDispatchCompute((size + 15) / 16, (size + 15) / 16, 1);
+        for(int i=0; i<8; ++i)
+            glDispatchCompute((size + 15) / 16, (size + 15) / 16, 1);
         
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_out_map_buffer);
         glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, size * size * sizeof(envField), map);

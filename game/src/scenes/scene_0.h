@@ -158,24 +158,28 @@ public:
                     auto env = get_scene().get_system<EnvironmentSystem>();
                     int x = int(out[0].second.points[0].collision_point.x / (25000.f / env->size));
                     int y = int(out[0].second.points[0].collision_point.z / (25000.f / env->size));
+
+                    printf("%d, %d\n", x, y);
                     
-                    float power = 30000;
-                    auto mp = env->get_map(x+1, y);
+                    float power = 3000;
+                    auto mp = env->get_map(x+2, y);
+                    int h = 0;
+
                     if (mp) {
                         mp->v_x = power;
                         mp->v_z = 0;
                     }
-                    mp = env->get_map(x - 1, y);
+                    mp = env->get_map(x - 2, y);
                     if (mp) {
                         mp->v_x = -power;
                         mp->v_z = 0;
                     }
-                    mp = env->get_map(x, y+1);
+                    mp = env->get_map(x, y+2);
                     if (mp) {
                         mp->v_x = 0;
                         mp->v_z = power;
                     }
-                    mp = env->get_map(x, y-1);
+                    mp = env->get_map(x, y-2);
                     if (mp) {
                         mp->v_x = 0;
                         mp->v_z = -power;

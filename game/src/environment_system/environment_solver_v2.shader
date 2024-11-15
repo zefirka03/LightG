@@ -19,7 +19,7 @@ uniform float d_t;
 const float d_h = 0.5;
 const float rho = 1;
 
-const float viscosity = 20;
+const float viscosity = 100;
 
 envField u(int i, int j){
     envField out_f;
@@ -99,7 +99,7 @@ void main() {
 
     float a = viscosity * d_t;
     vec2 curr_b = map[ix].v;
-    for(int i=0; i < 8; ++i){
+    for(int i=0; i < 2; ++i){
         out_map[ix].v = jacobi(
             pixelPos.x,
             pixelPos.y,
@@ -108,4 +108,5 @@ void main() {
         );
         barrier();
     }
+    //out_map[ix].v *= 1 - viscosity * d_t * 0.1;
 }
