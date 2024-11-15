@@ -133,7 +133,7 @@ public:
             speed = 13500;
         else speed = 1000;
 
-        if (Input::is_mouse_button_pressed(Mouse::Button0) && m_reload > 0.5) {
+        if (Input::is_mouse_button_pressed(Mouse::Button0) && m_reload > 0.05) {
             std::vector<std::pair<PhysicsBody*, rayIntersection>> out;
             auto ray = Ray(
                 entity_transform.position,
@@ -161,7 +161,7 @@ public:
 
                     printf("%d, %d\n", x, y);
                     
-                    float power = 3000;
+                    float power = 30000;
                     auto mp = env->get_map(x+2, y);
                     int h = 0;
 
@@ -222,7 +222,7 @@ public:
         debug = add_system<DebugSystem>();
         add_system<EnvironmentSystem>();
         add_system<GrassSystem>();
-        imgui_system = add_system<ImguiSystem>();
+        //imgui_system = add_system<ImguiSystem>();
 
         // Setup physics
         physics->set_tags(0, 0, false);
@@ -292,9 +292,9 @@ public:
 
     void on_update(float delta_time) override {
         // Draw debug
-        if(imgui_system->physics_draw_debug)
-            physics->draw_debug(*debug);
-        rtx_rendering->set_enabled(imgui_system->rtx_rendering);
+       // if(imgui_system->physics_draw_debug)
+        //    physics->draw_debug(*debug);
+        //rtx_rendering->set_enabled(imgui_system->rtx_rendering);
 
         // Draw coordinates
         debug->draw_line({

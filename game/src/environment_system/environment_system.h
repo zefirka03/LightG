@@ -10,19 +10,23 @@ class EnvironmentSystem : public System {
 public:
     int size = 128;
     envField* map = nullptr;
-    GLuint m_out_map_buffer;
 
     envField* get_map(int x, int y) {
         if (x < 0 || y < 0 || x >= size || y >= size) {
             return nullptr;
         } return &map[x * size + y];
     }
+
+    GLuint get_gpu_map_buffer() const {
+        return m_out_map_buffer;
+    }
+
 private:
     GLuint m_map_buffer;
+    GLuint m_out_map_buffer;
     ComputeShader m_compute_shader;
     ComputeShader m_cs_jacobi;
     bool m_map_reading = false;
-    GLsync fence;
 
     float m_time = 0;
 

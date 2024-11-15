@@ -190,6 +190,12 @@ void Shader::set_float(GLfloat val, const char* path) {
 	this->unuse();
 }
 
+void Shader::set_int(GLint val, const char* path) {
+	this->use();
+	glUniform1i(_request_location(path), val);
+	this->unuse();
+}
+
 void Shader::set_vector2f(glm::vec2 val, const char* path) {
 	this->use();
 	glUniform2f(_request_location(path), val.x, val.y);

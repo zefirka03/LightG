@@ -15,6 +15,9 @@ struct grassData {
 };
 
 class GrassSystem : public System {
+public:
+    float world_size = 25000;
+    glm::vec2 world_origin = glm::vec2(0);
 private:
     Renderer<glm::vec3> m_renderer;
     objFile m_grass_obj;
@@ -56,11 +59,13 @@ private:
 
         m_renderer.get_shader().set_matrix4f(t_main_camera->get_projection() * t_main_camera->get_view(), "camera");
         m_renderer.get_shader().set_float(m_time, "time");
+        m_renderer.get_shader().set_float(world_size, "world_size");
+        m_renderer.get_shader().set_vector2f(world_origin, "world_origin");
 
         auto env = m_scene->get_system<EnvironmentSystem>();
 
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_positions_ssbo);
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, env->m_out_map_buffer);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, env->get_gpu_map_buffer());
         m_renderer.display_instances(m_positions_data.size());
 
         m_time += delta_time;

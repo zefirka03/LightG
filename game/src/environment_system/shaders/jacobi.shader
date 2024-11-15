@@ -18,9 +18,7 @@ const int size = 128;
 
 uniform float d_t;
 const float d_h = 0.5;
-const float rho = 1;
-
-const float viscosity = 1;
+const float viscosity = 100;
 
 envField u_out(ivec2 pos){
     envField out_f;

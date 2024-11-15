@@ -21,8 +21,8 @@ file(GLOB_RECURSE SRC_FILES
 )
 
 file(GLOB_RECURSE GAME_SHADERS
-    "src/grass_system/*.shader"
-    "src/environment_system/*.shader"
+    "src/grass_system/shaders/*.shader"
+    "src/environment_system/shaders/*.shader"
 )
 
 if(AIR_IMGUI)

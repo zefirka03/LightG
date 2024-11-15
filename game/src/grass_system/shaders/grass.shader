@@ -22,11 +22,26 @@ layout (std430, binding = 1) buffer fieldBuffer {
 
 const int size = 128;
 
-//const vec2 windDirection = normalize(vec2(0.2, 0.5));
+envField get_field(int i, int j){
+    envField out_f;
+    out_f.v = vec2(0);
+    if(i < 0 || j < 0 || i >= size || j >= size)
+        return out_f;
+
+    return field[i * size + j];
+}
+
+uniform float world_size;
+uniform vec2 world_origin;
+
 vec3 grassPosition = grassPositions[gl_InstanceID].position;
-envField curr_filed = field[int(grassPosition.x / (25000.f / float(size))) * size + int(grassPosition.z / (25000.f / float(size)))];
+envField curr_filed = get_field(
+	int(floor((grassPosition.x - world_origin) / (world_size / float(size)))), 
+	int(floor((grassPosition.z - world_origin) / (world_size / float(size))))
+);
 const float windSpeed = 0.1;
 const float windDisplacement = 0.02;
+
 uniform float time;
 
 out float height;
@@ -45,7 +60,6 @@ float rand(vec2 co){
 
 float getDisplacementMap(vec2 grassPosition) {
 	return abs(sin((grassPosition.x + grassPosition.y) + windSpeed * time))*1.3 + (sin(time * 10 + rand(grassPosition) * 40) * 0.03);
-	//return 1;
 }
 
 void main() {
