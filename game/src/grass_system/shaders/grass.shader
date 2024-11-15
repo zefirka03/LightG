@@ -3,8 +3,6 @@
 
 struct envField {
     vec2 v;
-    float s;
-    float density;
 };
 
 struct grass{
@@ -53,11 +51,9 @@ float getDisplacementMap(vec2 grassPosition) {
 void main() {
 	vec2 windDirection = vec2(curr_filed.v.x, curr_filed.v.y);
 	if (length(curr_filed.v) > 0.0) {
-		// Only normalize if the vector isn't zero
-		windDirection = normalize(curr_filed.v) * min(length(curr_filed.v), 2.0);
+		windDirection = normalize(curr_filed.v) * 3 * tanh(length(curr_filed.v));
 	} else {
-		// Handle the case when curr_filed.v is zero
-		windDirection = vec2(0.0, 0.0); // or some other vector you want to use
+		windDirection = vec2(0.0, 0.0);
 	}
 
 	float random = rand(grassPosition.xz);

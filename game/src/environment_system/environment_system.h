@@ -4,8 +4,6 @@
 struct envField {
     float v_x = 0;
     float v_z = 0;
-    float s = 0;
-    float density = 0;
 };
 
 class EnvironmentSystem : public System {
@@ -21,6 +19,7 @@ public:
     }
 private:
     GLuint m_map_buffer;
+    GLuint m_map_back;
     ComputeShader m_compute_shader;
     bool m_map_reading = false;
     GLsync fence;
@@ -42,6 +41,12 @@ private:
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_out_map_buffer);
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
+        glGenBuffers(1, &m_map_back);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_map_back);
+        glBufferStorage(GL_SHADER_STORAGE_BUFFER, size * size * sizeof(envField), map, GL_DYNAMIC_STORAGE_BIT);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_map_back);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_out_map_buffer);
 
         m_compute_shader.load_from_file("shaders/environment_solver_v2.shader");
@@ -57,6 +62,7 @@ private:
 
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_map_buffer);
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_out_map_buffer);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_map_back);
         glDispatchCompute((size + 15) / 16, (size + 15) / 16, 1);
         
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_out_map_buffer);
