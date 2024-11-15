@@ -211,6 +211,7 @@ public:
     PhysicsSystem* physics;
     RenderingSystem* rendering;
     RenderRTXSystem* rtx_rendering;
+    GrassSystem* grass_system;
     ImguiSystem* imgui_system;
 
     void on_init() override {
@@ -221,7 +222,7 @@ public:
         rtx_rendering = add_system<RenderRTXSystem>();
         debug = add_system<DebugSystem>();
         add_system<EnvironmentSystem>();
-        add_system<GrassSystem>();
+        grass_system = add_system<GrassSystem>();
         //imgui_system = add_system<ImguiSystem>();
 
         // Setup physics
@@ -240,6 +241,8 @@ public:
         tex_man.load_texture("img/exp.png", "exp");
         tex_man.load_texture("img/tex_checker_1024.png", "default_1024");
         tex_man.load_texture("img/grass_color.png", "grass_color");
+
+        grass_system->load_map("assets/grass_map2.png");
 
         // Create camera
         cam = create_entity();

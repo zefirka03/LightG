@@ -18,12 +18,40 @@ class GrassSystem : public System {
 public:
     float world_size = 25000;
     glm::vec2 world_origin = glm::vec2(0);
+
+    void load_map(const char* path) {
+        int szx, szy;
+        unsigned char* image = SOIL_load_image(path, &szx, &szy, 0, SOIL_LOAD_RGBA);
+        if (!image) {
+            printf("[Grass system][load_map] file not found\n");
+            return;
+        }
+
+        m_positions_data.clear();
+        for (int x = 0; x < szx; ++x) {
+            for (int z = 0; z < szy; ++z) {
+                float p_x = x * m_block_size;
+                float p_z = z * m_block_size;
+                for (int g = 0; g < image[4 * (szx * z + x) + 3]; ++g) {
+                    m_positions_data.emplace_back(
+                        p_x + ((rand() % 1000) / 1000.f) * m_block_size,
+                        0,
+                        p_z + ((rand() % 1000) / 1000.f) * m_block_size
+                    );
+                }
+            }
+        }
+        _gpu_reload_positions();
+    }
+
 private:
     Renderer<glm::vec3> m_renderer;
     objFile m_grass_obj;
     GLuint m_positions_ssbo;
     std::vector<grassData> m_positions_data;
     float m_time = 0;
+
+    float m_block_size = 250;
 
     void init() override {
         m_renderer.reserve({
@@ -42,11 +70,7 @@ private:
         }
 
         glGenBuffers(1, &m_positions_ssbo);
-
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_positions_ssbo);
-        glBufferData(GL_SHADER_STORAGE_BUFFER, m_positions_data.size() * sizeof(grassData), m_positions_data.data(), GL_STATIC_DRAW);
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_positions_ssbo);
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+        _gpu_reload_positions();
     }
     
     void update(float delta_time) override {
@@ -69,5 +93,12 @@ private:
         m_renderer.display_instances(m_positions_data.size());
 
         m_time += delta_time;
+    }
+
+    void _gpu_reload_positions() {
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_positions_ssbo);
+        glBufferData(GL_SHADER_STORAGE_BUFFER, m_positions_data.size() * sizeof(grassData), m_positions_data.data(), GL_STATIC_DRAW);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_positions_ssbo);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
     }
 };
