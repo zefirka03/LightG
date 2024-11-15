@@ -32,7 +32,7 @@ public:
             for (int z = 0; z < szy; ++z) {
                 float p_x = x * m_block_size;
                 float p_z = z * m_block_size;
-                for (int g = 0; g < image[4 * (szx * z + x) + 3]; ++g) {
+                for (int g = 0; g < image[4 * (szx * z + x) + 3] / 5; ++g) {
                     m_positions_data.emplace_back(
                         p_x + ((rand() % 1000) / 1000.f) * m_block_size,
                         0,
