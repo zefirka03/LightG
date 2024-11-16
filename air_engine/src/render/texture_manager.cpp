@@ -15,6 +15,8 @@ void TextureManager::load_texture(const char* path, const char* name) {
 		tx->id = id;
 		textures_path.insert(std::make_pair(path, tx));
 		textures_names.insert(std::make_pair(name, tx));
+
+		SOIL_free_image_data(image);
 	}
 }
 

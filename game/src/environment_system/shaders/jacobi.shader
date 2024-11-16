@@ -22,7 +22,7 @@ const float viscosity = 100;
 
 envField u_out(ivec2 pos){
     envField out_f;
-    out_f.v = vec2(0);
+    out_f.v = vec2(0.2, 0.5);
     if(pos.x < 0 || pos.y < 0 || pos.x >= size || pos.y >= size)
         return out_f;
 

@@ -23,7 +23,7 @@ public:
         int szx, szy;
         unsigned char* image = SOIL_load_image(path, &szx, &szy, 0, SOIL_LOAD_RGBA);
         if (!image) {
-            printf("[Grass system][load_map] file not found\n");
+            printf("[AIR][Grass system] file not found\n");
             return;
         }
 
@@ -42,6 +42,8 @@ public:
             }
         }
         _gpu_reload_positions();
+
+        SOIL_free_image_data(image);
     }
 
 private:
