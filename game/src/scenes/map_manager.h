@@ -3,6 +3,7 @@
 
 struct chunkData {
     bool empty = true;
+    std::vector<grassData> grass_data;
 };
 
 class MapManager : public Script {
@@ -13,14 +14,14 @@ public:
 
     void update(float delta_time){
         if(!m_map_loaded) return;
-
-
     }
 
-    void load_map_png(const char* path){
+    void load_map_png(const char* path_folder, const char* name){
         if(m_map_loaded) return;
 
-        unsigned char* image = SOIL_load_image(path, &size_x, &size_y, 0, SOIL_LOAD_RGBA);
+        std::string map_path = std::string(path_folder) + "/" + name;
+
+        unsigned char* image = SOIL_load_image((map_path + "/" + name + ".png").c_str(), &size_x, &size_y, 0, SOIL_LOAD_RGBA);
         if(!image){
             printf("[MapManager] Load map failed!\n");
             return;
@@ -32,11 +33,16 @@ public:
                 if(image[4 * (y * size_x + x) + 3]){
                     m_chunks[y * size_x + x].empty = false;
                     _create_chunk_entity(x, y);
+                    _load_grass_chuck(
+                        (map_path + "/" + name + "_g_" + std::to_string(x) + "_" + std::to_string(y) + ".png").c_str(),
+                        &m_chunks[y * size_x + x]
+                    );
                 }
             }
         }
 
-        m_path = path;
+        m_name = name;
+        m_path = path_folder;
         m_map_loaded = true;
         SOIL_free_image_data(image);
     }
@@ -80,6 +86,30 @@ private:
         rtx_draw.instance = new RTX_Plane(sp_tr.position, sp_tr.origin, sp_sp.size, 0);
     }
 
+    void _load_grass_chuck(const char* file_path, chunkData* chunk){
+        int szx, szy;
+        unsigned char* image = SOIL_load_image(file_path, &szx, &szy, 0, SOIL_LOAD_RGBA);
+        if (!image) {
+            printf("[AIR][Grass system] file not found\n");
+            return;
+        }
+
+        chunk->grass_data.clear();
+        for (int x = 0; x < szx; ++x) {
+            for (int z = 0; z < szy; ++z) {
+                for (int g = 0; g < image[4 * (szx * z + x) + 3] / 5; ++g) {
+                    chunk->grass_data.emplace_back(
+                        x,
+                        0,
+                        z
+                    );
+                }
+            }
+        }
+        SOIL_free_image_data(image);
+    }
+
+    const char* m_name = nullptr;
     const char* m_path = nullptr;
 
     int size_x = 0;

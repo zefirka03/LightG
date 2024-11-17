@@ -248,7 +248,7 @@ public:
 
         auto mm_ent = create_entity();
         auto mm = add_component<ScriptComponent>(mm_ent).bind<MapManager>();
-        mm->load_map_png("assets/map.png");
+        mm->load_map_png("assets", "map");
 
         // Create camera
         cam = create_entity();
