@@ -71,7 +71,7 @@ private:
 
         m_grass_positions.bind_base(0);
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, env->get_gpu_map_buffer());
-        m_renderer.display_instances(m_grass_positions.size());
+        m_renderer.display_instances(m_grass_positions.size() / sizeof(grassData));
 
         m_time += delta_time;
     }
