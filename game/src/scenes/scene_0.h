@@ -225,7 +225,7 @@ public:
         debug = add_system<DebugSystem>();
         add_system<EnvironmentSystem>();
         grass_system = add_system<GrassSystem>();
-        imgui_system = add_system<ImguiSystem>();
+        //imgui_system = add_system<ImguiSystem>();
 
         // Setup physics
         physics->set_tags(0, 0, false);
@@ -243,8 +243,6 @@ public:
         tex_man.load_texture("assets/img/exp.png", "exp");
         tex_man.load_texture("assets/img/tex_checker_1024.png", "default_1024");
         tex_man.load_texture("assets/img/grass_color.png", "grass_color");
-
-        grass_system->load_map("assets/grass_map5.png");
 
         auto mm_ent = create_entity();
         auto mm = add_component<ScriptComponent>(mm_ent).bind<MapManager>();
@@ -277,9 +275,9 @@ public:
 
     void on_update(float delta_time) override {
         // Draw debug
-        if(imgui_system->physics_draw_debug)
-            physics->draw_debug(*debug);
-        rtx_rendering->set_enabled(imgui_system->rtx_rendering);
+        //if(imgui_system->physics_draw_debug)
+        //    physics->draw_debug(*debug);
+        //rtx_rendering->set_enabled(imgui_system->rtx_rendering);
 
         // Draw coordinates
         debug->draw_line({

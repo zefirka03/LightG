@@ -50,7 +50,7 @@ public:
         auto view_pb = m_registry->view<RTX_Object>();
         view_pb.each([&](RTX_Object& pb) {
             if (pb.instance) {
-                auto bbox = pb.instance->get_bounds();
+                auto& bbox = pb.instance->get_bounds();
                 debug_system.draw_box(bbox.get_a(), bbox.get_b(), glm::vec4(1, 0, 1, 1));
             }
         });

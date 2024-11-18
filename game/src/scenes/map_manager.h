@@ -27,6 +27,8 @@ public:
             return;
         }
 
+        auto GS = get_scene().get_system<GrassSystem>();
+
         m_chunks = new chunkData[size_x * size_y]();
         for(int x = 0; x < size_x; ++x){
             for(int y = 0; y < size_y; ++y){
@@ -37,6 +39,8 @@ public:
                         (map_path + "/" + name + "_g_" + std::to_string(x) + "_" + std::to_string(y) + ".png").c_str(),
                         &m_chunks[y * size_x + x]
                     );
+                    if(m_chunks[y * size_x + x].grass_data.size())
+                        GS->push_grass(m_chunks[y * size_x + x].grass_data);
                 }
             }
         }
@@ -115,5 +119,6 @@ private:
     int size_x = 0;
     int size_y = 0;
     chunkData* m_chunks = nullptr;
+
     bool m_map_loaded = false;
 };

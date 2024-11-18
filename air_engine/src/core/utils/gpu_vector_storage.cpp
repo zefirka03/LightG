@@ -2,12 +2,17 @@
 
 GPUVectorStorage::GPUVectorStorage(){
     glGenBuffers(1, &m_ssbo);
+    _resize(m_capacity);
 }
 
-void GPUVectorStorage::push_back(void* data, size_t size){
+
+void GPUVectorStorage::push_back(const void* data, size_t size){
     while(m_capacity < m_size + size){
         _resize(m_capacity << 1);
     }
+
+    printf("GRASS SAS : %d\n", size);
+
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_ssbo);
     glBufferSubData(GL_SHADER_STORAGE_BUFFER, m_size, size, data);
@@ -29,12 +34,36 @@ void GPUVectorStorage::bind_base(int index) const {
 }
 
 void GPUVectorStorage::_resize(size_t size) {
-    if(m_capacity < size){
+    GLuint newSSBO;
+    glGenBuffers(1, &newSSBO);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, newSSBO);
+
+    glBufferData(GL_SHADER_STORAGE_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
+
+    if (m_size > 0) {
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_ssbo);
-        glBufferStorage(GL_SHADER_STORAGE_BUFFER, size, nullptr, GL_DYNAMIC_STORAGE_BIT);
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-        m_capacity = size;
+        void* oldData = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
+        if (oldData) {
+            // Copy only the data that fits in the new buffer
+            glBindBuffer(GL_SHADER_STORAGE_BUFFER, newSSBO);
+            void* newData = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
+            if (newData) {
+                std::memcpy(newData, oldData, m_size);
+                glUnmapBuffer(GL_SHADER_STORAGE_BUFFER); // Unmap the new buffer
+            }
+            glUnmapBuffer(GL_SHADER_STORAGE_BUFFER); // Unmap the old buffer
+        }
     }
+
+    glDeleteBuffers(1, &m_ssbo);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+    m_ssbo = newSSBO;
+
+    m_capacity = size;
+}
+
+size_t GPUVectorStorage::size() const {
+    return m_size;
 }
 
 GPUVectorStorage::~GPUVectorStorage(){

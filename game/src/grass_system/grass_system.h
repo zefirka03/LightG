@@ -20,38 +20,24 @@ public:
     float world_size = 25000;
     glm::vec2 world_origin = glm::vec2(0);
 
-    void load_map(const char* path) {
-        int szx, szy;
-        unsigned char* image = SOIL_load_image(path, &szx, &szy, 0, SOIL_LOAD_RGBA);
-        if (!image) {
-            printf("[AIR][Grass system] file not found\n");
-            return;
+    void push_grass(std::vector<grassData> const& data){
+        std::vector<grassData> fitted = data;
+        for(int i=0; i<fitted.size(); ++i){
+            fitted[i].position.x = (fitted[i].position.x + (rand() % 1000) / 1000.f) * m_block_size;
+            fitted[i].position.z = (fitted[i].position.z + (rand() % 1000) / 1000.f) * m_block_size;
         }
 
-        m_positions_data.clear();
-        for (int x = 0; x < szx; ++x) {
-            for (int z = 0; z < szy; ++z) {
-                float p_x = x * m_block_size;
-                float p_z = z * m_block_size;
-                for (int g = 0; g < image[4 * (szx * z + x) + 3] / 5; ++g) {
-                    m_positions_data.emplace_back(
-                        p_x + ((rand() % 1000) / 1000.f) * m_block_size,
-                        0,
-                        p_z + ((rand() % 1000) / 1000.f) * m_block_size
-                    );
-                }
-            }
-        }
-        _gpu_reload_positions();
+        m_grass_positions.push_back(fitted.data(), fitted.size() * sizeof(grassData));
+    }
 
-        SOIL_free_image_data(image);
+    void clear(){
+        m_grass_positions.clear();
     }
 
 private:
     Renderer<glm::vec3> m_renderer;
     objFile m_grass_obj;
     GLuint m_positions_ssbo;
-    std::vector<grassData> m_positions_data;
     float m_time = 0;
     GPUVectorStorage m_grass_positions;
 
@@ -66,15 +52,6 @@ private:
 
         m_grass_obj.load_from_file("assets/grass.obj");
         m_renderer.draw(m_grass_obj["Plane"].get_v());
-
-        for (int x = 0; x < 400; ++x) {
-            for (int z = 0; z < 400; ++z) {
-                m_positions_data.emplace_back(((rand() % 10000) / 10000.f) * 25000.f, 0, ((rand() % 10000) / 10000.f) * 25000.f);
-            }
-        }
-
-        glGenBuffers(1, &m_positions_ssbo);
-        _gpu_reload_positions();
     }
     
     void update(float delta_time) override {
@@ -92,17 +69,10 @@ private:
 
         auto env = m_scene->get_system<EnvironmentSystem>();
 
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_positions_ssbo);
+        m_grass_positions.bind_base(0);
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, env->get_gpu_map_buffer());
-        m_renderer.display_instances(m_positions_data.size());
+        m_renderer.display_instances(m_grass_positions.size());
 
         m_time += delta_time;
-    }
-
-    void _gpu_reload_positions() {
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_positions_ssbo);
-        glBufferData(GL_SHADER_STORAGE_BUFFER, m_positions_data.size() * sizeof(grassData), m_positions_data.data(), GL_STATIC_DRAW);
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_positions_ssbo);
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
     }
 };
