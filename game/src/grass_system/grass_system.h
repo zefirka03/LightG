@@ -1,5 +1,6 @@
 #pragma once
 #include "core/core.h"
+#include "core/utils/gpu_vector_storage.h"
 #include "render/renderer.h"
 #include "render/transform.h"
 #include "render/camera_3d.h"
@@ -52,6 +53,7 @@ private:
     GLuint m_positions_ssbo;
     std::vector<grassData> m_positions_data;
     float m_time = 0;
+    GPUVectorStorage m_grass_positions;
 
     float m_block_size = 250;
 

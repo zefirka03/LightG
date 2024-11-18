@@ -1,5 +1,5 @@
 #pragma once
-#include "../core.h"
+#include "../ogl.h"
 
 #define _AIR_GPU_VECTOR_INIT_CAPACITY 1024
 
@@ -9,6 +9,7 @@ public:
     void push_back(void* data, size_t size);
     void clear();
     GLuint get_ssbo() const;
+    void bind_base(int base) const;
     ~GPUVectorStorage();
 private:
     void _resize(size_t size);

@@ -24,6 +24,10 @@ GLuint GPUVectorStorage::get_ssbo() const {
     return m_ssbo;
 }
 
+void GPUVectorStorage::bind_base(int index) const {
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, index, m_ssbo);
+}
+
 void GPUVectorStorage::_resize(size_t size) {
     if(m_capacity < size){
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_ssbo);
@@ -34,5 +38,5 @@ void GPUVectorStorage::_resize(size_t size) {
 }
 
 GPUVectorStorage::~GPUVectorStorage(){
-
+    glDeleteBuffers(1, &m_ssbo);
 }
