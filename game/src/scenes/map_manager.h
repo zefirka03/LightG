@@ -29,6 +29,7 @@ public:
 
         auto GS = get_scene().get_system<GrassSystem>();
         GS->clear();
+        
         m_chunks = new chunkData[size_x * size_y]();
         for(int x = 0; x < size_x; ++x){
             for(int y = 0; y < size_y; ++y){
@@ -96,7 +97,7 @@ private:
         int szx, szy;
         unsigned char* image = SOIL_load_image(file_path, &szx, &szy, 0, SOIL_LOAD_RGBA);
         if (!image) {
-            printf("[AIR][Grass system] file not found\n");
+            //printf("[AIR][Grass system] file not found\n");
             return;
         }
 
@@ -110,7 +111,7 @@ private:
         chunk->grass_data.clear();
         for (int x = 0; x < szx; ++x) {
             for (int z = 0; z < szy; ++z) {
-                for (int g = 0; g < image[4 * (szx * z + x) + 3] / 5; ++g) {
+                for (int g = 0; g < image[4 * (szx * z + x) + 3] / 10; ++g) {
                     chunk->grass_data.emplace_back(
                         disp_x + (x + (rand() % 10000) / 10000.f) * block_sz_x,
                         0,

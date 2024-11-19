@@ -20,7 +20,9 @@ layout (std430, binding = 1) buffer fieldBuffer {
   envField field[];
 };
 
-const int size = 128;
+uniform int size;
+uniform float world_size;
+uniform vec2 world_origin;
 
 envField get_field(int i, int j){
     envField out_f;
@@ -30,9 +32,6 @@ envField get_field(int i, int j){
 
     return field[i * size + j];
 }
-
-uniform float world_size;
-uniform vec2 world_origin;
 
 vec3 grassPosition = grassPositions[gl_InstanceID].position;
 envField curr_filed = get_field(

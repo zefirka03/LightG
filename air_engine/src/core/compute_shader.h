@@ -32,5 +32,6 @@ public:
     void set_vector2f(glm::vec2 val, const char* path);
     void set_vector3f(glm::vec3 val, const char* path);
     void set_vector4f(glm::vec4 val, const char* path);
+    void set_int(GLint val, const char* path);
     void set_float(GLfloat val, const char* path);
 };

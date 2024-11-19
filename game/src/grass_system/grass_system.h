@@ -64,12 +64,13 @@ private:
                 t_main_camera = &camera;
         });
 
+        auto env = m_scene->get_system<EnvironmentSystem>();
+
         m_renderer.get_shader().set_matrix4f(t_main_camera->get_projection() * t_main_camera->get_view(), "camera");
         m_renderer.get_shader().set_float(m_time, "time");
+        m_renderer.get_shader().set_int(env->size, "size");
         m_renderer.get_shader().set_float(world_size, "world_size");
         m_renderer.get_shader().set_vector2f(world_origin, "world_origin");
-
-        auto env = m_scene->get_system<EnvironmentSystem>();
 
         m_grass_positions.bind_base(0);
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, env->get_gpu_map_buffer());

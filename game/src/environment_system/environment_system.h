@@ -53,6 +53,7 @@ private:
     
     void update(float delta_time) override {
         m_cs_jacobi.set_float(delta_time, "d_t");
+        m_cs_jacobi.set_int(size, "size");
         m_cs_jacobi.use();
 
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_map_buffer);

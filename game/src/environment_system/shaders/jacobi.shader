@@ -14,8 +14,7 @@ layout(std430, binding = 1) buffer OutMap {
     envField out_map[];
 };
 
-const int size = 128;
-
+uniform int size;
 uniform float d_t;
 const float d_h = 0.5;
 const float viscosity = 100;
