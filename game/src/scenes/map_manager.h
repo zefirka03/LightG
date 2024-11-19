@@ -28,7 +28,7 @@ public:
         }
 
         auto GS = get_scene().get_system<GrassSystem>();
-
+        GS->clear();
         m_chunks = new chunkData[size_x * size_y]();
         for(int x = 0; x < size_x; ++x){
             for(int y = 0; y < size_y; ++y){

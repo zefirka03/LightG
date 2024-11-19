@@ -19,13 +19,24 @@ class GrassSystem : public System {
 public:
     float world_size = 25000;
     glm::vec2 world_origin = glm::vec2(0);
-
+    
     void push_grass(std::vector<grassData> const& data){
         m_grass_positions.push_back(data.data(), data.size() * sizeof(grassData));
+        for (int i = 0; i < data.size(); ++i) {
+            world_origin.x = std::min(world_origin.x, data[i].position.x);
+            world_origin.y = std::min(world_origin.y, data[i].position.z);
+
+            world_size = std::max(
+                std::max(data[i].position.x - world_origin.x, world_size),
+                std::max(data[i].position.z - world_origin.y, world_size)
+            );
+        }
     }
 
     void clear(){
         m_grass_positions.clear();
+        world_origin = glm::vec2(FLT_MAX);
+        world_size = 0;
     }
 
 private:

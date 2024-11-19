@@ -157,9 +157,10 @@ public:
                         get_scene().get_component<Transform>(a).position = out[0].second.points[0].collision_point + norm * 250.f;
 
                     }
+                    auto gs = get_scene().get_system<GrassSystem>();
                     auto env = get_scene().get_system<EnvironmentSystem>();
-                    int x = int(out[0].second.points[0].collision_point.x / (25000.f / env->size));
-                    int y = int(out[0].second.points[0].collision_point.z / (25000.f / env->size));
+                    int x = int((out[0].second.points[0].collision_point.x - gs->world_origin.x) / (gs->world_size / env->size));
+                    int y = int((out[0].second.points[0].collision_point.z - gs->world_origin.y) / (gs->world_size / env->size));
 
                     printf("%d, %d\n", x, y);
                     
