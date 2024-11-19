@@ -21,13 +21,7 @@ public:
     glm::vec2 world_origin = glm::vec2(0);
 
     void push_grass(std::vector<grassData> const& data){
-        std::vector<grassData> fitted = data;
-        for(int i=0; i<fitted.size(); ++i){
-            fitted[i].position.x = (fitted[i].position.x + (rand() % 1000) / 1000.f) * m_block_size;
-            fitted[i].position.z = (fitted[i].position.z + (rand() % 1000) / 1000.f) * m_block_size;
-        }
-
-        m_grass_positions.push_back(fitted.data(), fitted.size() * sizeof(grassData));
+        m_grass_positions.push_back(data.data(), data.size() * sizeof(grassData));
     }
 
     void clear(){
