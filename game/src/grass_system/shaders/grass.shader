@@ -35,8 +35,8 @@ envField get_field(int i, int j){
 
 vec3 grassPosition = grassPositions[gl_InstanceID].position;
 envField curr_filed = get_field(
-	int(floor((grassPosition.x - world_origin) / (world_size / float(size)))), 
-	int(floor((grassPosition.z - world_origin) / (world_size / float(size))))
+	int(floor((grassPosition.x - world_origin.x) / (world_size / float(size)))), 
+	int(floor((grassPosition.z - world_origin.y) / (world_size / float(size))))
 );
 const float windSpeed = 0.1;
 const float windDisplacement = 0.02;

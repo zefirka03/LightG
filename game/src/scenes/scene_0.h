@@ -226,7 +226,7 @@ public:
         debug = add_system<DebugSystem>();
         add_system<EnvironmentSystem>();
         grass_system = add_system<GrassSystem>();
-        //imgui_system = add_system<ImguiSystem>();
+        imgui_system = add_system<ImguiSystem>();
 
         // Setup physics
         physics->set_tags(0, 0, false);
@@ -276,9 +276,9 @@ public:
 
     void on_update(float delta_time) override {
         // Draw debug
-        //if(imgui_system->physics_draw_debug)
-        //    physics->draw_debug(*debug);
-        //rtx_rendering->set_enabled(imgui_system->rtx_rendering);
+        if(imgui_system->physics_draw_debug)
+            physics->draw_debug(*debug);
+        rtx_rendering->set_enabled(imgui_system->rtx_rendering);
 
         // Draw coordinates
         debug->draw_line({

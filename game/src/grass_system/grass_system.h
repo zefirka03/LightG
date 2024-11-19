@@ -17,7 +17,7 @@ struct grassData {
 
 class GrassSystem : public System {
 public:
-    float world_size = 25000;
+    float world_size = 0;
     glm::vec2 world_origin = glm::vec2(0);
     
     void push_grass(std::vector<grassData> const& data){
@@ -25,7 +25,8 @@ public:
         for (int i = 0; i < data.size(); ++i) {
             world_origin.x = std::min(world_origin.x, data[i].position.x);
             world_origin.y = std::min(world_origin.y, data[i].position.z);
-
+        }
+        for (int i = 0; i < data.size(); ++i) {
             world_size = std::max(
                 std::max(data[i].position.x - world_origin.x, world_size),
                 std::max(data[i].position.z - world_origin.y, world_size)
