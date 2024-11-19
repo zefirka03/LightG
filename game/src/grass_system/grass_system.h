@@ -31,11 +31,8 @@ public:
 private:
     Renderer<glm::vec3> m_renderer;
     objFile m_grass_obj;
-    GLuint m_positions_ssbo;
-    float m_time = 0;
     GPUVectorStorage m_grass_positions;
-
-    float m_block_size = 250;
+    float m_time = 0;
 
     void init() override {
         m_renderer.reserve({
