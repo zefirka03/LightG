@@ -19,7 +19,7 @@ private:
 
     Scene* m_scene;
 public:
-    Application(int width, int height, const char* title);
+    Application(int width, int height, const char* title, bool fullscreen = false);
     ~Application();
 
     void run(Scene* scene);

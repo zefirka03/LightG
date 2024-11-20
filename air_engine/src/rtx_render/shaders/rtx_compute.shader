@@ -445,7 +445,7 @@ void color_compute(Ray ray, inout vec4 o_color){
             if(!intersected) break;
 
             curr_ray.origin += t * curr_ray.direction + 0.01 * norm;
-            curr_ray.direction = ray_reflect(curr_ray.direction, norm);
+            curr_ray.direction = ray_diffuse(curr_ray.direction, norm, seed);
             curr_ray.length -= t;
 
             curr_color *= 0.75;

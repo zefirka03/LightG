@@ -2,7 +2,7 @@
 
 Application* Application::m_instance = nullptr;
 
-Application::Application(int width, int height, const char* title){
+Application::Application(int width, int height, const char* title, bool fullscreen){
     m_scene = nullptr;
 
     AIR_ASSERT(!m_instance, "Application instance already exist");
@@ -11,7 +11,13 @@ Application::Application(int width, int height, const char* title){
     int success = glfwInit();
     AIR_ASSERT(glfwInit(), "GLFW not inited");
 
-    m_window = glfwCreateWindow(width, height, title, NULL, NULL);
+    glfwWindowHint(GLFW_SAMPLES, 8);
+    glEnable(GL_MULTISAMPLE);
+
+    if(!fullscreen)
+        m_window = glfwCreateWindow(width, height, title, NULL, NULL);
+    else
+        m_window = glfwCreateWindow(width, height, title, glfwGetPrimaryMonitor(), NULL);
     glfwMakeContextCurrent(m_window);
 
     success = glewInit() == GLEW_OK;
@@ -37,6 +43,7 @@ void Application::run(Scene* scene){
     Timer timer_delta_time;
 
     go_to_scene(scene);
+    glClearColor(0.95, 0.95, 0.95, 1);
     while(!glfwWindowShouldClose(m_window)){
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glfwPollEvents();

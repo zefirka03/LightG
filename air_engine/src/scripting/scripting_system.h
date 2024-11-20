@@ -31,7 +31,7 @@ public:
     }
 
     template<class Script_t, class ...Args>
-    void bind(Args&&... args) {
+    Script_t* bind(Args&&... args) {
         static_assert(std::is_base_of<Script, Script_t>::value, "Script_t class must be derived by Script");
 
         Script_t* t_script = new Script_t(args...);
@@ -40,6 +40,8 @@ public:
 
         m_script_instances.push_back(t_script);
         m_script_instances.back()->start();
+
+        return t_script;
     }
 
     ~ScriptComponent() {

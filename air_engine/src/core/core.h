@@ -10,3 +10,5 @@
 #include "timer.h"
 #include "vao.h"
 #include "input.h"
+
+#include "utils/obj_file.h"

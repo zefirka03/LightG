@@ -1,5 +1,10 @@
 #pragma once
 #include "air_engine.h"
+#include "../grass_system/grass_system.h"
+#include "../environment_system/environment_system.h"
+#include "../imgui_system/imgui_system.h"
+
+#include "map_manager.h"
 
 class RotationSc : public Script {
 private:
@@ -18,7 +23,7 @@ public:
         transform = &get_scene().add_component<Transform>(get_entity());
         auto& sp_sp = get_scene().add_component<Sprite>(get_entity());
         sp_sp.texture = get_scene().get_system<RenderingSystem>()->get_texture_manager().get_texture("exp");
-        sp_sp.size = glm::vec2(100+(rand() % 100) / 100.f * 100);
+        sp_sp.size = glm::vec2(100+(rand() % 100) / 100.f * 1000);
         transform->origin = glm::vec3(sp_sp.size / 2.f, 0);
         auto& sp_pb = get_scene().add_component<PhysicsBody>(get_entity());
         sp_pb.type = PhysicsBody::pbType::RIGID;
@@ -91,6 +96,15 @@ public:
     }
 
     void update(float delta_time) override {
+        // Hide/Show mouse cursor
+        if (Input::is_key_pressed(Key::Escape))
+            Input::set_cursor_mode(Cursor::normal);
+        if (Input::is_mouse_button_pressed(Mouse::Button0))
+            Input::set_cursor_mode(Cursor::disabled);
+
+        if (Input::get_cursor_mode() == Cursor::normal)
+            return;
+
         auto& entity_transform = get_scene().get_component<Transform>(get_entity());
         auto& entity_camera = get_scene().get_component<Camera3d>(get_entity());
 
@@ -121,7 +135,7 @@ public:
             speed = 13500;
         else speed = 1000;
 
-        if (Input::is_mouse_button_pressed(Mouse::Button0) && m_reload > 0.01) {
+        if (Input::is_mouse_button_pressed(Mouse::Button0) && m_reload > 0.05) {
             std::vector<std::pair<PhysicsBody*, rayIntersection>> out;
             auto ray = Ray(
                 entity_transform.position,
@@ -136,10 +150,42 @@ public:
             if(!out.empty()){
                 if(out[0].first->tag == 0){
                     glm::vec3 norm = out[0].second.points[0].normal;
+                    
                     for (int i = 0; i < 10; ++i) {
                         auto a = get_scene().create_entity();
                         get_scene().add_component<ScriptComponent>(a).bind<RotationSc>((1000 + (rand()%10000)/10000.f * 15000) * (glm::normalize(ray.direction - 2.f * norm * glm::dot(norm, ray.direction)) + ray.direction * glm::ballRand(0.5f)) );
                         get_scene().get_component<Transform>(a).position = out[0].second.points[0].collision_point + norm * 250.f;
+
+                    }
+                    auto gs = get_scene().get_system<GrassSystem>();
+                    auto env = get_scene().get_system<EnvironmentSystem>();
+                    int x = int((out[0].second.points[0].collision_point.x - gs->world_origin.x) / (gs->world_size / env->size));
+                    int y = int((out[0].second.points[0].collision_point.z - gs->world_origin.y) / (gs->world_size / env->size));
+
+                    printf("%d, %d\n", x, y);
+                    
+                    float power = 30000;
+                    auto mp = env->get_map(x+2, y);
+                    int h = 0;
+
+                    if (mp) {
+                        mp->v_x = power;
+                        mp->v_z = 0;
+                    }
+                    mp = env->get_map(x - 2, y);
+                    if (mp) {
+                        mp->v_x = -power;
+                        mp->v_z = 0;
+                    }
+                    mp = env->get_map(x, y+2);
+                    if (mp) {
+                        mp->v_x = 0;
+                        mp->v_z = power;
+                    }
+                    mp = env->get_map(x, y-2);
+                    if (mp) {
+                        mp->v_x = 0;
+                        mp->v_z = -power;
                     }
                 }
             }
@@ -149,12 +195,6 @@ public:
 
         entity_transform.position += dir * speed * delta_time;
         m_reload += delta_time;
-        
-        // Hide/Show mouse cursor
-        if (Input::is_key_pressed(Key::Escape))
-            Input::set_cursor_mode(Cursor::normal);
-        if (Input::is_mouse_button_pressed(Mouse::Button0))
-            Input::set_cursor_mode(Cursor::disabled);
     }
 };
 
@@ -174,6 +214,8 @@ public:
     PhysicsSystem* physics;
     RenderingSystem* rendering;
     RenderRTXSystem* rtx_rendering;
+    GrassSystem* grass_system;
+    ImguiSystem* imgui_system;
 
     void on_init() override {
         // Systems init
@@ -182,6 +224,9 @@ public:
         rendering = add_system<RenderingSystem>();
         rtx_rendering = add_system<RenderRTXSystem>();
         debug = add_system<DebugSystem>();
+        add_system<EnvironmentSystem>();
+        grass_system = add_system<GrassSystem>();
+        imgui_system = add_system<ImguiSystem>();
 
         // Setup physics
         physics->set_tags(0, 0, false);
@@ -196,66 +241,25 @@ public:
     void on_start() override {
         // Load textures
         auto& tex_man = rendering->get_texture_manager();
-        tex_man.load_texture("img/exp.png", "exp");
-        tex_man.load_texture("img/tex_checker_1024.png", "default_1024");
+        tex_man.load_texture("assets/img/exp.png", "exp");
+        tex_man.load_texture("assets/img/tex_checker_1024.png", "default_1024");
+        tex_man.load_texture("assets/img/grass_color.png", "grass_color");
+
+        auto mm_ent = create_entity();
+        auto mm = add_component<ScriptComponent>(mm_ent).bind<MapManager>();
+        mm->load_map_png("assets", "map");
 
         // Create camera
         cam = create_entity();
         auto& cam_tr = add_component<Transform>(cam);
-        cam_tr.position = glm::vec3(5000, 5000, 5000);
+        cam_tr.position = glm::vec3(5000, 5000, 5000);  
 
         int width = Application::get_instance().get_properties().width;
         int height = Application::get_instance().get_properties().height;
-        add_component<Camera3d>(cam, new Perspective(width, height, 3.14f * 90.f / 180.f, 0.1, 100000), true);
+        add_component<Camera3d>(cam, new Perspective(width, height, 3.14f * 60.f / 180.f, 1, 100000), true);
 
         add_component<ScriptComponent>(cam).bind<CameraController>();
 
-        {
-            for (int x = 0; x < 10; ++x) {
-                for (int z = 0; z < 10; ++z) {
-                    Entity plane11 = create_entity();
-                    auto& sp_sp = add_component<Sprite>(plane11);
-                    sp_sp.texture = rendering->get_texture_manager().get_texture("default_1024");
-                    auto& sp_tr = add_component<Transform>(plane11);
-                    auto& sp_pb = add_component<PhysicsBody>(plane11);
-                    sp_pb.tag = 0;
-                    sp_pb.friction = 0.9f;
-                    sp_sp.size = glm::vec2(10000);
-                    sp_tr.origin = glm::vec3(sp_sp.size / 2.f, 0);
-                    sp_tr.rotation.x = glm::half_pi<float>();
-                    sp_tr.position = glm::vec3(sp_sp.size.x * x, 0, sp_sp.size.y * z);
-                    sp_pb.set_collider<PlaneCollider>();
-
-                    static_cast<PlaneCollider*>(sp_pb.get_collider())->size = glm::vec2(sp_sp.size);
-                    static_cast<PlaneCollider*>(sp_pb.get_collider())->origin = glm::vec2(sp_sp.size / 2.f);
-
-                    auto& rtx_draw = add_component<RTX_Object>(plane11);
-                    rtx_draw.instance = new RTX_Plane(sp_tr.position, sp_tr.origin, sp_sp.size, 0);
-                }
-            }
-            for (int x = 0; x < 10; ++x) {
-                for (int z = 0; z < 10; ++z) {
-                    Entity plane11 = create_entity();
-                    auto& sp_sp = add_component<Sprite>(plane11);
-                    sp_sp.texture = rendering->get_texture_manager().get_texture("default_1024");
-                    auto& sp_tr = add_component<Transform>(plane11);
-                    auto& sp_pb = add_component<PhysicsBody>(plane11);
-                    sp_sp.size = glm::vec2(3000, 3000);
-                    sp_tr.origin = glm::vec3(sp_sp.size.x / 2.f, 0, 0);
-                    sp_tr.position = glm::vec3(rand() % 100 * 1000, 0, rand() % 100 * 1000);
-                    sp_tr.rotation.y = (rand() % 1000) / 1000.f * glm::pi<float>();
-                    sp_pb.tag = 0;
-                    sp_pb.set_collider<SpriteCollider>();
-                    //add_component<ScriptComponent>(plane2).bind<CollisionChecker>();
-
-                    static_cast<SpriteCollider*>(sp_pb.get_collider())->size = glm::vec2(sp_sp.size);
-                    static_cast<SpriteCollider*>(sp_pb.get_collider())->origin = glm::vec2(sp_sp.size.x / 2.f, 0);
-
-                    auto& rtx_draw = add_component<RTX_Object>(plane11);
-                    rtx_draw.instance = new RTX_Sprite(sp_tr.position, sp_tr.origin, sp_sp.size, sp_tr.rotation.y);
-                }
-            }
-        }
         {
             canvas_camera = create_entity();
             add_component<Camera3d>(canvas_camera, new Ortho(width, height), false);
@@ -271,15 +275,24 @@ public:
     }
 
     void on_update(float delta_time) override {
-        // Draw physics debug
-        physics->draw_debug(*debug);
-        //rtx_rendering->draw_debug(*debug);
+        // Draw debug
+        if(imgui_system->physics_draw_debug)
+            physics->draw_debug(*debug);
+        rtx_rendering->set_enabled(imgui_system->rtx_rendering);
 
-        if (Input::is_key_pressed(Key::V) && v_key > 0.5) {
-            rtx_rendering->set_enabled(!rtx_rendering->is_enabled());
-            v_key = 0;
-        }
-        v_key += delta_time;
+        // Draw coordinates
+        debug->draw_line({
+            {glm::vec3(0,0,0), glm::vec4(1,0,0,1)},
+            {glm::vec3(10000,0,0), glm::vec4(1,0,0,1)}
+            });
+        debug->draw_line({
+            {glm::vec3(0,0,0), glm::vec4(0,1,0,1)},
+            {glm::vec3(0,10000,0), glm::vec4(0,1,0,1)}
+            });
+        debug->draw_line({
+            {glm::vec3(0,0,0), glm::vec4(0,0,1,1)},
+            {glm::vec3(0,0,10000), glm::vec4(0,0,1,1)}
+            });
 
         // Avrg fps
         avg_fps = (avg_fps * frame_count + (1.f / delta_time)) / (frame_count+1);

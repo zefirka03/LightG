@@ -75,5 +75,6 @@ private:
             m_renderer.get_shader().set_matrix4f(t_main_camera->get_projection() * t_main_camera->get_view(), "camera");
         }
         m_renderer.display(GL_LINES);
+        m_renderer.clear();
     }
 };

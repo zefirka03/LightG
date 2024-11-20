@@ -50,7 +50,7 @@ public:
         auto view_pb = m_registry->view<RTX_Object>();
         view_pb.each([&](RTX_Object& pb) {
             if (pb.instance) {
-                auto bbox = pb.instance->get_bounds();
+                auto& bbox = pb.instance->get_bounds();
                 debug_system.draw_box(bbox.get_a(), bbox.get_b(), glm::vec4(1, 0, 1, 1));
             }
         });
@@ -88,7 +88,6 @@ private:
             "shaders/rtx_canvas.shader",
             AIR_SHADER_VF
         );
-        m_renderer.get_vao().add_ssbo(sizeof(GLfloat) * 3, 3);
 
         m_compute_shader.load_from_file("shaders/rtx_compute.shader");
         m_texture_manager.texture_storage(TextureStorageParameters({ 640, 360, AIR_TEXTURE_RGBA32F }), "_canvas");
@@ -172,7 +171,7 @@ private:
         // Display
         glBindTexture(GL_TEXTURE_2D, m_texture_manager.get_texture("_canvas")->id);
         m_renderer.display();
-        glBindTexture(GL_TEXTURE_2D,0);
+        glBindTexture(GL_TEXTURE_2D, 0);
         m_renderer.clear();
     }
 

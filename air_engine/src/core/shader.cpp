@@ -1,5 +1,7 @@
 #include "shader.h"
 
+#define AIR_DEBUG 1
+
 Shader::Shader() {
 	m_inited = false;
 }
@@ -185,6 +187,12 @@ void Shader::set_matrix4f(glm::mat4 val, const char* path) {
 void Shader::set_float(GLfloat val, const char* path) {
 	this->use();
 	glUniform1f(_request_location(path), val);
+	this->unuse();
+}
+
+void Shader::set_int(GLint val, const char* path) {
+	this->use();
+	glUniform1i(_request_location(path), val);
 	this->unuse();
 }
 
