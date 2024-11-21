@@ -79,7 +79,7 @@ private:
             map_min[0] = std::min(map_min[0], env.map[i].v_x);
             map_min[1] = std::min(map_min[1], env.map[i].v_z);
         }
-        //printf("max (%f, %f), min (%f, %f)\n", map_max[0], map_max[1], map_min[0], map_min[1]);
+        printf("max (%f, %f), min (%f, %f)\n", map_max[0], map_max[1], map_min[0], map_min[1]);
         for(int i=0; i<env.size*env.size; ++i){
             uc_map[2*i+0] = (env.map[i].v_x - map_min[0]) / (map_max[0]-map_min[0]) * 255;
             uc_map[2*i+1] = (env.map[i].v_z - map_min[1]) / (map_max[1]-map_min[1]) * 255;

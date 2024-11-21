@@ -61,10 +61,16 @@ float getDisplacementMap(vec2 grassPosition) {
 	return abs(sin((grassPosition.x + grassPosition.y) + windSpeed * time))*1.3 + (sin(time * 10 + rand(grassPosition) * 40) * 0.03);
 }
 
+float sigmoid(float x){
+	return 1.f / (1.f + exp(-x));
+}
+
 void main() {
 	vec2 windDirection = vec2(curr_filed.v.x, curr_filed.v.y);
-	if (length(curr_filed.v) > 0.0) {
-		windDirection = normalize(curr_filed.v) * 3 * tanh(length(curr_filed.v));
+
+	float len = length(windDirection);
+	if (len > 0.0) {
+		windDirection = normalize(windDirection) * 3 * sigmoid(len);
 	} else {
 		windDirection = vec2(0.0, 0.0);
 	}
