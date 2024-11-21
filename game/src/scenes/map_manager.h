@@ -85,6 +85,7 @@ private:
         sp_tr.rotation.x = glm::half_pi<float>();
         sp_tr.position = glm::vec3(sp_sp.size.x * x, 0, sp_sp.size.y * y);
         sp_pb.set_collider<PlaneCollider>();
+        sp_sp.texture_rect = glm::vec4(0.25, 0.25, 0.5, 0.5);
 
         static_cast<PlaneCollider*>(sp_pb.get_collider())->size = glm::vec2(sp_sp.size);
         static_cast<PlaneCollider*>(sp_pb.get_collider())->origin = glm::vec2(0);

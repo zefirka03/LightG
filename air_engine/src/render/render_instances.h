@@ -12,14 +12,21 @@ struct QuadRenderInstance : public RenderInstance<vertex, 6> {
     glm::vec3 rotation;
     glm::vec2 size;
     GLuint texture_id;
+    glm::vec4 texture_rect;
 
     QuadRenderInstance(
-        glm::vec3 position, 
-        glm::vec3 origin, 
+        glm::vec3 position,
+        glm::vec3 origin,
         glm::vec3 rotation,
         glm::vec2 size,
-        GLuint texture_id
-    ) : position(position), origin(origin), rotation(rotation), size(size), texture_id(texture_id) {}
+        GLuint texture_id,
+        glm::vec4 texture_rect = glm::vec4(0, 0, 1, 1)
+    ) : position(position), 
+        origin(origin), 
+        rotation(rotation), 
+        size(size), 
+        texture_id(texture_id),
+        texture_rect(texture_rect) {}
 
     std::array<vertex, 6> get_vertices() const override {
         glm::mat4 rotation_mat = glm::eulerAngleYXZ(rotation.y, rotation.x, rotation.z);
@@ -32,12 +39,12 @@ struct QuadRenderInstance : public RenderInstance<vertex, 6> {
         glm::vec3 d_pos = c_pos + b_pos - a_pos;
 
         return {
-            vertex{a_pos, glm::vec2(1, 1)},
-            vertex{b_pos, glm::vec2(1, 0)},
-            vertex{c_pos, glm::vec2(0, 1)},
-            vertex{b_pos, glm::vec2(1, 0)},
-            vertex{c_pos, glm::vec2(0, 1)},
-            vertex{d_pos, glm::vec2(0, 0)}
+            vertex{a_pos, glm::vec2(texture_rect.z, texture_rect.w)},
+            vertex{b_pos, glm::vec2(texture_rect.z, texture_rect.y)},
+            vertex{c_pos, glm::vec2(texture_rect.x, texture_rect.w)},
+            vertex{b_pos, glm::vec2(texture_rect.z, texture_rect.y)},
+            vertex{c_pos, glm::vec2(texture_rect.x, texture_rect.w)},
+            vertex{d_pos, glm::vec2(texture_rect.x, texture_rect.y)}
         };
     }
 };

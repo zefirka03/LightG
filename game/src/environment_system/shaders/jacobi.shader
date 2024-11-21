@@ -16,7 +16,7 @@ layout(std430, binding = 1) buffer OutMap {
 
 uniform int size;
 uniform float d_t;
-const float d_h = 0.5;
+const float d_h = 2;
 const float viscosity = 100;
 
 envField u_out(ivec2 pos){

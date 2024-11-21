@@ -13,6 +13,7 @@ struct Sprite : public Component {
     glm::vec3 color;
     glm::vec2 size;
     Texture* texture = nullptr;
+    glm::vec4 texture_rect = glm::vec4(0, 0, 1, 1);
 };
 
 class RenderingSystem : public System {
@@ -30,7 +31,8 @@ private:
     void init() override {
         m_renderer.reserve({
              {0, 3, sizeof(vertex), (const void*)0},
-             {0, 2, sizeof(vertex), (const void*)sizeof(glm::vec3)}
+             {0, 2, sizeof(vertex), (const void*)sizeof(glm::vec3)},
+             {0, 4, sizeof(vertex), (const void*)(sizeof(glm::vec4) + sizeof(glm::vec3))}
         }, 3 * 100000);
 
         m_instances.reserve(100000);
@@ -51,7 +53,8 @@ private:
                 transform.origin,
                 transform.rotation,
                 sprite.size,
-                texture_id
+                texture_id,
+                sprite.texture_rect
             ));
 
             ++m_textures_count[texture_id];
