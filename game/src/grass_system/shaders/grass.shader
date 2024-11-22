@@ -85,7 +85,7 @@ void main() {
 
 	height = position.y / 0.06;
 
-	vec2 displacement = 10000 * getDisplacementMap(grassPosition.xz) * windDirection;
+	vec2 displacement = 5000 * getDisplacementMap(grassPosition.xz) * windDirection;
 	finalPosition += vec3(displacement.x + localWindVariance, 0, displacement.y + localWindVariance) * (height * height) * windDisplacement;
 
 	gl_Position = camera * vec4(finalPosition, 1.0);

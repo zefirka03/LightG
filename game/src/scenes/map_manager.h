@@ -127,9 +127,9 @@ private:
             for (int z = 0; z < szy; ++z) {
                 for (int g = 0; g < image[4 * (szx * z + x) + 3] / 2; ++g) {
                     chunk->grass_data.emplace_back(
-                        disp_x + (szx - x + (rand() % 10000) / 10000.f) * block_sz_x,
+                        disp_x + (szx - 1 - x + (rand() % 10000) / 10000.f) * block_sz_x,
                         0,
-                        disp_z + (szy - z + (rand() % 10000) / 10000.f) * block_sz_z
+                        disp_z + (szy - 1 - z + (rand() % 10000) / 10000.f) * block_sz_z
                     );
                 }
             }

@@ -17,11 +17,13 @@ layout(std430, binding = 1) buffer OutMap {
 uniform int size;
 uniform float d_t;
 const float d_h = 2;
-const float viscosity = 100;
+const float viscosity = 1000;
+
+const vec2 bounds = normalize(vec2(0.2, 0.5));
 
 envField u_out(ivec2 pos){
     envField out_f;
-    out_f.v = vec2(0.2, 0.5);
+    out_f.v = bounds;
     if(pos.x < 0 || pos.y < 0 || pos.x >= size || pos.y >= size)
         return out_f;
 
