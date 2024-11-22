@@ -125,11 +125,11 @@ private:
         chunk->grass_data.clear();
         for (int x = 0; x < szx; ++x) {
             for (int z = 0; z < szy; ++z) {
-                for (int g = 0; g < image[4 * (szx * z + x) + 3] / 10; ++g) {
+                for (int g = 0; g < image[4 * (szx * z + x) + 3] / 2; ++g) {
                     chunk->grass_data.emplace_back(
-                        disp_x + (x + (rand() % 10000) / 10000.f) * block_sz_x,
+                        disp_x + (szx - x + (rand() % 10000) / 10000.f) * block_sz_x,
                         0,
-                        disp_z + (z + (rand() % 10000) / 10000.f) * block_sz_z
+                        disp_z + (szy - z + (rand() % 10000) / 10000.f) * block_sz_z
                     );
                 }
             }
@@ -144,7 +144,7 @@ private:
 
     int m_size_x = 0;
     int m_size_y = 0;
-    float m_chunk_size = 5000;
+    float m_chunk_size = 25000;
     chunkData* m_chunks = nullptr;
 
     bool m_map_loaded = false;
