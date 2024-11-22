@@ -1,5 +1,6 @@
 #pragma once
 #include "air_engine.h"
+#include "map_file.h"
 
 struct chunkData {
     bool empty = true;
@@ -16,24 +17,26 @@ public:
         if(!m_map_loaded) return;
     }
 
-    void load_map_png(const char* path_folder, const char* name){
+    void load_map_png(const char* path){
         if(m_map_loaded) return;
 
-        std::string map_path = std::string(path_folder) + "/" + name;
+        MapFile mf(path);
+        mf.print_debug();
 
-        unsigned char* image = SOIL_load_image((map_path + "/" + name + ".png").c_str(), &m_size_x, &m_size_y, 0, SOIL_LOAD_RGBA);
+        unsigned char* image = SOIL_load_image(mf.get("<map_pl>").c_str(), &m_size_x, &m_size_y, 0, SOIL_LOAD_RGBA);
         if(!image){
             printf("[MapManager] Load map failed!\n");
             return;
         }
 
-        if (!m_textures.load_texture((map_path + "/" + name + "_tex.png").c_str(), "map_texture")) {
+        if (!m_textures.load_texture(mf.get("<map_tex>").c_str(), "map_texture")) {
             printf("[MapManager] Texture of map not found! Skip.\n");
         }
 
         auto GS = get_scene().get_system<GrassSystem>();
         GS->clear();
         
+        std::string grass_path = mf.get("<map_gr>");
         m_chunks = new chunkData[m_size_x * m_size_y]();
         for(int x = 0; x < m_size_x; ++x){
             for(int y = 0; y < m_size_y; ++y){
@@ -41,7 +44,7 @@ public:
                     m_chunks[y * m_size_x + x].empty = false;
                     _create_chunk_entity(x, y);
                     _load_grass_chuck(
-                        (map_path + "/" + name + "_g_" + std::to_string(x) + "_" + std::to_string(y) + ".png").c_str(),
+                        (grass_path + "_" + std::to_string(x) + "_" + std::to_string(y) + ".png").c_str(),
                         x, y
                     );
                     if(m_chunks[y * m_size_x + x].grass_data.size())
@@ -50,8 +53,7 @@ public:
             }
         }
         
-        m_name = name;
-        m_path = path_folder;
+        m_path = path;
         m_map_loaded = true;
         SOIL_free_image_data(image);
     }
@@ -138,7 +140,6 @@ private:
 
     TextureManager m_textures;
 
-    const char* m_name = nullptr;
     const char* m_path = nullptr;
 
     int m_size_x = 0;

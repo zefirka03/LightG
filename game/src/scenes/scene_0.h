@@ -4,7 +4,7 @@
 #include "../environment_system/environment_system.h"
 #include "../imgui_system/imgui_system.h"
 
-#include "map_manager.h"
+#include "map_manager/map_manager.h"
 
 class RotationSc : public Script {
 private:
@@ -247,7 +247,7 @@ public:
 
         auto mm_ent = create_entity();
         auto mm = add_component<ScriptComponent>(mm_ent).bind<MapManager>();
-        mm->load_map_png("assets", "map");
+        mm->load_map_png("assets/map/map0.map");
 
         // Create camera
         cam = create_entity();
