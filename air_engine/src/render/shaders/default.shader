@@ -19,7 +19,7 @@ in vec2 o_texCoord;
 uniform sampler2D textureSamp;
 
 void main() {
-	vec4 col = texture(textureSamp, o_texCoord);
+	vec4 col = texture(textureSamp, vec2(1 - o_texCoord.x, 1 - o_texCoord.y));
 	if(col.a < 0.01)
 		discard;
 	else

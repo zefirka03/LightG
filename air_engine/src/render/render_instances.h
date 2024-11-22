@@ -39,12 +39,12 @@ struct QuadRenderInstance : public RenderInstance<vertex, 6> {
         glm::vec3 d_pos = c_pos + b_pos - a_pos;
 
         return {
-            vertex{a_pos, glm::vec2(texture_rect.z, texture_rect.w)},
-            vertex{b_pos, glm::vec2(texture_rect.z, texture_rect.y)},
-            vertex{c_pos, glm::vec2(texture_rect.x, texture_rect.w)},
-            vertex{b_pos, glm::vec2(texture_rect.z, texture_rect.y)},
-            vertex{c_pos, glm::vec2(texture_rect.x, texture_rect.w)},
-            vertex{d_pos, glm::vec2(texture_rect.x, texture_rect.y)}
+            vertex{a_pos, glm::vec2(texture_rect.x, texture_rect.y)},
+            vertex{b_pos, glm::vec2(texture_rect.x, texture_rect.w)},
+            vertex{c_pos, glm::vec2(texture_rect.z, texture_rect.y)},
+            vertex{b_pos, glm::vec2(texture_rect.x, texture_rect.w)},
+            vertex{c_pos, glm::vec2(texture_rect.z, texture_rect.y)},
+            vertex{d_pos, glm::vec2(texture_rect.z, texture_rect.w)}
         };
     }
 };

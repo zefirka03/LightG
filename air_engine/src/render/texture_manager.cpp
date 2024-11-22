@@ -1,9 +1,11 @@
 #include "texture_manager.h"
 
-void TextureManager::load_texture(const char* path, const char* name) {
+int TextureManager::load_texture(const char* path, const char* name) {
 	if (textures_path.find(path) == textures_path.end()) {
 		int szx, szy;
 		unsigned char* image = SOIL_load_image(path, &szx, &szy, 0, SOIL_LOAD_RGBA);
+		if (!image) 
+			return 0;
 		GLuint id;
 		glGenTextures(1, &id);
 		glBindTexture(GL_TEXTURE_2D, id);
@@ -18,6 +20,7 @@ void TextureManager::load_texture(const char* path, const char* name) {
 
 		SOIL_free_image_data(image);
 	}
+	return 1;
 }
 
 void TextureManager::load_texture_by_data(unsigned char* data, TextureParameters params, const char* name) {
@@ -58,7 +61,10 @@ void TextureManager::texture_storage(TextureStorageParameters params, const char
 }
 
 Texture* TextureManager::get_texture(const char* name) {
-	return textures_names[name];
+	auto it = textures_names.find(name);
+	if(it != textures_names.end())
+		return it->second;
+	return nullptr;
 }
 
 TextureManager::~TextureManager() {

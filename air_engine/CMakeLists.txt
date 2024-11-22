@@ -39,9 +39,9 @@ file(GLOB_RECURSE SRC_FILES
 )
 
 file(GLOB_RECURSE SHADERS
-    "src/render/*.shader"
-    "src/rtx_render/*.shader"
-    "src/debug/*.shader"
+    "src/render/shaders/*.shader"
+    "src/rtx_render/shaders/*.shader"
+    "src/debug/shaders/*.shader"
 )
 set(SHADERS ${SHADERS} PARENT_SCOPE)
 
