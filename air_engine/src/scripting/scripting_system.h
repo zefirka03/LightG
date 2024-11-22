@@ -60,14 +60,7 @@ friend class ScriptingSystem;
 
 class ScriptingSystem : public System {
 private:
-    void init() override {}
-
-    void start() override {}
-
-    void update(float delta_time) override {
-        auto view_scripts = m_registry->view<ScriptComponent>();
-        view_scripts.each([&](ScriptComponent& script) {
-            script._update(delta_time);
-        });
-    }
+    void init() override;
+    void start() override;
+    void update(float delta_time) override;
 };

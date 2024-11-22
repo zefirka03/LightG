@@ -85,7 +85,6 @@ private:
                 x / float(m_size_x), y / float(m_size_y),
                 (x + 1) / float(m_size_x), (y + 1) / float(m_size_y)
             );
-            printf("%f %f %f %f\n", sp_sp.texture_rect.x, sp_sp.texture_rect.y, sp_sp.texture_rect.z, sp_sp.texture_rect.w);
         } else {
             sp_sp.texture = TM.get_texture("default_1024");
         } 
