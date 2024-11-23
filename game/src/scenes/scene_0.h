@@ -140,7 +140,7 @@ public:
             auto ray = Ray(
                 entity_transform.position,
                 forward_dir,
-                55000
+                200000
             );
             get_scene().get_system<PhysicsSystem>()->ray_intersection(ray, out);
 
@@ -227,7 +227,7 @@ public:
         debug = add_system<DebugSystem>();
         add_system<EnvironmentSystem>();
         grass_system = add_system<GrassSystem>();
-        //imgui_system = add_system<ImguiSystem>();
+        imgui_system = add_system<ImguiSystem>();
 
         // Setup physics
         physics->set_tags(0, 0, false);
@@ -257,7 +257,7 @@ public:
 
         int width = Application::get_instance().get_properties().width;
         int height = Application::get_instance().get_properties().height;
-        add_component<Camera3d>(cam, new Perspective(width, height, 3.14f * 45.f / 180.f, 1, 100000), true);
+        add_component<Camera3d>(cam, new Perspective(width, height, 3.14f * 60.f / 180.f, 1, 100000), true);
 
         add_component<ScriptComponent>(cam).bind<CameraController>();
 
@@ -277,9 +277,9 @@ public:
 
     void on_update(float delta_time) override {
         // Draw debug
-        //if(imgui_system->physics_draw_debug)
-        //    physics->draw_debug(*debug);
-        //rtx_rendering->set_enabled(imgui_system->rtx_rendering);
+        if(imgui_system->physics_draw_debug)
+            physics->draw_debug(*debug);
+        rtx_rendering->set_enabled(imgui_system->rtx_rendering);
 
         // Draw coordinates
         debug->draw_line({

@@ -72,7 +72,7 @@ void main() {
 
 	float len = length(windDirection);
 	if (len > 0.0) {
-		windDirection = normalize(windDirection) * 3 * sigmoid(5 * len);
+		windDirection = normalize(windDirection) * 5 * sigmoid(5 * len);
 	} else {
 		windDirection = vec2(0.0, 0.0);
 	}
