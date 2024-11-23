@@ -120,6 +120,16 @@ private:
                     )
                 );
             }
+            else {
+                GS->push_grass(
+                    m_chunks[i].grass_data,
+                    boundingBox(
+                        curr_chunk.position - glm::vec3(0.5f * m_chunk_size, 0, 0.5f * m_chunk_size),
+                        curr_chunk.position + glm::vec3(0.5f * m_chunk_size, 0, 0.5f * m_chunk_size)
+                    ),
+                    GrassSystem::Resolution::low
+                );
+            }
         }
     }
 
