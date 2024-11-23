@@ -32,14 +32,12 @@ public:
         }
 
         auto& camera = get_scene().get_component<Transform>(camera_entity);
-
         if (glm::length(camera.position - m_last_camera_position) > m_min_camera_displace) {
-            printf("UPDATE\n");
             m_min_camera_displace = FLT_MAX;
             m_last_camera_position = camera.position;
             for (int i = 0; i < m_size_x * m_size_y; ++i) {
                 m_chunks[i].distance = glm::length(camera.position - m_chunks[i].position);
-                m_min_camera_displace = std::min(m_min_camera_displace, abs(float(m_chunks[i].distance) - 25000.f));
+                m_min_camera_displace = std::min(m_min_camera_displace, abs(float(m_chunks[i].distance) - m_high_res_distance));
             }
 
             _update_grass_chunks();
@@ -67,17 +65,18 @@ public:
         
         std::string grass_path = mf.get("<map_gr>");
         m_chunks = new chunkData[m_size_x * m_size_y]();
-        for(int x = 0; x < m_size_x; ++x){
-            for(int y = 0; y < m_size_y; ++y){
+        for(int y = 0; y < m_size_y; ++y){
+            for(int x = 0; x < m_size_x; ++x){
                 m_chunks[y * m_size_x + x].position = glm::vec3((x + 0.5f) * m_chunk_size, 0, (y + 0.5f) * m_chunk_size);
                 if(image[4 * (y * m_size_x + x) + 3]){
                     m_chunks[y * m_size_x + x].empty = false;
 
                     _create_chunk_entity(x, y);
                     _load_grass_chuck(
-                        (grass_path + "_" + std::to_string(x) + "_" + std::to_string(y) + ".png").c_str(),
+                        (grass_path + "_" + std::to_string(100-(y * m_size_x + x )) + ".png").c_str(),
                         x, y
                     );
+                    printf("loaded %d %d: %s\n", x, y, (grass_path + "_" + std::to_string(y * m_size_x + x + 1) + ".png").c_str());
                 }
             }
         }
@@ -111,7 +110,7 @@ private:
         GS->clear();
         for (int i = 0; i < m_size_x * m_size_y; ++i) {
             auto& curr_chunk = m_chunks[i];
-            if (m_chunks[i].distance < 25000) {
+            if (m_chunks[i].distance < m_high_res_distance) {
                 GS->push_grass(
                     m_chunks[i].grass_data,
                     boundingBox(
@@ -120,7 +119,7 @@ private:
                     )
                 );
             }
-            else {
+            else if(m_chunks[i].distance < m_low_res_distance){
                 GS->push_grass(
                     m_chunks[i].grass_data,
                     boundingBox(
@@ -186,11 +185,11 @@ private:
         chunk->grass_data.clear();
         for (int x = 0; x < szx; ++x) {
             for (int z = 0; z < szy; ++z) {
-                for (int g = 0; g < image[4 * (szx * z + x) + 3] / 2; ++g) {
+                for (int g = 0; g < image[4 * (szx * z + x) + 3] / 120; ++g) {
                     chunk->grass_data.emplace_back(
-                        disp_x + (szx - 1 - x + (rand() % 10000) / 10000.f) * block_sz_x,
+                        disp_x + (szx - x - 1 + (rand() % 10000) / 10000.f) * block_sz_x,
                         0,
-                        disp_z + (szy - 1 - z + (rand() % 10000) / 10000.f) * block_sz_z
+                        disp_z + (szy - z - 1 + (rand() % 10000) / 10000.f) * block_sz_z
                     );
                 }
             }
@@ -209,6 +208,8 @@ private:
 
     bool m_map_loaded = false;
 
+    float m_high_res_distance = m_chunk_size * 3;
+    float m_low_res_distance = m_chunk_size * 5;
     float m_min_camera_displace = 0;
     glm::vec3 m_last_camera_position = glm::vec3(FLT_MAX);
 };

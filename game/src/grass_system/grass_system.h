@@ -77,7 +77,8 @@ private:
 
         auto env = m_scene->get_system<EnvironmentSystem>();
 
-        m_renderer.get_shader().set_matrix4f(t_main_camera->get_projection() * t_main_camera->get_view(), "camera");
+        m_renderer.get_shader().set_matrix4f(t_main_camera->get_view(), "camera_view");
+        m_renderer.get_shader().set_matrix4f(t_main_camera->get_projection(), "camera_proj");
         m_renderer.get_shader().set_float(m_time, "time");
         m_renderer.get_shader().set_int(env->size, "size");
         m_renderer.get_shader().set_float(world_size, "world_size");

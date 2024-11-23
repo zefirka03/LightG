@@ -41,8 +41,10 @@ void RenderingSystem::update(float delta_time) {
             t_main_camera = &camera;
     });
 
-    if (t_main_camera) 
-        m_renderer.get_shader().set_matrix4f(t_main_camera->get_projection() * t_main_camera->get_view(), "camera");
+    if (t_main_camera) {
+        m_renderer.get_shader().set_matrix4f(t_main_camera->get_view(), "camera_view");
+        m_renderer.get_shader().set_matrix4f(t_main_camera->get_projection(), "camera_proj");
+    }
 
     int it = 0;
     while(it < m_instances.size()){

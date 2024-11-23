@@ -42,9 +42,11 @@ const float windSpeed = 0.1;
 const float windDisplacement = 0.02;
 
 uniform float time;
+uniform mat4 camera_view;
+uniform mat4 camera_proj;
 
 out float height;
-uniform mat4 camera;
+out vec4 eyeSpacePosition;
 
 mat4 rotationY( in float angle ) {
 	return mat4(cos(angle), 0,      sin(angle),	0,
@@ -88,15 +90,57 @@ void main() {
 	vec2 displacement = 5000 * getDisplacementMap(grassPosition.xz) * windDirection;
 	finalPosition += vec3(displacement.x + localWindVariance, 0, displacement.y + localWindVariance) * (height * height) * windDisplacement;
 
-	gl_Position = camera * vec4(finalPosition, 1.0);
+	gl_Position = camera_proj * camera_view * vec4(finalPosition, 1.0);
+	eyeSpacePosition = camera_view * vec4(finalPosition, 1.0);
 }
 
 ~~fragment~~
 #version 430 core
 
+struct FogParameters {
+  vec3 color;
+  float linearStart;
+  float linearEnd;
+  float density;
+
+  int equation;
+  bool isEnabled;
+};
+
+float getFogFactor(FogParameters params, float fogCoordinate) {
+  float result = 0.0;
+  if(params.equation == 0) {
+    float fogLength = params.linearEnd - params.linearStart;
+    result = (params.linearEnd - fogCoordinate) / fogLength;
+  }
+  else if(params.equation == 1) {
+    result = exp(-params.density * fogCoordinate);
+  }
+  else if(params.equation == 2) {
+    result = exp(-pow(params.density * fogCoordinate, 2.0));
+  }
+
+  result = 1.0 - clamp(result, 0.0, 1.0);
+  return result;
+}
+
+const FogParameters fogParams = {
+  vec3(1),
+  7.0,
+  100000.0,
+  0.7,
+  1,
+  true
+};
+
 out vec4 FragColor;
 in float height;
+in vec4 eyeSpacePosition;
 
 void main() {
 	FragColor = vec4(mix(vec3(0, 0.2, 0), vec3(0.4, 0.9, 0.2), vec3(height)), 1);
+	if(fogParams.isEnabled) {
+		float fogCoordinate = length(eyeSpacePosition);
+		FragColor = mix(FragColor, vec4(fogParams.color, 1.0), getFogFactor(fogParams, fogCoordinate / 50000));
+	}
 }
