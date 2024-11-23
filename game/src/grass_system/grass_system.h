@@ -9,10 +9,11 @@
 #include "../environment_system/environment_system.h"
 
 struct grassData {
-    glm::vec3 position;
-    float _padding;
+    glm::vec3 position = glm::vec3(0);
+    int chunk_id = -1;
     grassData() {}
     grassData(float x, float y, float z) : position(x, y, z) {}
+    grassData(float x, float y, float z, int chunk_id) : position(x, y, z), chunk_id(chunk_id) {}
 };
 
 class GrassSystem : public System {
@@ -20,22 +21,18 @@ public:
     float world_size = 0;
     glm::vec2 world_origin = glm::vec2(0);
     
-    void push_grass(std::vector<grassData> const& data){
-        m_grass_positions.push_back(data.data(), data.size() * sizeof(grassData));
-        for (int i = 0; i < data.size(); ++i) {
-            world_origin.x = std::min(world_origin.x, data[i].position.x);
-            world_origin.y = std::min(world_origin.y, data[i].position.z);
-        }
-        for (int i = 0; i < data.size(); ++i) {
-            world_size = std::max(
-                std::max(data[i].position.x - world_origin.x, world_size),
-                std::max(data[i].position.z - world_origin.y, world_size)
-            );
-        }
+    void push_grass(std::vector<grassData> const& data, boundingBox bounds) {
+        m_gpu_grass_positions.push_back(data.data(), data.size() * sizeof(grassData));
+        m_bounds.adjust_bounds(bounds);
+
+        glm::vec3 bounds_box = m_bounds.get_b() - m_bounds.get_a();
+        world_origin = m_bounds.get_a();
+        world_size = std::max(bounds_box.x, bounds_box.z);
     }
 
     void clear(){
-        m_grass_positions.clear();
+        m_gpu_grass_positions.clear();
+        m_bounds = boundingBox();
         world_origin = glm::vec2(FLT_MAX);
         world_size = 0;
     }
@@ -43,7 +40,9 @@ public:
 private:
     Renderer<glm::vec3> m_renderer;
     objFile m_grass_obj;
-    GPUVectorStorage m_grass_positions;
+    GPUVectorStorage m_gpu_grass_positions;
+    boundingBox m_bounds;
+
     float m_time = 0;
 
     void init() override {
@@ -73,10 +72,9 @@ private:
         m_renderer.get_shader().set_float(world_size, "world_size");
         m_renderer.get_shader().set_vector2f(world_origin, "world_origin");
 
-        m_grass_positions.bind_base(0);
+        m_gpu_grass_positions.bind_base(0);
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, env->get_gpu_map_buffer());
-        m_renderer.display_instances(m_grass_positions.size() / sizeof(grassData));
-        printf("GRASS: %d \n", m_grass_positions.size() / sizeof(grassData));
+        m_renderer.display_instances(m_gpu_grass_positions.size() / sizeof(grassData));
 
         m_time += delta_time;
     }

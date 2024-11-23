@@ -59,6 +59,22 @@ public:
             add_component<_DestroyedEntityComponent>(entity);
     }
 
+    template<class Component_t>
+    Entity get_entity_of_type() const {
+        auto entts_view = m_registry.view<Component_t>();
+        return Entity(entts_view.front());
+    }
+
+    template<class Component_t>
+    std::vector<Entity> get_all_entities_of_type() const {
+        std::vector<Entity> out;
+        auto entts_view = m_registry.view<Component_t>();
+        entts_view.each([&](const auto entity, Component_t const& comp) {
+            out.emplace_back(Entity(entity));
+        });
+        return out;
+    }
+
     template<class System_t, class ...Args>
     System_t* add_system(Args... args){
         static_assert(std::is_base_of<System, System_t>::value, "System_t class must be derived by System");

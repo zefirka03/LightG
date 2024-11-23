@@ -27,7 +27,7 @@ public:
         transform->origin = glm::vec3(sp_sp.size / 2.f, 0);
         auto& sp_pb = get_scene().add_component<PhysicsBody>(get_entity());
         sp_pb.type = PhysicsBody::pbType::RIGID;
-        sp_pb.bouncyness = (rand()%10)/10.f*1.0f;
+        sp_pb.bouncyness = (rand() % 10) / 10.f * 1.0f;
         sp_pb.set_collider<SphereCollider>();
             
         auto& rtx_draw = get_scene().add_component<RTX_Object>(get_entity());
@@ -153,9 +153,10 @@ public:
                     
                     for (int i = 0; i < 10; ++i) {
                         auto a = get_scene().create_entity();
-                        get_scene().add_component<ScriptComponent>(a).bind<RotationSc>((1000 + (rand()%10000)/10000.f * 15000) * (glm::normalize(ray.direction - 2.f * norm * glm::dot(norm, ray.direction)) + ray.direction * glm::ballRand(0.5f)) );
+                        get_scene().add_component<ScriptComponent>(a).bind<RotationSc>(
+                            (1000 + (rand()%10000)/10000.f * 15000) * 
+                            (glm::normalize(ray.direction - 2.f * norm * glm::dot(norm, ray.direction)) + ray.direction * glm::ballRand(0.5f)) );
                         get_scene().get_component<Transform>(a).position = out[0].second.points[0].collision_point + norm * 250.f;
-
                     }
                     auto gs = get_scene().get_system<GrassSystem>();
                     auto env = get_scene().get_system<EnvironmentSystem>();
@@ -226,7 +227,7 @@ public:
         debug = add_system<DebugSystem>();
         add_system<EnvironmentSystem>();
         grass_system = add_system<GrassSystem>();
-        imgui_system = add_system<ImguiSystem>();
+        //imgui_system = add_system<ImguiSystem>();
 
         // Setup physics
         physics->set_tags(0, 0, false);
@@ -276,9 +277,9 @@ public:
 
     void on_update(float delta_time) override {
         // Draw debug
-        if(imgui_system->physics_draw_debug)
-            physics->draw_debug(*debug);
-        rtx_rendering->set_enabled(imgui_system->rtx_rendering);
+        //if(imgui_system->physics_draw_debug)
+        //    physics->draw_debug(*debug);
+        //rtx_rendering->set_enabled(imgui_system->rtx_rendering);
 
         // Draw coordinates
         debug->draw_line({

@@ -1,10 +1,16 @@
 #pragma once
+#include <algorithm>
+
 #include "air_engine.h"
 #include "map_file.h"
+#include "../grass_system/grass_system.h"
 
 struct chunkData {
     bool empty = true;
     std::vector<grassData> grass_data;
+
+    glm::vec3 position;
+    double distance = FLT_MAX;
 };
 
 class MapManager : public Script {
@@ -15,6 +21,29 @@ public:
 
     void update(float delta_time){
         if(!m_map_loaded) return;
+        
+        std::vector<Entity> camera_entities = get_scene().get_all_entities_of_type<Camera3d>();
+        Entity camera_entity;
+        for (auto& it : camera_entities) {
+            if (get_scene().get_component<Camera3d>(it).is_main()) {
+                camera_entity = it;
+                break;
+            }
+        }
+
+        auto& camera = get_scene().get_component<Transform>(camera_entity);
+
+        if (glm::length(camera.position - m_last_camera_position) > m_min_camera_displace) {
+            printf("UPDATE\n");
+            m_min_camera_displace = FLT_MAX;
+            m_last_camera_position = camera.position;
+            for (int i = 0; i < m_size_x * m_size_y; ++i) {
+                m_chunks[i].distance = glm::length(camera.position - m_chunks[i].position);
+                m_min_camera_displace = std::min(m_min_camera_displace, abs(float(m_chunks[i].distance) - 25000.f));
+            }
+
+            _update_grass_chunks();
+        }
     }
 
     void load_map_png(const char* path){
@@ -40,15 +69,15 @@ public:
         m_chunks = new chunkData[m_size_x * m_size_y]();
         for(int x = 0; x < m_size_x; ++x){
             for(int y = 0; y < m_size_y; ++y){
+                m_chunks[y * m_size_x + x].position = glm::vec3((x + 0.5f) * m_chunk_size, 0, (y + 0.5f) * m_chunk_size);
                 if(image[4 * (y * m_size_x + x) + 3]){
                     m_chunks[y * m_size_x + x].empty = false;
+
                     _create_chunk_entity(x, y);
                     _load_grass_chuck(
                         (grass_path + "_" + std::to_string(x) + "_" + std::to_string(y) + ".png").c_str(),
                         x, y
                     );
-                    if(m_chunks[y * m_size_x + x].grass_data.size())
-                        GS->push_grass(m_chunks[y * m_size_x + x].grass_data);
                 }
             }
         }
@@ -71,6 +100,27 @@ private:
 
     void _reload_chunks(){
         
+    }
+
+    void _update_grass_chunks() {
+        std::sort(m_chunks, m_chunks + m_size_x * m_size_y, [](chunkData const& a, chunkData const& b) -> bool {
+            return a.distance < b.distance;
+            });
+
+        auto GS = get_scene().get_system<GrassSystem>();
+        GS->clear();
+        for (int i = 0; i < m_size_x * m_size_y; ++i) {
+            auto& curr_chunk = m_chunks[i];
+            if (m_chunks[i].distance < 25000) {
+                GS->push_grass(
+                    m_chunks[i].grass_data,
+                    boundingBox(
+                        curr_chunk.position - glm::vec3(0.5f * m_chunk_size, 0, 0.5f * m_chunk_size),
+                        curr_chunk.position + glm::vec3(0.5f * m_chunk_size, 0, 0.5f * m_chunk_size)
+                    )
+                );
+            }
+        }
     }
 
     void _create_chunk_entity(int x, int y){
@@ -148,4 +198,7 @@ private:
     chunkData* m_chunks = nullptr;
 
     bool m_map_loaded = false;
+
+    float m_min_camera_displace = 0;
+    glm::vec3 m_last_camera_position = glm::vec3(FLT_MAX);
 };
