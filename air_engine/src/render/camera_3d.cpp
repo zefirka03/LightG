@@ -29,7 +29,7 @@ glm::vec3 Camera3d::get_forward() const {
 glm::mat4 Camera3d::get_view() const {
     auto& transform = scene->get_component<Transform>(entity);
     
-    return glm::lookAt(transform.position, transform.position + get_forward(), glm::vec3(0, 1, 0));
+    return glm::lookAt(glm::vec3(0), get_forward(), glm::vec3(0, 1, 0)) * glm::translate(glm::mat4(1), -transform.position);
 }
 
 bool Camera3d::is_main() const {
