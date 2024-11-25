@@ -5,7 +5,6 @@ GPUVectorStorage::GPUVectorStorage(){
     _resize(m_capacity);
 }
 
-
 void GPUVectorStorage::push_back(const void* data, size_t size){
     while(m_capacity < m_size + size){
         _resize(m_capacity << 1);
