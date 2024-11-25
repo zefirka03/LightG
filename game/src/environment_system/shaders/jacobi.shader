@@ -17,7 +17,7 @@ layout(std430, binding = 1) buffer OutMap {
 uniform int size;
 uniform float d_t;
 const float d_h = 2;
-const float viscosity = 1000;
+const float viscosity = 20;
 
 const vec2 bounds = normalize(vec2(0.2, 0.5));
 

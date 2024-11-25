@@ -29,6 +29,7 @@ public:
         sp_pb.type = PhysicsBody::pbType::RIGID;
         sp_pb.bouncyness = (rand() % 10) / 10.f * 1.0f;
         sp_pb.set_collider<SphereCollider>();
+        sp_pb.on_collide_add(this, &RotationSc::on_collide);
             
         auto& rtx_draw = get_scene().add_component<RTX_Object>(get_entity());
         rtx_draw.instance = new RTX_Sphere(sp_sp.size.x / 2);
@@ -49,6 +50,40 @@ public:
 
         if(t/speed > destroy_time)
             get_scene().destroy_entity(get_entity());
+    }
+
+    void on_collide(PhysicsBody& a, PhysicsBody& b, collisionData const& cd) {
+        return;
+        if (b.tag == 0) {
+            auto gs = get_scene().get_system<GrassSystem>();
+            auto env = get_scene().get_system<EnvironmentSystem>();
+            int x = int((cd.collision_point.x - gs->world_origin.x) / (gs->world_size / env->size));
+            int y = int((cd.collision_point.z - gs->world_origin.y) / (gs->world_size / env->size));
+
+            float power = 10000 * glm::length(a.velocity);
+            auto mp = env->get_map(x + 2, y);
+            int h = 0;
+
+            if (mp) {
+                mp->v_x = power;
+                mp->v_z = 0;
+            }
+            mp = env->get_map(x - 2, y);
+            if (mp) {
+                mp->v_x = -power;
+                mp->v_z = 0;
+            }
+            mp = env->get_map(x, y + 2);
+            if (mp) {
+                mp->v_x = 0;
+                mp->v_z = power;
+            }
+            mp = env->get_map(x, y - 2);
+            if (mp) {
+                mp->v_x = 0;
+                mp->v_z = -power;
+            }
+        }
     }
 };
 
@@ -155,9 +190,11 @@ public:
                         auto a = get_scene().create_entity();
                         get_scene().add_component<ScriptComponent>(a).bind<RotationSc>(
                             (1000 + (rand()%10000)/10000.f * 15000) * 
-                            (glm::normalize(ray.direction - 2.f * norm * glm::dot(norm, ray.direction)) + ray.direction * glm::ballRand(0.5f)) );
+                            (glm::normalize(ray.direction - 2.f * norm * glm::dot(norm, ray.direction)) + ray.direction * glm::ballRand(0.5f)) 
+                        );
                         get_scene().get_component<Transform>(a).position = out[0].second.points[0].collision_point + norm * 250.f;
                     }
+                    
                     auto gs = get_scene().get_system<GrassSystem>();
                     auto env = get_scene().get_system<EnvironmentSystem>();
                     int x = int((out[0].second.points[0].collision_point.x - gs->world_origin.x) / (gs->world_size / env->size));
@@ -188,6 +225,7 @@ public:
                         mp->v_x = 0;
                         mp->v_z = -power;
                     }
+                    
                 }
             }
             m_reload = 0;
@@ -257,7 +295,7 @@ public:
 
         int width = Application::get_instance().get_properties().width;
         int height = Application::get_instance().get_properties().height;
-        add_component<Camera3d>(cam, new Perspective(width, height, 3.14f * 60.f / 180.f, 1, 100000), true);
+        add_component<Camera3d>(cam, new Perspective(width, height, 3.14f * 60.f / 180.f, 1, 300000), true);
 
         add_component<ScriptComponent>(cam).bind<CameraController>();
 

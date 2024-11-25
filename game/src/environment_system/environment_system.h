@@ -8,7 +8,7 @@ struct envField {
 
 class EnvironmentSystem : public System {
 public:
-    int size = 128;
+    int size = 50;
     envField* map = nullptr;
 
     envField* get_map(int x, int y) {

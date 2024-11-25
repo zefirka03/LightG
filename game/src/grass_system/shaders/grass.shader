@@ -33,11 +33,37 @@ envField get_field(int i, int j){
     return field[i * size + j];
 }
 
+envField get_curr_field(vec3 position){
+  vec2 part = vec2(
+    (position.x - world_origin.x) / (world_size / float(size)) - 0.5,
+    (position.z - world_origin.y) / (world_size / float(size)) - 0.5
+  );
+
+  const vec2 u_l = vec2(floor(part.x), ceil(part.y));
+  const vec2 u_r = vec2(ceil(part.x), ceil(part.y));
+  const vec2 d_r = vec2(ceil(part.x), floor(part.y));
+  const vec2 d_l = vec2(floor(part.x), floor(part.y));
+
+  envField up_l_F = get_field(int(u_l.x), int(u_l.y));
+  envField up_r_F = get_field(int(u_r.x), int(u_r.y));
+  envField down_r_F = get_field(int(d_r.x), int(d_r.y));
+  envField down_l_F = get_field(int(d_l.x), int(d_l.y));
+
+  const vec2 u_l_t = length(part - u_l);
+  const vec2 u_r_t = length(part - u_r);
+  const vec2 d_r_t = length(part - d_r);
+  const vec2 d_l_t = length(part - d_l);
+
+  float D = u_l_t + u_r_t + d_r_t + d_l_t;
+
+  envField outF;
+  outF.v = down_l_F.v * (1 - ) + down_r_F.v * d_l_t / D + up_l_F.v * length(part - u_l) + up_r_F.v * (1 - length(part - u_r)); 
+
+  return outF;
+}
+
 vec3 grassPosition = grassPositions[gl_InstanceID].position;
-envField curr_filed = get_field(
-	int(floor((grassPosition.x - world_origin.x) / (world_size / float(size)))), 
-	int(floor((grassPosition.z - world_origin.y) / (world_size / float(size))))
-);
+envField curr_filed = get_curr_field(grassPosition);
 const float windSpeed = 0.1;
 const float windDisplacement = 0.02;
 
