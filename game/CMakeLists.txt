@@ -6,6 +6,8 @@ set(CMAKE_CXX_STANDARD 20)
 set(glew-cmake_BUILD_SHARED FALSE)
 add_definitions(-DGLEW_STATIC)
 
+find_package(Vulkan REQUIRED)
+
 set(DEPS_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/../deps/glfw/include"
                              "${CMAKE_CURRENT_SOURCE_DIR}/../deps/glew-cmake/include"
                              "${CMAKE_CURRENT_SOURCE_DIR}/../deps/glm/glm"
@@ -13,7 +15,7 @@ set(DEPS_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/../deps/glfw/include"
                              "${CMAKE_CURRENT_SOURCE_DIR}/../deps/soil/inc"
                              "${CMAKE_CURRENT_SOURCE_DIR}/../air_engine/src"
                              )
-set(DEPS_LIBRARIES glfw libglew_static glm::glm soil air)
+set(DEPS_LIBRARIES glfw libglew_static glm::glm soil Vulkan::Vulkan air)
 
 file(GLOB_RECURSE SRC_FILES
 	"src/*.cpp"
@@ -37,7 +39,7 @@ add_executable(game ${SRC_FILES})
 
 target_compile_definitions(glm PUBLIC GLM_ENABLE_EXPERIMENTAL)
 target_link_libraries(game PRIVATE ${DEPS_LIBRARIES})
-target_include_directories(game PRIVATE ${DEPS_INCLUDE_DIRECTORIES})
+target_include_directories(game PRIVATE ${DEPS_INCLUDE_DIRECTORIES} ${VULKAN_INCLUDE_DIRECTORIES})
 
 file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/shaders")
 file(COPY ${GAME_SHADERS} ${SHADERS} DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/shaders")
