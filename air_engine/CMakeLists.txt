@@ -6,11 +6,16 @@ set(CMAKE_CXX_STANDARD 20)
 set(glew-cmake_BUILD_SHARED FALSE)
 add_definitions(-DGLEW_STATIC)
 
+find_package(Vulkan REQUIRED)
+
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../deps/glfw" glfw)
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../deps/glew-cmake" glew)
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../deps/glm" glm)
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../deps/entt" entt)
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../deps/soil" soil)
+
+set(VULKAN_INCLUDE_DIRECTORIES "$ENV{VULKAN_SDK}/Include" PARENT_SCOPE)
+set(VULKAN_LIB "$ENV{VULKAN_SDK}/Lib" PARENT_SCOPE)
 
 set(DEPS_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/../deps/glfw/include"
                              "${CMAKE_CURRENT_SOURCE_DIR}/../deps/glew-cmake/include"
@@ -18,7 +23,8 @@ set(DEPS_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/../deps/glfw/include"
                              "${CMAKE_CURRENT_SOURCE_DIR}/../deps/entt/src"
                              "${CMAKE_CURRENT_SOURCE_DIR}/../deps/soil/inc"
                              )
-set(DEPS_LIBRARIES glfw libglew_static glm::glm soil)
+
+set(DEPS_LIBRARIES glfw libglew_static glm::glm soil Vulkan::Vulkan)
 
 file(GLOB_RECURSE SRC_FILES
 	"src/*.cpp"
@@ -53,7 +59,7 @@ set_target_properties(air PROPERTIES
 
 target_compile_definitions(glm PUBLIC GLM_ENABLE_EXPERIMENTAL)
 target_link_libraries(air ${DEPS_LIBRARIES})
-target_include_directories(air PRIVATE ${DEPS_INCLUDE_DIRECTORIES})
+target_include_directories(air PRIVATE ${DEPS_INCLUDE_DIRECTORIES} ${VULKAN_INCLUDE_DIRECTORIES})
 
 file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/shaders")
 file(COPY ${SHADERS} DESTINATION "${CMAKE_BINARY_DIR}/shaders")
