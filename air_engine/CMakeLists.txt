@@ -14,9 +14,6 @@ add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../deps/glm" glm)
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../deps/entt" entt)
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../deps/soil" soil)
 
-set(VULKAN_INCLUDE_DIRECTORIES "$ENV{VULKAN_SDK}/Include" PARENT_SCOPE)
-set(VULKAN_LIB "$ENV{VULKAN_SDK}/Lib" PARENT_SCOPE)
-
 set(DEPS_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/../deps/glfw/include"
                              "${CMAKE_CURRENT_SOURCE_DIR}/../deps/glew-cmake/include"
                              "${CMAKE_CURRENT_SOURCE_DIR}/../deps/glm/glm"
