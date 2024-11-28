@@ -22,6 +22,11 @@ public:
     Application(int width, int height, const char* title, bool fullscreen = false);
     ~Application();
 
+    Application(const Application &) = delete;
+    void operator=(const Application &) = delete;
+    Application(Application &&) = delete;
+    Application &operator=(Application &&) = delete;
+
     void run(Scene* scene);
     void go_to_scene(Scene* scene);
 
