@@ -30,6 +30,8 @@ file(GLOB_RECURSE SRC_FILES
     "src/core/*.h"
     "src/core/utils/*.cpp"
     "src/core/utils/*.h"
+    "src/core/vk/*.cpp"
+    "src/core/vk/*.h"
     "src/render/*.cpp"
     "src/render/*.h"
     "src/rtx_render/*.cpp"
