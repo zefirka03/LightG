@@ -2,6 +2,7 @@
 #include "../application.h"
 
 class VulkanDevice {
+<<<<<<< HEAD
 private:
     VkInstance m_instance;
     VkDebugUtilsMessengerEXT m_debug_messenger;
@@ -15,6 +16,8 @@ private:
     VkQueue m_presentQueue;
 
 public:
+=======
+>>>>>>> 242911d7ab4d67ecd2369f4133481e24f189cd55
     VulkanDevice(Application &application);
     ~VulkanDevice();
 
