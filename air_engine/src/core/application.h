@@ -10,6 +10,11 @@ struct ApplicationProperties {
     int height;
 };
 
+/**
+ * This class:
+ * - handle GLFW window
+ * - manage Scenes
+ */
 class Application {
 private:
     static Application* m_instance;

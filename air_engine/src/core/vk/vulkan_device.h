@@ -1,3 +1,4 @@
+#pragma once
 #include "../ogl.h"
 #include "../application.h"
 
@@ -14,12 +15,19 @@ private:
     VkQueue m_graphicsQueue;
     VkQueue m_presentQueue;
 
+    void _create_instance();
+    void _setup_debug_messenger();
+    void _create_surface();
+    void _pick_physical_device();
+    void _create_logical_device();
+    void _create_command_pool();
+
 public:
     VulkanDevice(Application &application);
     ~VulkanDevice();
 
-    VulkanDevice(const VulkanDevice &) = delete;
-    void operator=(const VulkanDevice &) = delete;
+    VulkanDevice(VulkanDevice const&) = delete;
+    void operator=(VulkanDevice const&) = delete;
     VulkanDevice(VulkanDevice &&) = delete;
     VulkanDevice &operator=(VulkanDevice &&) = delete;
 };
