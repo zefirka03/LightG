@@ -297,3 +297,7 @@ VulkanDevice::VulkanDevice(VulkanWindow& window)
 VulkanDevice::~VulkanDevice(){
 
 }
+
+VkDevice VulkanDevice::device() const {
+	return m_device;
+}

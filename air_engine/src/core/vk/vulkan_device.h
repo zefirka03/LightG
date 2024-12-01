@@ -63,4 +63,6 @@ public:
     void operator=(VulkanDevice const&) = delete;
     VulkanDevice(VulkanDevice &&) = delete;
     VulkanDevice &operator=(VulkanDevice &&) = delete;
+
+    VkDevice device() const;
 };
