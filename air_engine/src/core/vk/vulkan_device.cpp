@@ -11,9 +11,8 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
 }
 
 void VulkanDevice::_create_instance(){
-	if (m_enable_validation_layers && !_check_validation_layer_support()) {
+	if (m_enable_validation_layers && !_check_validation_layer_support())
 		throw std::runtime_error("validation layers requested, but not available!");
-	}
 	
 	VkApplicationInfo appInfo = {};
 	appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -64,7 +63,6 @@ std::vector<const char *> VulkanDevice::_get_required_extensions() {
 	return extensions;
 }
 
-
 VulkanQueueFamilyIndices VulkanDevice::_find_queue_families(VkPhysicalDevice device) {
 	VulkanQueueFamilyIndices indices;
 
@@ -90,7 +88,7 @@ VulkanQueueFamilyIndices VulkanDevice::_find_queue_families(VkPhysicalDevice dev
 			break;
 		}
 
-		i++;
+		++i;
 	}
 
 	return indices;
