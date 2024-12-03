@@ -24,4 +24,4 @@ void VulkanWindow::create_window_surface(VkInstance instance, VkSurfaceKHR *surf
     }
 }
 
-bool VulkanWindow::shouldClose() { return glfwWindowShouldClose(m_window); }
+bool VulkanWindow::should_close() { return glfwWindowShouldClose(m_window); }
