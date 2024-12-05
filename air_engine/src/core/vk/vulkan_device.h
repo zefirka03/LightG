@@ -50,8 +50,6 @@ private:
     bool _is_device_suitable(VkPhysicalDevice device);
     bool _check_validation_layer_support();
     bool _check_device_extension_support(VkPhysicalDevice device);
-    VulkanQueueFamilyIndices _find_queue_families(VkPhysicalDevice device);
-    VulkanQueueFamilyIndices _find_physical_queue_families();
     SwapChainSupportDetails _query_swap_chain_support(VkPhysicalDevice device);
     std::vector<const char*> _get_required_extensions();
     
@@ -64,5 +62,12 @@ public:
     VulkanDevice(VulkanDevice &&) = delete;
     VulkanDevice &operator=(VulkanDevice &&) = delete;
 
+    VulkanQueueFamilyIndices find_queue_families(VkPhysicalDevice device);
+    VulkanQueueFamilyIndices find_physical_queue_families();
+
+    VkCommandPool get_command_pool() const;
     VkDevice device() const;
+    VkSurfaceKHR surface() const;
+    VkQueue graphics_queue() const;
+    VkQueue present_queue() const;
 };

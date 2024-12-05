@@ -63,7 +63,7 @@ std::vector<const char *> VulkanDevice::_get_required_extensions() {
 	return extensions;
 }
 
-VulkanQueueFamilyIndices VulkanDevice::_find_queue_families(VkPhysicalDevice device) {
+VulkanQueueFamilyIndices VulkanDevice::find_queue_families(VkPhysicalDevice device) {
 	VulkanQueueFamilyIndices indices;
 
 	uint32_t queueFamilyCount = 0;
@@ -94,8 +94,8 @@ VulkanQueueFamilyIndices VulkanDevice::_find_queue_families(VkPhysicalDevice dev
 	return indices;
 }
 
-VulkanQueueFamilyIndices VulkanDevice::_find_physical_queue_families(){
-	return _find_queue_families(m_physical_device);
+VulkanQueueFamilyIndices VulkanDevice::find_physical_queue_families(){
+	return find_queue_families(m_physical_device);
 }
 
 SwapChainSupportDetails VulkanDevice::_query_swap_chain_support(VkPhysicalDevice device) {
@@ -170,7 +170,7 @@ bool VulkanDevice::_check_device_extension_support(VkPhysicalDevice device) {
 }
 
 bool VulkanDevice::_is_device_suitable(VkPhysicalDevice device) {
-	VulkanQueueFamilyIndices indices = _find_queue_families(device);
+	VulkanQueueFamilyIndices indices = find_queue_families(device);
 
 	bool extensionsSupported = _check_device_extension_support(device);
 
@@ -225,7 +225,7 @@ void VulkanDevice::_populate_debug_messenger_create_info(VkDebugUtilsMessengerCr
 }
 
 void VulkanDevice::_create_logical_device() {
-	VulkanQueueFamilyIndices indices = _find_queue_families(m_physical_device);
+	VulkanQueueFamilyIndices indices = find_queue_families(m_physical_device);
 
 	std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 	std::set<uint32_t> uniqueQueueFamilies = { indices.graphicsFamily, indices.presentFamily };
@@ -272,7 +272,7 @@ void VulkanDevice::_create_logical_device() {
 }
 
 void VulkanDevice::_create_command_pool() {
-	VulkanQueueFamilyIndices queueFamilyIndices = _find_physical_queue_families();
+	VulkanQueueFamilyIndices queueFamilyIndices = find_physical_queue_families();
 
 	VkCommandPoolCreateInfo poolInfo = {};
 	poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -300,4 +300,20 @@ VulkanDevice::~VulkanDevice(){
 
 VkDevice VulkanDevice::device() const {
 	return m_device;
+}
+
+VkCommandPool VulkanDevice::get_command_pool() const {
+	return m_command_pool;
+}
+
+VkSurfaceKHR VulkanDevice::surface() const {
+	return m_surface;
+}
+
+VkQueue VulkanDevice::graphics_queue() const {
+	return m_graphics_queue;
+}
+
+VkQueue VulkanDevice::present_queue() const {
+	return m_present_queue;
 }

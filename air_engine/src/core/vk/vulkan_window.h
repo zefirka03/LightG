@@ -16,5 +16,6 @@ public:
     void operator=(const VulkanWindow &) = delete;
 
     void create_window_surface(VkInstance instance, VkSurfaceKHR* surface);
-    bool should_close();
+    VkExtent2D get_extent() const;
+    bool should_close() const;
 };

@@ -24,4 +24,10 @@ void VulkanWindow::create_window_surface(VkInstance instance, VkSurfaceKHR *surf
     }
 }
 
-bool VulkanWindow::should_close() { return glfwWindowShouldClose(m_window); }
+bool VulkanWindow::should_close() const { 
+    return glfwWindowShouldClose(m_window); 
+}
+
+VkExtent2D VulkanWindow::get_extent() const {
+    return { static_cast<uint32_t>(m_width), static_cast<uint32_t>(m_height) };
+}
