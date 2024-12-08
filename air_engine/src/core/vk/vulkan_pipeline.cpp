@@ -87,7 +87,8 @@ void VulkanPipeline::_create_graphics_pipeline(
             1,
             &pipelineInfo,
             nullptr,
-            &m_graphics_pipeline) != VK_SUCCESS) {
+            &m_graphics_pipeline
+    ) != VK_SUCCESS) {
         throw std::runtime_error("failed to create graphics pipeline");
     }
 }

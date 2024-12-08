@@ -45,14 +45,16 @@ public:
         VulkanPipeline::default_pipeline_config_info(
             pipelineConfig,
             m_swapchain.width(),
-            m_swapchain.height());
+            m_swapchain.height()
+        );
         pipelineConfig.renderPass = m_swapchain.get_render_pass();
         pipelineConfig.pipelineLayout = pipelineLayout;
         m_pipeline = std::make_unique<VulkanPipeline>(
             m_device,
             "shaders/simple_shader.vert.spv",
             "shaders/simple_shader.frag.spv",
-            pipelineConfig);
+            pipelineConfig
+        );
     }
 
     void create_command_buffers() {
@@ -64,8 +66,11 @@ public:
         allocInfo.commandPool = m_device.get_command_pool();
         allocInfo.commandBufferCount = static_cast<uint32_t>(commandBuffers.size());
 
-        if (vkAllocateCommandBuffers(m_device.device(), &allocInfo, commandBuffers.data()) !=
-            VK_SUCCESS) {
+        if (vkAllocateCommandBuffers(
+            m_device.device(), 
+            &allocInfo, 
+            commandBuffers.data()
+        ) != VK_SUCCESS) {
             throw std::runtime_error("failed to allocate command buffers!");
         }
 
