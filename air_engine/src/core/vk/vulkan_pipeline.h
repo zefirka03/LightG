@@ -43,7 +43,7 @@ public:
     VulkanPipeline(VulkanPipeline const&) = delete;
     void operator=(VulkanPipeline const&) = delete;
 
-    static VulkanPipelineConfigInfo default_pipeline_config_info(uint32_t width, uint32_t height);
+    static void default_pipeline_config_info(VulkanPipelineConfigInfo& configInfo, uint32_t width, uint32_t height);
 
     void bind(VkCommandBuffer commandBuffer);
     void create_shader_module(const std::vector<char>& code, VkShaderModule* shader_module);

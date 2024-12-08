@@ -285,6 +285,66 @@ void VulkanDevice::_create_command_pool() {
 	}
 }
 
+VkFormat VulkanDevice::find_supported_format(
+	const std::vector<VkFormat>& candidates,
+	VkImageTiling tiling,
+	VkFormatFeatureFlags features
+) {
+	for (VkFormat format : candidates) {
+		VkFormatProperties props;
+		vkGetPhysicalDeviceFormatProperties(m_physical_device, format, &props);
+
+		if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features) {
+			return format;
+		}
+		else if (
+			tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features) {
+			return format;
+		}
+	}
+	throw std::runtime_error("failed to find supported format!");
+}
+
+uint32_t VulkanDevice::find_memory_type(uint32_t typeFilter, VkMemoryPropertyFlags properties) {
+	VkPhysicalDeviceMemoryProperties memProperties;
+	vkGetPhysicalDeviceMemoryProperties(m_physical_device, &memProperties);
+	for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
+		if ((typeFilter & (1 << i)) &&
+			(memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
+			return i;
+		}
+	}
+
+	throw std::runtime_error("failed to find suitable memory type!");
+}
+
+void VulkanDevice::create_image_with_info(
+	const VkImageCreateInfo& imageInfo,
+	VkMemoryPropertyFlags properties,
+	VkImage& image,
+	VkDeviceMemory& imageMemory
+) {
+	if (vkCreateImage(m_device, &imageInfo, nullptr, &image) != VK_SUCCESS) {
+		throw std::runtime_error("failed to create image!");
+	}
+
+	VkMemoryRequirements memRequirements;
+	vkGetImageMemoryRequirements(m_device, image, &memRequirements);
+
+	VkMemoryAllocateInfo allocInfo{};
+	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+	allocInfo.allocationSize = memRequirements.size;
+	allocInfo.memoryTypeIndex = find_memory_type(memRequirements.memoryTypeBits, properties);
+
+	if (vkAllocateMemory(m_device, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS) {
+		throw std::runtime_error("failed to allocate image memory!");
+	}
+
+	if (vkBindImageMemory(m_device, image, imageMemory, 0) != VK_SUCCESS) {
+		throw std::runtime_error("failed to bind image memory!");
+	}
+}
+
 VulkanDevice::VulkanDevice(VulkanWindow& window) 
 	: m_window(window) {
 	_create_instance();
@@ -316,4 +376,8 @@ VkQueue VulkanDevice::graphics_queue() const {
 
 VkQueue VulkanDevice::present_queue() const {
 	return m_present_queue;
+}
+
+SwapChainSupportDetails VulkanDevice::get_swap_chain_support() {
+	return _query_swap_chain_support(m_physical_device);
 }

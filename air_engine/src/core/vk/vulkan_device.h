@@ -64,7 +64,20 @@ public:
 
     VulkanQueueFamilyIndices find_queue_families(VkPhysicalDevice device);
     VulkanQueueFamilyIndices find_physical_queue_families();
+    uint32_t find_memory_type(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+    VkFormat find_supported_format(
+        const std::vector<VkFormat>& candidates, 
+        VkImageTiling tiling, 
+        VkFormatFeatureFlags features
+    );
+    void create_image_with_info(
+        const VkImageCreateInfo &imageInfo,
+        VkMemoryPropertyFlags properties,
+        VkImage &image,
+        VkDeviceMemory &imageMemory
+    );
 
+    SwapChainSupportDetails get_swap_chain_support();
     VkCommandPool get_command_pool() const;
     VkDevice device() const;
     VkSurfaceKHR surface() const;
